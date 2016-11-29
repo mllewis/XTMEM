@@ -5,9 +5,9 @@
 //      (3) Control Flow
 
 // TO DO: 
-// get pics
-// add q and a at end
-// add white screen in between trials
+// resize pics to reduce white space
+// at qs
+// test more
 
 
 // ---------------- 1. HELPER ------------------
@@ -16,7 +16,7 @@
 which takes as input either a DOM element or a CSS selector string. */
 function showSlide(id) {
 
-  $(".slide").hide();  //Hide all slides
+  $(".slide").hide(); // Hide all slides
   $("#"+id).show(); //Show just the slide we want to show
 }
 
@@ -45,43 +45,37 @@ $.fn.preload = function() {
     });
 };
 
+
 // ---------------- 2. PARAMETER SETUP ------------------
 var total_trials = 12;
 
 // -- Words--
-var words = shuffle(["wug", "rab", "fep", "rif", "mep", "lim", "tob", "dit", "tev", "sib", "tur", "zom"])
+var words = shuffle(["wug", "rab", "fep", "rif", "mep", "tob",  "tev", "sib", "zom"])
+var sub_words = words.slice(0,3)
+var other_words = words.slice(3,9)
 
 // -- Pics -
 var test_pics = ["c1_sub1", "c1_sub2", "c1_bas1", "c1_bas2", "c1_sup1", "c1_sup2", "c1_sup3", "c1_sup4",
                  "c2_sub1", "c2_sub2", "c2_bas1", "c2_bas2", "c2_sup1", "c2_sup2", "c2_sup3", "c2_sup4",
                  "c3_sub1", "c3_sub2", "c3_bas1", "c3_bas2", "c3_sup1", "c3_sup2", "c3_sup3", "c3_sup4"]
 
-var train_one_pics = shuffle([["c1_sub3"],
-                              ["c2_sub3"],
-                              ["c3_sub3"]])
-
-var train_sub_pics = shuffle([["c1_sub3", "c1_sub4", "c1_sub5"], 
-                              ["c2_sub3", "c2_sub4", "c2_sub5"], 
-                              ["c3_sub3", "c3_sub4", "c3_sub5"]])
-
-var train_bas_pics = shuffle([["c1_sub3", "c1_bas3", "c1_bas4"], 
-                              ["c2_sub3", "c2_bas3", "c2_bas4"],  
-                              ["c3_sub3", "c3_bas3", "c3_bas4"]])
-
-var train_sup_pics = shuffle([["c1_sub3", "c1_sup5", "c1_sup6"], 
-                              ["c2_sub3", "c2_sup5", "c2_sup6"],  
-                              ["c3_sub3", "c3_sup5", "c3_sup6"]])
-
+var train_one_pics = shuffle(["c1_sub3","c2_sub3","c3_sub3"])
+var train_three_pics = shuffle([["c1_sub3", "c1_sub4", "c1_sub5"], 
+                                ["c2_sub3", "c2_sub4", "c2_sub5"], 
+                                ["c3_sub3", "c3_sub4", "c3_sub5"],
+                                ["c1_sub3", "c1_bas3", "c1_bas4"], 
+                                ["c2_sub3", "c2_bas3", "c2_bas4"],  
+                                ["c3_sub3", "c3_bas3", "c3_bas4"],
+                                ["c1_sub3", "c1_sup5", "c1_sup6"], 
+                                ["c2_sub3", "c2_sup5", "c2_sup6"],  
+                                ["c3_sub3", "c3_sup5", "c3_sup6"]])
 
 // shuffle block order with constraint that one or sub appears first
-var first_blocks = shuffle(["one", "sub"])
-var blocks = ["bas", "sup"]
-blocks.push(first_blocks[1])
-blocks = shuffle(blocks)
-blocks.unshift(first_blocks[0])
+var  blocks = ["one", "three"]
+
 
 // PRE-LOAD IMAGES
-var all_pics = [].concat.apply([], [train_one_pics, train_sub_pics, train_bas_pics, train_sup_pics, test_pics])
+var all_pics = [].concat.apply([], [train_one_pics, train_three_pics, test_pics])
 all_pics = [].concat.apply([], all_pics)
 
 var images = []
@@ -90,14 +84,14 @@ for (i=0;i<54;i++) {
     images[i].src = "images/" + all_pics[i] + ".jpg"
 } 
 
-
 // ---------------- 3. CONTROL FLOW ------------------
 
-// Globalsvariables
+// Global variables
 var selected = []
 var current_trial = 1
 var current_trial_in_block = 0
 var current_train_pics = []
+var current_word
 
 // START experiment
 showSlide("instructions");
@@ -116,22 +110,48 @@ var experiment = {
     /*test*/
     test: function() {  
 
+        // pic logic
         current_train_pics = shuffle(eval("train_" + blocks[0] + "_pics[" + current_trial_in_block + "]"))
+        
+      if (blocks[0] == "three") {
+        var objs = eval("train_" + blocks[0] + "_pics[" + current_trial_in_block + "]").join()
+        var sub_trial = objs.includes("sub5") // picks out sub trials for matching word for sub and one trials
+      }
 
-        if (current_train_pics.length == 1) {
-          var questionprompt_html = '<p style="font-size:18px"> <b> Here is a ' + words[current_trial-1] + '. Can you give Mr. Frog all the other ' + words[current_trial-1] + 's? </b></p>'
+        // word logic
+        if (blocks[0] == "one") {
+          //var cat = train_one_pics[current_trial_in_block]
+          current_word = sub_words[current_trial_in_block]
+          current_train_pics[0] = current_train_pics
+        } else if (sub_trial){
+          var cat_type = objs.split("_")[0] 
+          var cat = cat_type + "_sub3"
+          current_word = sub_words[train_one_pics.indexOf(cat)]
+        } else {
+          current_word = other_words[0]
+          other_words.shift()
+        }
+
+        if (blocks[0] == "one") {
+          var questionprompt_html = '<p style="font-size:18px"> <b> Here is a ' + current_word + '. Can you give Mr. Frog all the other ' + current_word + 's? </b></p>'
         } else { 
-          var questionprompt_html = '<p style="font-size:18px"> <b> Here are three ' + words[current_trial-1] + 's. Can you give Mr. Frog all the other ' + words[current_trial-1] + 's? </b></p>'
+          var questionprompt_html = '<p style="font-size:18px"> <b> Here are three ' + current_word + 's. Can you give Mr. Frog all the other ' + current_word+ 's? </b></p>'
         }
         $("#question").html(questionprompt_html) 
 
   
         // build train table of images
         train_pics_html = '<table align="center"><tr>'
-        for (i=0;i<current_train_pics.length;i++){
-          train_pics_html += '<td align="center">'
-          train_pics_html += '<img src ="images/' + current_train_pics[i] + '.jpg"' 
-          train_pics_html += 'alt="Stanford University" width="95"></td>'
+        if (blocks[0] == "one") {
+            train_pics_html += '<td align="center">'
+            train_pics_html += '<img src ="images/' + current_train_pics + '.jpg"' 
+            train_pics_html += 'alt="Stanford University" width="95"></td>'
+        } else {
+          for (i=0;i<current_train_pics.length;i++){
+            train_pics_html += '<td align="center">'
+            train_pics_html += '<img src ="images/' + current_train_pics[i] + '.jpg"' 
+            train_pics_html += 'alt="Stanford University" width="95"></td>'
+          }
         }
 
         train_pics_html += '</tr></table>'
@@ -140,7 +160,7 @@ var experiment = {
         // build test table of images
         test_pics = shuffle(test_pics)
         test_pics_html = '<table align="center">'
-        test_pics_html += '<tr><td colspan="5"><p style="font-size:18px;text-align:left; font-style:italic" > To give a ' + words[current_trial-1] + ', click on it below. When you have given all the ' + words[current_trial-1] + 's, click the Next button. </p></td></tr><tr>'
+        test_pics_html += '<tr><td colspan="5"><p style="font-size:16px;text-align:left; font-style:italic" > To give a ' + current_word + ', click on it below. When you have given all the ' + current_word + 's, click the Next button. </p></td></tr><tr>'
         for (i=0;i<=24-1;i++){
           test_pics_html += '<td align="center" > <input src="images/' + test_pics[i] + '.jpg" type="image"'
           test_pics_html += "onclick='experiment.highlight(this,\""+ test_pics[i] +"\")' width='95' style='border:10px solid white'/>"
@@ -176,17 +196,53 @@ var experiment = {
 
     next: function() {
       if (selected.length > 0){
-        
+
+          var current_cat
+          if (blocks[0] == "one") {
+              current_cat  = current_train_pics.split("_")[0]
+          } else {
+              current_cat  = current_train_pics[0].split("_")[0] 
+          }
+          var current_cat_name
+          if (current_cat == "c1"){
+            current_cat_name = "vegetables"
+          } else if(current_cat == "c2") {
+            current_cat_name = "vehicles"
+          } else {
+            current_cat_name = "animals"
+          }
+
+          var current_cond
+          var current_train_pics_string
+          if (blocks[0] == "one"){
+            current_cond = "one"
+            current_train_pics_string = current_train_pics
+          } else {
+            current_train_pics_string = current_train_pics.join("-")
+            objs = eval("train_" + blocks[0] + "_pics[" + current_trial_in_block + "]").join()
+            
+            if (objs.includes("sub5")) {
+                current_cond = "three_subordinate"
+            } else if (objs.includes("bas4")) {
+                current_cond = "three_basic"
+            } else if (objs.includes("sup6")) {
+                current_cond = "three_superordinate"
+            }
+          }
+      
           // save data
-          eval('experiment.selected_T' + current_trial + ' = ' + "'" + selected + "'" )
+          eval('experiment.condition_T' + current_trial + ' = ' + "'" + current_cond + "'" )
+          eval('experiment.category_T' + current_trial + ' = ' + "'" + current_cat_name + "'" )
           eval('experiment.trainBlock_T' + current_trial + ' = ' + "'" + blocks[0] + "'" )
-          eval('experiment.category_T' + current_trial + ' = ' + "'" + current_train_pics[0].split("_")[0] + "'" )
+          eval('experiment.word_T' + current_trial + ' = ' + "'" + current_word + "'" )
+          eval('experiment.trainPics_T' + current_trial + ' = ' + "'" + current_train_pics_string + "'" )
+          eval('experiment.selected_T' + current_trial + ' = ' + "'" + selected + "'" )
          
-         if(current_trial_in_block == 2) {
+         if(current_trial == 3) {
             blocks.shift()
             current_trial_in_block = 0
           } else {
-            current_trial_in_block++ //increment trial in block
+            current_trial_in_block ++
           }
 
         current_trial++ // increment trial
@@ -201,7 +257,7 @@ var experiment = {
         }
 
       } else {
-         $("#message").html('<font color="red">Please select all the other ' + words[current_trial-1] + 's!</font>');
+         $("#message").html('<font color="red">Please select all the other ' + current_word + 's!</font>');
       }
     }, 
 
