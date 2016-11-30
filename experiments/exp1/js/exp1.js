@@ -75,7 +75,7 @@ var  blocks = ["one", "three"]
 
 
 // PRE-LOAD IMAGES
-var all_pics = [].concat.apply([], [train_one_pics, train_three_pics, test_pics])
+var all_pics = [].concat.apply([], [train_one_pics, train_three_pics, test_pics], "mrfrog.png")
 all_pics = [].concat.apply([], all_pics)
 
 var images = []
@@ -145,12 +145,12 @@ var experiment = {
         if (blocks[0] == "one") {
             train_pics_html += '<td align="center">'
             train_pics_html += '<img src ="images/' + current_train_pics + '.jpg"' 
-            train_pics_html += 'alt="Stanford University" width="95"></td>'
+            train_pics_html += 'alt="Stanford University" width="110"></td>'
         } else {
           for (i=0;i<current_train_pics.length;i++){
             train_pics_html += '<td align="center">'
             train_pics_html += '<img src ="images/' + current_train_pics[i] + '.jpg"' 
-            train_pics_html += 'alt="Stanford University" width="95"></td>'
+            train_pics_html += 'alt="Stanford University" width="110"></td>'
           }
         }
 
@@ -265,7 +265,7 @@ var experiment = {
         //show blank slide
       showSlide("blankSlide");
       // next trial
-      setTimeout(experiment.test, 500);  
+      setTimeout(experiment.test, 0);  
     },
 
     /*end*/
