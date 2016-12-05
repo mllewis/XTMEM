@@ -105,7 +105,9 @@ table {
 	font-size: 0.8em;
 	text-align: justify;
 	padding-top: 40px;
-	width: 75%;
+	width: 50%;
+	font-size:13px;
+	line-height: 1.5;
 }
 
 /*make the subj_info slide prettier*/

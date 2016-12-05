@@ -252,7 +252,7 @@ var experiment = {
         $("#message").html(""); // clear message text
         
         if (current_trial > total_trials) {
-            experiment.end()
+            showSlide("qanda")
         } else {
             setTimeout(experiment.blank,1);
             //experiment.test()
@@ -273,16 +273,14 @@ var experiment = {
     /*end*/
     end: function() {
 
-      // // store values from q and a 
-      // experiment.subj_data = {
-      //     language : $("#language").val(),
-      //     enjoyment : $("#enjoyment").val(),
-      //     asses : $('input[name="assess"]:checked').val(),
-      //     age : $("#age").val(),
-      //     gender : $("#gender").val(),
-      //     education : $("#education").val(),
-      //     comments : $("#comments").val(),
-      //   };
+      // store values from q and a 
+      experiment.language =  $("#language").val()
+      experiment.enjoyment = $("#enjoyment").val()
+      experiment.asses = $('input[name="assess"]:checked').val()
+      experiment.age = $("#age").val()
+      experiment.gender = $("#gender").val()
+      experiment.education = $("#education").val()
+      experiment.comments = $("#comments").val()
 
       // show finished slide
       showSlide("finished"); 
