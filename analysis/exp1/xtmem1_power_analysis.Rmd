@@ -78,8 +78,8 @@ p.t.two <- pwr.t.test(d = model$b,
 
 p.t.two 
 ```
-For nearly perfect power, would need 22 independent observations. So, 22 people?
-But, given the t-test isn't really the right statistical analysis should we run 50 to be conservative?
+For nearly perfect power, would need 22 independent observations.
+But, given the t-test isn't really the right statistical analysis should we run 50 to be conservative.
 
 ```{r, include = F}
 #But, these are really proportions so should use prop.test and power.prop.test instead.
