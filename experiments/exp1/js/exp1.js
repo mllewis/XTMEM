@@ -46,6 +46,8 @@ $.fn.preload = function() {
 };
 
 
+
+
 // ---------------- 2. PARAMETER SETUP ------------------
 var total_trials = 12;
 
