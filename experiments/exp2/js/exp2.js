@@ -145,7 +145,7 @@ var experiment = {
         train_pics_html = '<table align="center"><tr>'
         if (blocks[0] == "one") {
             train_pics_html += '<td align="center">'
-            train_pics_html += '<img src ="images/' + current_train_pics + '.jpg"' 
+            train_pics_html += '<img class = "tohide" style="visibility: hidden;"  src ="images/' + current_train_pics + '.jpg"' 
             train_pics_html += 'alt="Stanford University" width="110"></td>'
         } else {
            for (i=0;i<current_train_pics.length;i++){
@@ -185,8 +185,10 @@ var experiment = {
           // FROM: http://stackoverflow.com/questions/18351395/hide-and-display-images-for-a-time-in-a-special-time-period
           (function(){
           var loop = 0
-          var i = 2; //this is necessary so it starts at the end at the first element in the table
+          var i = 2
+
            t = setInterval(function(){
+
             images[i].style.visibility = "hidden";
             if (i+1< images.length) {
               i++;
@@ -197,7 +199,7 @@ var experiment = {
             } 
              images[i].style.visibility = "visible";
              
-             /// show test images on third loop (6000 seconds)
+             // show test images on third loop (6000 seconds)
              if (loop == 3 & i == 0) {
                 $("#question2").html(questionprompt_html2) 
                 $("#testPics").html(test_pics_html)
@@ -209,9 +211,38 @@ var experiment = {
           })();
 
       } else {
-        $("#question2").html(questionprompt_html2) 
-        $("#testPics").html(test_pics_html)
-        $("#counter").html(current_trial + ' / ' + total_trials)  
+
+          var images = document.getElementsByClassName("tohide");
+          document.getElementById("testtable").style.display = "none";
+
+          (function(){
+          var loop = 0
+          var i = 0
+
+           t = setInterval(function(){
+
+            if (images[i].style.visibility == "hidden") {
+              images[i].style.visibility = "visible";
+            } else {
+              images[i].style.visibility = "hidden";
+            }
+
+            loop++
+
+             // show test images on third loop (6000 seconds)
+             if (loop == 12) {
+                $("#question2").html(questionprompt_html2) 
+                $("#testPics").html(test_pics_html)
+                $("#counter").html(current_trial + ' / ' + total_trials) 
+                document.getElementById("testtable").style.display = "inline";
+             }
+
+            }, 1000) // time per pictures
+          })();
+
+        //$("#question2").html(questionprompt_html2) 
+        //$("#testPics").html(test_pics_html)
+        //$("#counter").html(current_trial + ' / ' + total_trials)  
       }
 
       showSlide('grid')
