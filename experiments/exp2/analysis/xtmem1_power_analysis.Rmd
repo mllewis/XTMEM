@@ -1,0 +1,96 @@
+---
+title: XT 2007a effect sizes and power analysis (for XTMEM1)
+author: Molly Lewis 
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    number_sections: false
+    theme: cerulean
+    toc_float: true
+    toc: true
+---
+  
+******
+******
+  
+To estimate the effect size, assume the critical difference is selections of basic level objects in the 1 vs. 3 subordinate example conditions. Each participant saw 1 trial of each type for three different semantic domains (vehicles, veggies, animals). On each trial, there were 2 basic level exemplars that the participant could select. Thus, for each trial type (1 vs. 3), each participant could select a maximum of 6 basic level objects across the entire experiment. XT and SPSS then compared the total number of basic level selections across participants in the two conditions, using a BETWEEN-subject t-test. Note, however, that this is anti-conservative because it doesn't take into acount the independence between responses for the same participant. 
+
+Here we pool across these experiments to estimate the overall effect size and estimate sample size for desired power in XTMEM1. 
+
+
+```{r setup, include = F}
+# load packages
+library(knitr)
+library(rmarkdown)
+library(broom)
+library(tidyverse) 
+library(langcog)
+library(compute.es)
+library(metafor)
+library(pwr)
+
+opts_chunk$set(echo = T, message = F, warning = T, 
+               error = T, cache = F, tidy = F, fig.height = 4)
+```  
+
+Data from all three experiments from SPSS11, table 1. Note that we don't have SDs for XT data and so we estimate these values to be the same as SPSS11.
+```{r}
+df = data.frame(exp = c("XT_adults_e1", "XT_children_e2", "SPSS_adults_e1"),
+                   one_means = c( 76, 40, 48.24), 
+                   three_means = c(9, 6, 10.53),
+                   one_sd = c(40.40, 40.40, 40.40),
+                   three_sd = c(24.97, 24.97, 24.97),
+                   n = c(22, 36, 19))
+kable(df)
+```
+
+We calculate the overall effect size using a random effect meta-analytic model. 
+```{r}
+df$d = mes(df$one_means, df$three_means, df$one_sd,
+       df$three_sd, df$n, df$n, verbose = F)$d
+
+df$d_var = mes(df$one_means, df$three_means, df$one_sd,
+       df$three_sd, df$n, df$n, verbose = F)$var.d
+
+model = rma(d, d_var, data = df)
+
+par(cex = 1, font = 1)
+forest(model, 
+       slab = df$exp,
+       mlab = "All", 
+       xlab = "Cohen's d")
+par(font = 2)
+text(-1.5, 4.4, "Experiment")
+text(4.3, 4.4, "Cohen's d [95% CI]")
+
+addpoly(model, row = -1, cex = .75, 
+        annotate = F,  col = "red", mlab = "", efac = 2)
+```
+
+Calculate power with t-test, using the above estimate of effect size.
+```{r}
+desired.power <- .99
+
+p.t.two <- pwr.t.test(d = model$b, 
+                      power = desired.power, 
+                      type = "two.sample", 
+                      alternative = "two.sided")
+
+p.t.two 
+```
+For nearly perfect power, would need 22 independent observations.
+But, given the t-test isn't really the right statistical analysis should we run 50 to be conservative.
+
+```{r, include = F}
+#But, these are really proportions so should use prop.test and power.prop.test instead.
+weighted_one_mean = weighted.mean(df$one_means, df$n)
+weighted_three_mean = weighted.mean(df$three_means, df$n)
+
+power.prop.test(p1 = weighted_one_mean/100, 
+                p2 = weighted_three_mean/100, 
+                power= .8)
+
+n_trials = 3
+n_basic_per_trial = 2
+df$n_obs = df$n*n_basic_per_trial * n_trials
+```

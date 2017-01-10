@@ -1,0 +1,169 @@
+<html>
+    <head>
+        <title>Learning Game!</title>
+
+        <!--CSS-->
+        <link href="../_shared/full-projects/jquery-ui/jquery-ui.min.css" rel="stylesheet" type="text/css"/>
+        <link href="../_shared/css/langcog-style.css" rel="stylesheet" type="text/css"/>
+        <link href="css/local-style.css" rel="stylesheet" type="text/css"/>
+
+         <!-- external general utilities -->
+        <script src="../_shared/js/jquery-1.11.1.min.js "></script>
+        <script src="../_shared/full-projects/jquery-ui/jquery-ui.min.js"></script>
+
+         <!-- for drawing -->
+        <!-- <script src="../_shared/js/raphael-min.js"></script>  -->
+
+        <!-- lab general utilities -->
+        <script src="../_shared/js/mmturkey.js "></script>
+        <script src="../_shared/js/browserCheck.js"></script>
+        <script src="../_shared/js/utils.js"></script>
+
+        <!-- unique turker to limit each turker to one hit -->
+        <script src="https://uniqueturker.myleott.com/lib.js" type="text/javascript"></script>
+
+        <script type="text/javascript">
+        (function(){
+            var ut_id = "7b4fe8483d92b1d84caaa5bdc6c8fc37";
+            if (UTWorkerLimitReached(ut_id)) {
+                document.getElementById('mturk_form').style.display = 'none';
+                document.getElementsByTagName('body')[0].innerHTML = "You have already completed the maximum number of HITs allowed by this requester. Please click 'Return HIT' to avoid any impact on your approval rating.";
+            }
+        })();
+        </script>
+  
+
+    </head>
+
+             
+    <body>  
+        <!--INSTRUCTIONS SLIDE-->
+        <div class="slide" id="instructions">
+            <br>
+            <br>
+            <img src="../_shared/images/stanford.png" alt="Stanford University">
+            <p><b>Stanford Language and Cognition Lab</b></p>
+
+              <br>
+              
+              <p>Click the button below to begin the HIT.</p>
+
+                <button id="start_button" type="button" onClick="this.blur(); 
+                experiment.start();"> Begin </button>
+            <br>
+                <p class="block-text" id="legal">
+                By answering the following questions, you are participating in a study being performed by cognitive scientists in the Stanford Department of Psychology. If you have questions about this research, please contact us at languagecoglab@gmail.com. You must be at least 18 years old to participate. Your participation in this research is voluntary. You may decline to answer any or all of the following questions. You may decline further participation, at any time, without adverse consequences. Your anonymity is assured; the researchers who have requested your participation will not receive any personal information about you. Note however that we have recently been made aware that your public 
+                Amazon.com profile can be 
+                accessed via your worker ID if you do not choose to opt out. 
+                If you would like to opt out of this feature, you may follow 
+                instructions available <a href="http://www.amazon.com/gp/help/customer/display.html?nodeId=16465241">here</a>.
+
+                
+                </p>
+
+        </div>
+        
+    <!--INSTRUCTIONS 2 SLIDE-->
+    <div class="slide" id="instructions2">
+          <h3>Game Instructions </h3>
+          <br>
+                <img src="images/mrfrog.png" width = "150" alt="mrfrog">
+                <br>
+                <br>
+
+                <p style="font-size:18px">  This is Mr. Frog.   Mr. Frog speaks a different language. </p>
+                <p style="font-size:18px"> In this game, your job is to help Mr. Frog find the toys that he wants.  </p> 
+
+                <br>
+
+              <center>
+                <button type="button" onClick="this.blur(); experiment.test()">Continue</button>
+              </center>
+    </div>
+
+   
+<!--TESTING SLIDE-->
+      <div class="slide" id="grid">
+
+            <div id="question1"></div>  <!--dynamically built in javascript-->
+            <div id="trainPics"></div>  <!--dynamically built in javascript-->
+            <br>
+
+            <div id="testtable" style="display:inline;">
+           
+            <div id="question2"></div>  <!--dynamically built in javascript-->
+
+            <br>
+            <div id="testPics"></div>  <!--dynamically built in javascript-->
+
+              <center><button type="button" onClick="this.blur(); experiment.next()">Next</button></center>
+              <br>
+              <div id="message"> </div> <!--dynamically built in javascript-->
+            <table align="center"> <tr><td align="center"><div id = "counter"></div> </td> </tr></table> 
+            </div>  
+      </div>  
+
+
+<!--BLANK SLIDE -->    
+      <div class="slide" id="blankSlide"> </div>
+
+<!--FINISHED SLIDE -->        
+      <div class="slide" id="finished">
+          You're finished - thanks for participating! Submitting to 
+          Mechanical Turk...
+      </div>
+
+
+<!--Q&A Slide-->
+        <div class="slide"  id="qanda">
+            <div class="long_form">
+              <div class="subj_info_title">Additional information</div>
+              <p class="info">Answering these questions is optional, but will help us understand your answers.</p>
+              <p>Did you read the instructions and do you think you did the HIT correctly?</p>
+              <label><input type="radio"  name="assess" value="No"/>No</label>
+              <label><input type="radio"  name="assess" value="Yes"/>Yes</label>
+              <label><input type="radio"  name="assess" value="Confused"/>I was confused</label>
+
+              <p>Gender:
+                <select id="gender">
+                  <label><option value=""/></label>
+                  <label><option value="Male"/>Male</label>
+                  <label><option value="Female"/>Female</label>
+                  <label><option value="Other"/>Other</label>
+                </select>
+              </p>
+
+              <p>Age: <input type="text" id="age"/></p>
+
+              <p>Level Of Education:
+                <select id="education">
+                  <label><option value="-1"/></label>
+                  <label><option value="0"/>Some High School</label>
+                  <label><option value="1"/>Graduated High School</label>
+                  <label><option value="2"/>Some College</label>
+                  <label><option value="3"/>Graduated College</label>
+                  <label><option value="4"/>Hold a higher degree</label>
+                </select>
+              </p>
+
+              <p>Native Language: <input type="text" id="language"/></p>
+              <label>(the language(s) spoken at home when you were a child)</label>
+
+              <p>Did you enjoy the hit?</p>
+              <select id="enjoyment">
+                <label><option value="-1"></option></label>
+                <label><option value="0">Worse than the Average HIT</option></label>
+                <label><option value="1" >An Average HIT</option></label>
+                <label><option value="2">Better than average HIT</option></label>
+              </select>
+
+              <p>We would be interested in any comments you have about this experiment. Please type them here:</p>
+              <textarea id="comments" rows="3" cols="50"></textarea>
+              <br/>
+              <button onclick="experiment.end()">Submit</button>
+            </div>
+
+            <!-- experiment file -->
+        <script src="js/exp2.js"></script>
+    </body>
+</html>
