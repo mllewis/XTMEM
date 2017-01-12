@@ -1,12 +1,12 @@
 {
     "title":               "Word game",
-    "description":         "Fun word game! (4 mins)",
+    "description":         "Fun word game! (5 mins)",
     "keywords":            "language, word game",
-    "url":                 "https://langcog.stanford.edu/expts/MLL/XTMEM/exp1/exp1.html",
+    "url":                 "https://langcog.stanford.edu/expts/MLL/XTMEM/exp2/exp2.html",
     "frame_height":         450,
     "assignment_duration":  "1 hour",
     "auto_approval_delay":  "10 minutes",
-    "reward":               0.40,
+    "reward":               0.50,
     "experimenter":         "Molly Lewis",
     "server_log_path":      "https://langcog.stanford.edu/cgi-bin/cosub/log_submission.php",
     "qualifications": {

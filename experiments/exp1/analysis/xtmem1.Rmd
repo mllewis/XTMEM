@@ -47,6 +47,17 @@ d.anonymized <- anonymize.sids(d, "WorkerId")
 write.csv(d.anonymized, "exp1_A.csv")
 ```
 
+```{r}
+d$SubmitTime = gsub("T|Z","",d$SubmitTime)
+d$AcceptTime = gsub("T|Z","",d$AcceptTime)
+d$SubmitTime = strptime(d$SubmitTime, "%F%T")
+d$AcceptTime = strptime(d$AcceptTime, "%F%T")
+total_time = d$SubmitTime - d$AcceptTime 
+
+boxplot(as.numeric(total_time))
+mean(as.numeric(total_time))
+```
+
 ### Munge
 ```{r}
 d = read.csv("exp1_A.csv")

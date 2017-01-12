@@ -12,3 +12,5 @@ dplyr
 langcog
 jsonlite
 stringr
+png
+forcats
