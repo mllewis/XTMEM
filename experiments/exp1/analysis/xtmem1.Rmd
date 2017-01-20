@@ -76,10 +76,15 @@ d.munged = d.long %>%
           select(subids, trial_num, category, condition, selected) %>%
           mutate(selected = lapply(str_split(selected, ","), 
                                    function(x) {str_sub(x, 4, 6)})) %>%
-          mutate(prop_sub = lapply(selected, function(x){sum(x == "sub")/2}),
-                 prop_bas = lapply(selected, function(x){sum(x == "bas")/2}),
-                 prop_sup = lapply(selected, function(x){sum(x == "sup")/4})) %>%
+          mutate(prop_sub = unlist(lapply(selected, function(x){sum(x == "sub")/2})),
+                 prop_bas = unlist(lapply(selected, function(x){sum(x == "bas")/2})),
+                 prop_sup = unlist(lapply(selected, function(x){sum(x == "sup")/4}))) %>%
           select(-selected)
+```
+
+```{r, eval = F}
+d.munged$exp = 1
+write.csv(d.munged, "../../../data/exp1_data_munged.csv", row.names = F)
 ```
 
 ### Reproduce XT2007a Figure 5.

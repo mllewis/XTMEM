@@ -1,0 +1,2 @@
+Time,Action,Data
+2017/01/20 16:04:15,Create,"{u'description': u'Fun word game! (4 mins)', u'title': u'Word game', u'url': u'https://langcog.stanford.edu/expts/MLL/XTMEM/exp3/exp3.html', u'assignment_duration': u'1 hour', u'qualifications': {u'location': u'US', u'approval_percentage': 90}, u'frame_height': 450, u'experimenter': u'Molly Lewis', u'keywords': u'language, word game', u'auto_approval_delay': u'10 minutes', u'reward': 0.4, u'server_log_path': u'https://langcog.stanford.edu/cgi-bin/cosub/log_submission.php'}"

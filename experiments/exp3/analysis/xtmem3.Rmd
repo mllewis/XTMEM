@@ -1,5 +1,5 @@
 ---
-title: XTMEM2
+title: XTMEM3
 subtitle: 
 author: Molly Lewis 
 date: "`r Sys.Date()`"
@@ -14,7 +14,7 @@ output:
 ******
 ******
 
-Replication of Spencer, Perone, Smith, and Samuelson (2011), Expt. 2 (sequential presentation of training items).
+Replication of XT2007a with 2 methodological modifications (follwing SPSS11): Blocking and reordering of trials (sub first), and using different label for all 12 trials. 
 
 ```{r setup, include = F}
 # load packages
@@ -39,7 +39,7 @@ opts_chunk$set(echo = T, message = F, warning = F,
 ### Read in raw data and anonymize
 
 ```{r, constants}
-EXPTNUM <- 2
+EXPTNUM <- 3
 a.data.filename <- paste0("exp", EXPTNUM, "_A.csv")
 ```
 
@@ -59,9 +59,9 @@ write.csv(d.anonymized, a.data.filename)
 
 ### Munge
 ```{r}
-d2 = read.csv(a.data.filename)
+d3 = read.csv(a.data.filename)
 
-d2.long = d2 %>%
+d3.long = d3 %>%
   gather(variable, value, contains("_")) %>%
   mutate(trial_num =  unlist(lapply(strsplit(as.character(variable),
                                       "_T"),function(x) x[2])),
@@ -71,32 +71,37 @@ d2.long = d2 %>%
   mutate(trial_num = as.numeric(trial_num)) %>%
   mutate_if(is.character, funs(as.factor)) 
 
-d2.munged = d2.long %>%
+d3.munged = d3.long %>%
           select(subids, trial_num, category, condition, selected) %>%
           mutate(selected = lapply(str_split(selected, ","), 
                                    function(x) {str_sub(x, 4, 6)})) %>%
-          mutate(prop_sub = lapply(selected, function(x){sum(x == "sub")/2}),
-                 prop_bas = lapply(selected, function(x){sum(x == "bas")/2}),
-                 prop_sup = lapply(selected, function(x){sum(x == "sup")/4})) %>%
+          mutate(prop_sub = unlist(lapply(selected, function(x){sum(x == "sub")/2})),
+                 prop_bas = unlist(lapply(selected, function(x){sum(x == "bas")/2})),
+                 prop_sup = unlist(lapply(selected, function(x){sum(x == "sup")/4}))) %>%
           select(-selected)
+```
+
+```{r, eval = F}
+d3.munged$exp = 3
+write.csv(d3.munged, "../../../data/exp3_data_munged.csv", row.names = F)
 ```
 
 ### Reproduce XT2007a Figure 5.
 ```{r, fig.width = 8}
-ms2 = d2.munged %>%
+ms3 = d3.munged %>%
   gather(variable, value, c(prop_sub, prop_bas, prop_sup)) %>%
   group_by(condition,variable) %>%
   mutate(value = as.numeric(value)) %>%
   multi_boot_standard(column = "value")  %>%
   mutate(variable = as.factor(variable))
 
-ms.plot <- ms2
+ms.plot <- ms3
 ms.plot$variable = factor(ms.plot$variable,levels(ms.plot$variable)[c(2,1,3)])
-ms.plot$condition = factor(ms.plot$condition,levels(ms.plot$condition)[c(1,3,2,4)])
+ms.plot$condition = factor(ms.plot$condition,levels(ms.plot$condition)[c(4,2,1,3)])
 ms.plot$condition = plyr::mapvalues(ms.plot$condition,
-                               from = c("one", "three_basic", 
-                                        "three_subordinate",
-                                        "three_superordinate"), 
+                               from = c("one", "3bas", 
+                                        "3sub",
+                                        "3sup"), 
                                to = c("1", "3 basic", "3 sub.", "3 super."))
 
 ggplot(ms.plot, aes(x = condition, y = mean, group = variable, fill = variable)) +
@@ -116,58 +121,38 @@ Here's the XT2007a data:
 grid.raster(readPNG("xtfig5.png"))
 ```
 
-XTMEM 1 and 2 plotted as by SPSS:
+Previous experiments plotted as by SPSS:
 
+Read in all previous data and bind to current dataset
 ```{r}
-d1 = read.csv("../../exp1/analysis/exp1_a.csv")
+files = dir("../../../data/")
+all.d = data.frame()
+for (i in 1:length(files)[1]) {
+    s <-read.csv(paste0("../../../data/", files[i]))
+    all.d = bind_rows(all.d, data.frame(s))
+}
 
-d1.long = d1 %>%
-  gather(variable, value, contains("_")) %>%
-  mutate(trial_num =  unlist(lapply(strsplit(as.character(variable),
-                                      "_T"),function(x) x[2])),
-         variable = unlist(lapply(strsplit(as.character(variable),
-                                      "_"),function(x) x[1]))) %>%
-  spread(variable, value) %>%
-  mutate(trial_num = as.numeric(trial_num)) %>%
-  mutate_if(is.character, funs(as.factor)) 
-
-d1.munged = d1.long %>%
-          select(subids, trial_num, category, condition, selected) %>%
-          mutate(selected = lapply(str_split(selected, ","), 
-                                   function(x) {str_sub(x, 4, 6)})) %>%
-          mutate(prop_sub = unlist(lapply(selected, function(x){sum(x == "sub")/2})),
-                 prop_bas = unlist(lapply(selected, function(x){sum(x == "bas")/2})),
-                 prop_sup = unlist(lapply(selected, function(x){sum(x == "sup")/4}))) %>%
-          select(-selected)
-```
-
-```{r, eval = F}
-d1.munged$exp = 2
-write.csv(d1.munged, "../../../data/exp2_data_munged.csv", row.names = F)
 ```
 
 ```{r}
-ms1 = d1.munged %>%
+all.d$condition = plyr::mapvalues(all.d$condition,
+                               from = c("one", "3bas", "3sub", "3sup"), 
+                               to = c("one", "three_basic", 
+                                        "three_subordinate",
+                                        "three_superordinate"))
+all.d$condition = as.factor(all.d$condition)
+
+all.ms = all.d %>%
   gather(variable, value, c(prop_sub, prop_bas, prop_sup)) %>%
-  group_by(condition,variable) %>%
+  group_by(condition,variable, exp) %>%
   mutate(value = as.numeric(value)) %>%
   multi_boot_standard(column = "value")  %>%
-  mutate(variable = as.factor(variable))
-
-crit.conds1 <- ms1 %>%
+  ungroup() %>%
+  mutate(variable = as.factor(variable)) %>%
   filter(condition == "one" | condition == "three_subordinate") %>%
-  filter(variable == "prop_bas") %>%
-  mutate(exp = "XT2007a replication (E1)")
+  filter(variable == "prop_bas")
 
-crit.conds2 <- ms2 %>%
-  filter(condition == "one" | condition == "three_subordinate") %>%
-  filter(variable == "prop_bas") %>%
-  mutate(exp = "SPSS replication (E2)")
-
-crit.conds = rbind(crit.conds1, crit.conds2) %>%
-  mutate(exp = fct_rev(exp))
-
-ggplot(crit.conds, aes(x = exp, y = mean, group = condition, fill = condition)) +
+ggplot(all.ms, aes(x = exp, y = mean, group = condition, fill = condition)) +
   geom_bar(position = "dodge", stat = "identity") +
   geom_linerange(aes(ymin = ci_lower, 
                      ymax = ci_upper), 
@@ -179,6 +164,8 @@ ggplot(crit.conds, aes(x = exp, y = mean, group = condition, fill = condition)) 
   theme(legend.title = element_blank())
 ```
 
+## why do one and two look exactly the same??
+
 And, the proportion basic for the 1 and sub conditions only in the SPSS data:
 ```{r}
 grid.raster(readPNG("spssfig3.png"))
@@ -188,7 +175,7 @@ We don't see the flip observed by SPSS; looks almost identical to XTMEM1/XT2007a
 
 #### By category
 ```{r, fig.width = 9, fig.height = 3}
-ms2 = d2.munged %>%
+ms2 = d3.munged %>%
   gather(variable, value, c(prop_sub, prop_bas, prop_sup)) %>%
   mutate(variable = as.factor(variable)) %>%
   group_by(condition,variable,category) %>%
@@ -216,49 +203,49 @@ ggplot(ms2, aes(x = condition, y = mean, group = variable, fill = variable)) +
 
 ### Post-task questions
 ```{r}
-d2 %>%
+d3 %>%
   group_by(education) %>%
   summarise(n = n()) %>%
   kable()
 
-d2 %>%
+d3 %>%
   group_by(enjoyment) %>%
   summarise(n = n()) %>%
   kable()
 
-d2 %>%
+d3 %>%
   mutate(language = tolower(language)) %>%
   group_by(language) %>%
   summarise(n = n()) %>%
   kable()
 
-d2 %>%
+d3 %>%
   group_by(gender) %>%
   summarise(n = n()) %>%
   kable()
 
-d2 %>%
+d3 %>%
   group_by(asses) %>%
   summarise(n = n()) %>%
   kable()
 
-d2 %>%
+d3 %>%
   mutate(age = as.numeric(as.character(age))) %>%
   ggplot(aes(x= age)) +
   geom_histogram() +
   theme_bw() +
   ggtitle("Age distribution")
 
-unique(d2$comments)
+unique(d3$comments)
 ```
 
 ### Task time
 
 Just as a sanity check look at total task time: Expect participants to take longer in the SPSS experiment since its sequential. The data look consistent with ths.
 ```{r}
-d2 = mutate(d2, exp = "SPSS replication (E2)")
+d3 = mutate(d3, exp = "SPSS replication (E2)")
 d1 = mutate(d1, exp = "XT2007a replication (E1)")
-all = rbind(d2, d1)
+all = rbind(d3, d1)
 
 all$SubmitTime = gsub("T|Z","",all$SubmitTime)
 all$AcceptTime = gsub("T|Z","",all$AcceptTime)

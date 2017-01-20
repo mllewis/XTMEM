@@ -72,7 +72,7 @@ second_blocks = shuffle(["one", "3bas", "3sup"])
 var  blocks = ["3sub"].concat(second_blocks);
 
 // PRE-LOAD IMAGES
-var all_pics = [].concat.apply([], [train_one_pics, train_3sub_pics, train_3bas_pics, train_3sup_pics], "mrfrog.png")
+var all_pics = [].concat.apply([], [train_one_pics, train_3sub_pics, train_3bas_pics, train_3sup_pics, test_pics], "mrfrog.png")
 all_pics = [].concat.apply([], all_pics)
 
 
