@@ -17,6 +17,8 @@ output:
 Replication of Xu and Tenenbaum 2007a, Experiment 1. N = 50 participants (original: N = 22).
 
 ```{r setup, include = F}
+rm(list=ls())
+
 # load packages
 library(knitr)
 library(rmarkdown)
@@ -26,7 +28,6 @@ library(langcog)
 library(jsonlite)
 library(stringr)
 source("../../../analysis/useful_ML.R")
-
 
 opts_chunk$set(echo = T, message = F, warning = F, 
                error = F, cache = F, tidy = F, fig.height = 4)
@@ -44,18 +45,7 @@ for (i in 1:length(files)[1]) {
 names(d) <- str_replace(names(d), "answers.", "")
 d.anonymized <- anonymize.sids(d, "WorkerId")
 
-write.csv(d.anonymized, "exp1_A.csv")
-```
-
-```{r}
-d$SubmitTime = gsub("T|Z","",d$SubmitTime)
-d$AcceptTime = gsub("T|Z","",d$AcceptTime)
-d$SubmitTime = strptime(d$SubmitTime, "%F%T")
-d$AcceptTime = strptime(d$AcceptTime, "%F%T")
-total_time = d$SubmitTime - d$AcceptTime 
-
-boxplot(as.numeric(total_time))
-mean(as.numeric(total_time))
+#write.csv(d.anonymized, "exp1_A.csv")
 ```
 
 ### Munge
@@ -82,9 +72,10 @@ d.munged = d.long %>%
           select(-selected)
 ```
 
+Write long data to csv.
 ```{r, eval = F}
 d.munged$exp = 1
-write.csv(d.munged, "../../../data/exp1_data_munged.csv", row.names = F)
+#write.csv(d.munged, "../../../data/exp1_data_munged.csv", row.names = F)
 ```
 
 ### Reproduce XT2007a Figure 5.

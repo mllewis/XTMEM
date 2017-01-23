@@ -17,6 +17,8 @@ output:
 Replication of Spencer, Perone, Smith, and Samuelson (2011), Expt. 2 (sequential presentation of training items).
 
 ```{r setup, include = F}
+rm(list=ls())
+
 # load packages
 library(knitr)
 library(rmarkdown)
@@ -30,7 +32,6 @@ library(grid)
 library(forcats)
 
 source("../../../analysis/useful_ML.R")
-
 
 opts_chunk$set(echo = T, message = F, warning = F, 
                error = F, cache = F, tidy = F, fig.height = 4)
@@ -54,7 +55,7 @@ for (i in 1:length(files)[1]) {
 names(d) <- str_replace(names(d), "answers.", "")
 d.anonymized <- anonymize.sids(d, "WorkerId")
 
-write.csv(d.anonymized, a.data.filename)
+#write.csv(d.anonymized, a.data.filename)
 ```
 
 ### Munge
@@ -75,10 +76,15 @@ d2.munged = d2.long %>%
           select(subids, trial_num, category, condition, selected) %>%
           mutate(selected = lapply(str_split(selected, ","), 
                                    function(x) {str_sub(x, 4, 6)})) %>%
-          mutate(prop_sub = lapply(selected, function(x){sum(x == "sub")/2}),
-                 prop_bas = lapply(selected, function(x){sum(x == "bas")/2}),
-                 prop_sup = lapply(selected, function(x){sum(x == "sup")/4})) %>%
+          mutate(prop_sub = unlist(lapply(selected, function(x){sum(x == "sub")/2})),
+                 prop_bas = unlist(lapply(selected, function(x){sum(x == "bas")/2})),
+                 prop_sup = unlist(lapply(selected, function(x){sum(x == "sup")/4}))) %>%
           select(-selected)
+```
+
+```{r, eval = F}
+d2.munged$exp = EXPTNUM
+#write.csv(d2.munged, paste0("../../../data/exp", EXPTNUM, "_data_munged.csv"), row.names = F)
 ```
 
 ### Reproduce XT2007a Figure 5.
@@ -117,36 +123,9 @@ grid.raster(readPNG("xtfig5.png"))
 ```
 
 XTMEM 1 and 2 plotted as by SPSS:
-
 ```{r}
-d1 = read.csv("../../exp1/analysis/exp1_a.csv")
+d1.munged = read.csv(paste0("../../exp", 1 ,"/analysis/exp", 1 ,"_a.csv"))
 
-d1.long = d1 %>%
-  gather(variable, value, contains("_")) %>%
-  mutate(trial_num =  unlist(lapply(strsplit(as.character(variable),
-                                      "_T"),function(x) x[2])),
-         variable = unlist(lapply(strsplit(as.character(variable),
-                                      "_"),function(x) x[1]))) %>%
-  spread(variable, value) %>%
-  mutate(trial_num = as.numeric(trial_num)) %>%
-  mutate_if(is.character, funs(as.factor)) 
-
-d1.munged = d1.long %>%
-          select(subids, trial_num, category, condition, selected) %>%
-          mutate(selected = lapply(str_split(selected, ","), 
-                                   function(x) {str_sub(x, 4, 6)})) %>%
-          mutate(prop_sub = unlist(lapply(selected, function(x){sum(x == "sub")/2})),
-                 prop_bas = unlist(lapply(selected, function(x){sum(x == "bas")/2})),
-                 prop_sup = unlist(lapply(selected, function(x){sum(x == "sup")/4}))) %>%
-          select(-selected)
-```
-
-```{r, eval = F}
-d1.munged$exp = 2
-write.csv(d1.munged, "../../../data/exp2_data_munged.csv", row.names = F)
-```
-
-```{r}
 ms1 = d1.munged %>%
   gather(variable, value, c(prop_sub, prop_bas, prop_sup)) %>%
   group_by(condition,variable) %>%
@@ -178,7 +157,6 @@ ggplot(crit.conds, aes(x = exp, y = mean, group = condition, fill = condition)) 
   theme_bw() +
   theme(legend.title = element_blank())
 ```
-
 And, the proportion basic for the 1 and sub conditions only in the SPSS data:
 ```{r}
 grid.raster(readPNG("spssfig3.png"))

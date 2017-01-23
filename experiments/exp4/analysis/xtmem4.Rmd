@@ -1,5 +1,5 @@
 ---
-title: XTMEM3
+title: XTMEM4
 subtitle: 
 author: Molly Lewis 
 date: "`r Sys.Date()`"
@@ -14,7 +14,7 @@ output:
 ******
 ******
 
-Replication of XT2007a with 2 methodological modifications (follwing SPSS11): Blocking and reordering of trials (sub first), and using different label for all 12 trials. 
+Replication of SPSS 2011 with 2 methodological modifications from exp 2 (follwing SPSS11): Blocking and reordering of trials (sub first), and using different label for all 12 trials. 
 
 ```{r setup, include = F}
 rm(list=ls())
@@ -30,6 +30,7 @@ library(stringr)
 library(png)
 library(grid)
 library(forcats)
+library(effsize)
 
 source("../../../analysis/useful_ML.R")
 
@@ -42,7 +43,7 @@ opts_chunk$set(echo = T, message = F, warning = F,
 ### Read in raw data and anonymize
 
 ```{r, constants}
-EXPTNUM <- 3
+EXPTNUM <- 4
 a.data.filename <- paste0("exp", EXPTNUM, "_A.csv")
 ```
 
@@ -62,9 +63,9 @@ d.anonymized <- anonymize.sids(d, "WorkerId")
 
 ### Munge
 ```{r}
-d3 = read.csv(a.data.filename)
+d4 = read.csv(a.data.filename)
 
-d3.long = d3 %>%
+d4.long = d4 %>%
   gather(variable, value, contains("_")) %>%
   mutate(trial_num =  unlist(lapply(strsplit(as.character(variable),
                                       "_T"),function(x) x[2])),
@@ -74,7 +75,7 @@ d3.long = d3 %>%
   mutate(trial_num = as.numeric(trial_num)) %>%
   mutate_if(is.character, funs(as.factor)) 
 
-d3.munged = d3.long %>%
+d4.munged = d4.long %>%
           select(subids, trial_num, category, condition, selected) %>%
           mutate(selected = lapply(str_split(selected, ","), 
                                    function(x) {str_sub(x, 4, 6)})) %>%
@@ -85,20 +86,22 @@ d3.munged = d3.long %>%
 ```
 
 ```{r, eval = F}
-d3.munged$exp = EXPTNUM
-#write.csv(d3.munged, paste0("../../../data/exp", EXPTNUM, "_data_munged.csv"), row.names = F)
+d4.munged$exp = EXPTNUM
+#write.csv(d4.munged, paste0("../../../data/exp", EXPTNUM, "_data_munged.csv"), row.names = F)
 ```
 
 ### Reproduce XT2007a Figure 5.
 ```{r, fig.width = 8}
-ms3 = d3.munged %>%
+ms4 = d4.munged %>%
   gather(variable, value, c(prop_sub, prop_bas, prop_sup)) %>%
-  group_by(condition,variable) %>%
+  group_by(condition,variable, subids) %>%
   mutate(value = as.numeric(value)) %>%
+  summarize(value = mean(value)) %>%
+  group_by(condition,variable) %>%
   multi_boot_standard(column = "value")  %>%
   mutate(variable = as.factor(variable))
 
-ms.plot <- ms3
+ms.plot <- ms4
 ms.plot$variable = factor(ms.plot$variable,levels(ms.plot$variable)[c(2,1,3)])
 ms.plot$condition = factor(ms.plot$condition,levels(ms.plot$condition)[c(4,2,1,3)])
 ms.plot$condition = plyr::mapvalues(ms.plot$condition,
@@ -129,6 +132,8 @@ for (i in 1:length(files)[1]) {
 }
 ```
 
+
+All experiments:
 ```{r}
 all.d$condition = plyr::mapvalues(all.d$condition,
                                from = c("one", "3bas", "3sub", "3sup"), 
@@ -139,8 +144,10 @@ all.d$condition = as.factor(all.d$condition)
 
 all.ms = all.d %>%
   gather(variable, value, c(prop_sub, prop_bas, prop_sup)) %>%
-  group_by(condition,variable, exp) %>%
+  group_by(condition,variable, exp, subids) %>%
   mutate(value = as.numeric(value)) %>%
+  summarize(value = mean(value)) %>%
+  group_by(condition,variable, exp) %>%
   multi_boot_standard(column = "value")  %>%
   ungroup() %>%
   mutate(variable = as.factor(variable)) %>%
@@ -159,23 +166,130 @@ ggplot(all.ms, aes(x = exp, y = mean, group = condition, fill = condition)) +
   theme(legend.title = element_blank())
 ```
 
+## calculate effect sizes
+Calculate new effect sizes.
+```{r}
+all.ms.subj = all.d %>%
+  gather(variable, value, c(prop_sub, prop_bas, prop_sup)) %>%
+  group_by(condition,variable, exp, subids) %>%
+  mutate(value = as.numeric(value)) %>%
+  summarize(value = mean(value)) %>%
+  filter(condition == "one" | condition == "three_subordinate", variable == 'prop_bas') %>%
+  spread(condition, value) %>%
+  ungroup () %>%
+  select(-variable)
+
+conf.ints = all.ms.subj %>%
+  group_by(exp) %>%
+  do(data.frame(conf.int = effsize::cohen.d(.$one, .$three_subordinate, paired = T)$conf.int))  %>%
+  ungroup() %>%
+  mutate(bound=rep(c("low", "high"), 
+                   length.out = EXPTNUM*2)) %>%
+  spread(bound, conf.int) 
+
+effect.sizes.paired = all.ms.subj %>%
+  group_by(exp) %>%
+  do(data.frame(d = effsize::cohen.d(.$one, .$three_subordinate, paired = T)$estimate)) %>%
+  left_join(conf.ints) %>%
+  ungroup () %>%
+  mutate(es.type = "paired",
+         exp = as.numeric(exp))
+
+effect.sizes.npaired  = all.ms.subj %>%
+  group_by(exp) %>%
+  summarize(m.one = mean(one),
+            sd.one = sd(one),
+            m.3sub = mean(three_subordinate),
+            sd.3sub = sd(three_subordinate),
+            n= n()) %>%
+  do(data.frame(d = mes(.$m.one, .$m.3sub, .$sd.one,
+       .$sd.3sub, .$n, .$n, verbose = F)$d,
+       var.d = mes(.$m.one, .$m.3sub, .$sd.one,
+       .$sd.3sub, .$n, .$n, verbose = F)$var.d))%>%
+  mutate(high = d + (1.96*var.d),
+         low = d - (1.96*var.d),
+         es.type = "nonpaired",
+         exp = c(1:4))  # fix this
+
+effect.sizes = bind_rows(effect.sizes.paired,
+                         effect.sizes.npaired) %>%
+  mutate(exp = as.factor(exp),
+         n = 50) # fix this %>%
+
+# make experiment nums meaningful
+effect.sizes$exp = plyr::mapvalues(effect.sizes$exp ,
+                               from = c("1", "2", "3",
+                                        "4"), 
+                               to = c("XTa replication (E1)", "SPSS replication (E2)", "XTa replication (E3), blocked/diff labels", "SPSS  replication (E4), blocked/diff labels"))
+
+
+```
+
+Old means and sd based on SPSS table 1.
+```{r}
+original.effect.sizes = data.frame(exp = c("XT_adults_e1", "XT_children_e2", "SPSS_adults_e1",
+                        "SPSS_adults_e2",
+                        "SPSS_adults_e3",
+                        "SPSS_adults_eS1",
+                         "SPSS_adults_eS2"),
+                   one_means = c(76, 40, 48.24, 30.83, 39.91, 24.56, 15.79), 
+                   three_means = c(9, 6, 10.53, 53.33, 51.75, 16.67, 11.40),
+                   one_sd = c(40.40, 40.40, 40.40,37.18,35.20,32.09,24.51),
+                   three_sd = c(24.97, 24.97, 24.97,36.11,42.63,25.45,24.25),
+                   n = c(22, 36, 19, 20, 19,19,19))
+kable(df)
+```
+
+Calculate old effect sizes
+```{r}
+original.effect.sizes$d = mes(original.effect.sizes$one_means/100, original.effect.sizes$three_means/100, original.effect.sizes$one_sd/100,
+      original.effect.sizes$three_sd/100,original.effect.sizes$n, original.effect.sizes$n, verbose = F)$d
+
+original.effect.sizes$d_var = mes(original.effect.sizes$one_means/100, original.effect.sizes$three_means/100, original.effect.sizes$one_sd/100,
+      original.effect.sizes$three_sd/100,original.effect.sizes$n, original.effect.sizes$n, verbose = F)$var.d
+
+original.effect.sizes = original.effect.sizes %>%
+  mutate(high = d + (1.96*d_var),
+                               
+         low = d - (1.96*d_var)) %>%
+select(-one_means, -three_means, -one_sd, -three_sd) %>%
+  mutate(es.type = "nonpaired")
+```
+
+Bind old and new together and plot
+```{r}
+all.es = bind_rows(original.effect.sizes, effect.sizes)
+
+ggplot(all.es, aes(x = exp, y = d, color = es.type)) +
+  geom_point()+
+  geom_linerange(aes(ymax =high, ymin=low),
+                 position = position_dodge(width = 0)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  coord_flip() +
+  geom_hline(yintercept = 0, linetype = 2) +
+  ggtitle("Effect size")
+```
+
+## MISC
 ### By category
 ```{r, fig.width = 9, fig.height = 3}
-ms3 = d3.munged %>%
+ms4 = d4.munged %>%
   gather(variable, value, c(prop_sub, prop_bas, prop_sup)) %>%
   mutate(variable = as.factor(variable)) %>%
-  group_by(condition,variable,category) %>%
+  group_by(condition,variable, category, subids) %>%
   mutate(value = as.numeric(value)) %>%
+  summarize(value = mean(value))%>%
+  group_by(condition,variable,category) %>%
   multi_boot_standard(column = "value") 
 
-ms3$variable = factor(ms3$variable,levels(ms3$variable)[c(2,1,3)])
-ms3$condition = factor(ms3$condition,levels(ms3$condition)[c(4,2,1,3)])
-ms3$condition = plyr::mapvalues(ms3$condition,
+ms4$variable = factor(ms4$variable,levels(ms4$variable)[c(2,1,3)])
+ms4$condition = factor(ms4$condition,levels(ms4$condition)[c(4,2,1,3)])
+ms4$condition = plyr::mapvalues(ms4$condition,
  from = c("one", "3bas", "3sub",
                                         "3sup"), 
                                to = c("1", "3 basic", "3 sub.", "3 super."))
 
-ggplot(ms3, aes(x = condition, y = mean, group = variable, fill = variable)) +
+ggplot(ms4, aes(x = condition, y = mean, group = variable, fill = variable)) +
   facet_grid(~category) +
   geom_bar(position = "dodge", stat = "identity") +
   geom_linerange(aes(ymin = ci_lower, 
@@ -189,53 +303,55 @@ ggplot(ms3, aes(x = condition, y = mean, group = variable, fill = variable)) +
 
 ### Post-task questions
 ```{r}
-d3 %>%
+d4 %>%
   group_by(education) %>%
   summarise(n = n()) %>%
   kable()
 
-d3 %>%
+d4 %>%
   group_by(enjoyment) %>%
   summarise(n = n()) %>%
   kable()
 
-d3 %>%
+d4 %>%
   mutate(language = tolower(language)) %>%
   group_by(language) %>%
   summarise(n = n()) %>%
   kable()
 
-d3 %>%
+d4 %>%
   group_by(gender) %>%
   summarise(n = n()) %>%
   kable()
 
-d3 %>%
+d4 %>%
   group_by(asses) %>%
   summarise(n = n()) %>%
   kable()
 
-d3 %>%
+d4 %>%
   mutate(age = as.numeric(as.character(age))) %>%
   ggplot(aes(x= age)) +
   geom_histogram() +
   theme_bw() +
   ggtitle("Age distribution")
 
-unique(d3$comments)
+unique(d4$comments)
 ```
 
 ### Task time
 
-Just as a sanity check look at total task time: Expect participants to take longer in the SPSS experiment since its sequential. The data look consistent with ths.
+As a sanity check look at total task time: Expect participants to take longer in the SPSS experiments since its sequential. The data look consistent with this.
 ```{r}
 d1 = read.csv("../../exp1/analysis/exp1_A.csv" ) %>%
       mutate(exp = "XT2007a replication (E1)")
 d2 = read.csv("../../exp2/analysis/exp2_A.csv" ) %>%
       mutate(exp = "SPSS replication (E2)")
-d3 = mutate(d3, exp = "XT2007a replication (E3), blocked/diff labels")
+d3 = read.csv("../../exp3/analysis/exp3_A.csv" ) %>%
+      mutate(exp = "XT2007a replication (E3), blocked/diff labels")
+d4 = mutate(d4, exp = "SPSS replication (E4), blocked/diff labels")
 
-all = rbind(d1, d2, d3)
+all = rbind(d1, d2, d3, d4)
 
 all$SubmitTime = gsub("T|Z","",all$SubmitTime)
 all$AcceptTime = gsub("T|Z","",all$AcceptTime)
@@ -243,12 +359,13 @@ all$SubmitTime = strptime(all$SubmitTime, "%F%T")
 all$AcceptTime = strptime(all$AcceptTime, "%F%T")
 all$total_time = as.numeric(all$SubmitTime) - as.numeric(all$AcceptTime)
 all$exp = as.factor(all$exp)
-all$exp = factor(all$exp,levels(all$exp)[c(2,3,1)])
+all$exp = factor(all$exp,levels(all$exp)[c(3,4,1,2)])
 
 ggplot(all, aes(x = exp, y = total_time/60)) +
     ylab("Task time (min)") +
     geom_boxplot() +
-    theme_bw()
+    theme_bw() +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 all %>%
   select(-AcceptTime, -SubmitTime) %>%
@@ -263,7 +380,9 @@ all %>%
   ylab("Task time (min)") +
   xlab("Examples") +
   theme_bw() +
-  theme(legend.position = "none")
+  theme(legend.position = "none") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
 ```
+
 
 
