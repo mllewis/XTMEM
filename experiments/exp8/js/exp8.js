@@ -1,4 +1,4 @@
-// XTMEM 3 -- Replication of XT 2007a with SPSS1 method (3-1 and diff labels for sub and one)
+// XTMEM 8 -- 3-1, same labels, simultaneous)
 // Overview: 
 //      (1) Helper
 //      (2) Parameters and Stimulus Setup 
@@ -45,7 +45,9 @@ $.fn.preload = function() {
 var total_trials = 12;
 
 // -- Words--
-var words = shuffle(["wug", "rab", "fep", "rif", "mep", "tob",  "tev", "sib", "zom", "nur", "dit", "pag"  ])
+var words = shuffle(["wug", "rab", "fep", "rif", "mep", "tob",  "tev", "sib", "zom"])
+var sub_words = words.slice(0,3)
+var other_words = words.slice(3,9)
 
 // -- Pics -
 var test_pics = ["c1_sub1", "c1_sub2", "c1_bas1", "c1_bas2", "c1_sup1", "c1_sup2", "c1_sup3", "c1_sup4",
@@ -108,12 +110,28 @@ var experiment = {
 
       // pic logic
         current_train_pics = shuffle(eval("train_" + blocks[0] + "_pics[" + current_trial_in_block + "]"))
-        var objs = eval("train_" + blocks[0] + "_pics[" + current_trial_in_block + "]").join()
 
         // word logic
-        current_word = words[0]
-        words.shift()
-  
+        if (blocks[0] == "one") {
+          // gets name of item for same category on the 3sub trials
+          objs = current_train_pics[0]
+          var current_cat_type = objs.split("_")[0] 
+          if (train_3sub_pics[0][0].split("_")[0] == current_cat_type){
+            index = 0
+          } else if (train_3sub_pics[1][0].split("_")[0] == current_cat_type){
+            index = 1
+          } else if (train_3sub_pics[2][0].split("_")[0] == current_cat_type){
+            index = 2
+          }
+          current_word = sub_words[index]
+        } else if (blocks[0] == "3sub"){
+          current_word = sub_words[current_trial_in_block]
+        } else {
+          current_word = other_words[0]
+          other_words.shift()
+        }
+
+
         // build question html
         if (blocks[0] == "one") {
           var questionprompt_html1 = '<p style="font-size:18px"> <b> Here is a ' + current_word + '. </b></p>'

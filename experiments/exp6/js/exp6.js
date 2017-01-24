@@ -1,4 +1,4 @@
-// XTMEM 3 -- Replication of XT 2007a with SPSS1 method (3-1 and diff labels for sub and one)
+// XTMEM 6 -- Replication of XTMEM3 (3-1, diff labels, simultaneous)
 // Overview: 
 //      (1) Helper
 //      (2) Parameters and Stimulus Setup 
@@ -114,6 +114,7 @@ var experiment = {
         current_word = words[0]
         words.shift()
   
+
         // build question html
         if (blocks[0] == "one") {
           var questionprompt_html1 = '<p style="font-size:18px"> <b> Here is a ' + current_word + '. </b></p>'
