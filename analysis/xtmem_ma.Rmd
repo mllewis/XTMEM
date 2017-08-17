@@ -55,7 +55,7 @@ exp_key = read.csv("experiment_key.csv")
 ```
 
 Get means and plot
-```{r,  fig.height = 6, fig.cap = "same vs. different refers to whether the one and 3 subordinate trials recieved the same lable. 3--1 and 1--3 refers to the relative order of the one and 3 subordinate trials."}
+```{r, fig.height = 6, fig.cap = "same vs. different refers to whether the one and 3 subordinate trials recieved the same lable. 3--1 and 1--3 refers to the relative order of the one and 3 subordinate trials."}
 all.d$condition = plyr::mapvalues(all.d$condition,
                                from = c("one", "3bas", "3sub", "3sup"), 
                                to = c("one", "three_basic", 
@@ -69,7 +69,8 @@ all.ms = all.d %>%
   mutate(value = as.numeric(value)) %>%
   summarize(value = mean(value)) %>%
   group_by(condition,variable, exp) %>%
-  multi_boot_standard(column = "value")  %>%
+  #multi_boot_standard(column = "value")  %>% 
+   summarise(mean = mean(value)) %>%
   ungroup() %>%
   mutate(variable = as.factor(variable)) %>%
   filter(condition == "one" | condition == "three_subordinate") %>%
@@ -79,8 +80,8 @@ all.ms = all.d %>%
   
 ggplot(all.ms, aes(x = exp, y = mean, group = condition, fill = condition)) +
   geom_bar(position = "dodge", stat = "identity") +
-  geom_linerange(aes(ymin = ci_lower, 
-                     ymax = ci_upper), 
+  geom_linerange(aes(ymin = summary_ci_lower, 
+                     ymax = summary_ci_upper), 
                  position=position_dodge(width = .9)) +
   facet_grid(order * one_3sub_label ~ timing) +
   ylim(0,1)+
@@ -205,8 +206,8 @@ ms4$condition = plyr::mapvalues(ms4$condition,
 ggplot(ms4, aes(x = condition, y = mean, group = variable, fill = variable)) +
   facet_grid(~category) +
   geom_bar(position = "dodge", stat = "identity") +
-  geom_linerange(aes(ymin = ci_lower, 
-                     ymax = ci_upper), 
+  geom_linerange(aes(ymin = summary_ci_lower, 
+                     ymax = summary_ci_upper), 
                  position=position_dodge(width = .9)) +
   ylab("Proportion of \ntest objects chosen") +
   xlab("Examples") +
@@ -286,8 +287,8 @@ all %>%
   multi_boot_standard(column = "total_time") %>%
   ggplot(aes(x = exp, y = mean, fill = exp)) +
   geom_bar(position = "dodge", stat = "identity") +
-  geom_linerange(aes(ymin = ci_lower, 
-                     ymax = ci_upper), 
+  geom_linerange(aes(ymin = summary_ci_lower, 
+                     ymax = summary_ci_upper), 
                  position=position_dodge(width = .9)) +
   ylab("Task time (min)") +
   xlab("Examples") +
@@ -326,6 +327,4 @@ good.hits = hit.counts %>%
   mutate(first_exp = min(exp),
          include = as.factor(ifelse(exp == first_exp, "keep", "remove"))) 
 ```
-
-
 

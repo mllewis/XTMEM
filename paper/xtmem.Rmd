@@ -6,25 +6,22 @@ author:
   - name          : "Molly L. Lewis"
     affiliation   : "1,2"
     corresponding : yes    # Define only one corresponding author
-    address       : "Postal address"
-    email         : "my@email.com"
+    email         : "mollylewis@uchicago.edu"
   - name          : "Michael C. Frank"
     affiliation   : "3"
-    address       : "Postal address"
-    email         : "my@email.com"
+    email         : "mcfrank@stanford.edu"
 
 affiliation:
   - id            : "1"
-    institution   : "University of Chicago"
+    institution   : "Computation Institute, University of Chicago"
   - id            : "2"
-    institution   : "University of Wisconsin, Madison"
+    institution   : "Department of Psychology, University of Wisconsin, Madison"
   - id            : "3"
-    institution   : "Stanford University"
+    institution   : "Department of Psychology, Stanford University"
 
-author_note: |
-  Add complete departmental affiliations for each author here. Each new line herein must be indented, like this line.
+note: |  
+  $^*$To whom correspondence should be addressed. E-mail: mollylewis@uchicago.edu
 
-  Enter author note here.
 
 abstract: |
   Enter abstract here. Each new line herein must be indented, like this line.
@@ -34,11 +31,11 @@ wordcount         : "X"
 
 bibliography      : ["r-references.bib"]
 
-figsintext        : no
+figsintext        : yes
 figurelist        : no
 tablelist         : no
 footnotelist      : no
-lineno            : yes
+lineno            : no
 
 lang              : "english"
 class             : "man"
@@ -47,27 +44,32 @@ output            : papaja::apa6_pdf
 
 ```{r load_packages, include = FALSE}
 library(papaja)
-library(knitr)
 library(rmarkdown)
 library(broom)
 library(tidyverse) 
 library(langcog)
 library(jsonlite)
 library(stringr)
-library(png)
-library(grid)
 library(forcats)
-library(effsize)
 library(compute.es)
+library(metafor)
+
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, cache = T, fig.pos = "T!")
 ```
 
+
+## Intro
+
 What is the suspicious coincidence effect?
+
+[@spencer2011learning; @xu2007; @xu2007word]
 
 Why is it important?
 
 Spencer et al. paper
 
 Methodological differences:
+
 * simultaneous vs. sequential
 * 3-1 vs. 1-3
 * blocking
@@ -75,24 +77,23 @@ Methodological differences:
 
 other evidence relevant on this replication
 
-
 Our current paper reports 10 pre-registered experiments. We recover the suspicious coincidence effect with a large effect size in both sequential and simultaneous presentation conditions. The effect only occurs, however, in experiments where the trial with one exemplar is presented *before* the key trial with three subordinate-consistent exemplars (the "suspicious coincidence"). We attribute this difference to participants' awareness of the possibility of subordinate generalizations following the three-exemplar trial; in these conditions, we see a high level of subordinate generalizations even for the one-exemplar trial (leading to the absence of a difference between conditions). In sum, and contra SPSS, the "suspicious coincidence" effect is robust to sequential presentation. The effect is sensitive to some features of the general experimental context, however, suggesting a potential interpretation in terms of the pragmatics of the task. 
 
 
 # Methods
 
 ```{r}
-files = dir("../data/")
-all.d = data.frame()
+files <- dir("../data/")
+all_d <- data.frame()
 for (i in 1:length(files)[1]) {
     s <- read.csv(paste0("../data/", files[i]))
-    all.d = bind_rows(all.d, data.frame(s))
+    all_d <- bind_rows(all_d, data.frame(s))
 }
 
-exp_key = read_csv("../analysis/experiment_key.csv")
+exp_key <- read_csv("../analysis/experiment_key.csv")
 ```
 
-We report how we determined our sample size, all data exclusions (if any), all manipulations, and all measures in the study. <!-- 21-word solution (Simmons, Nelson & Simonsohn, 2012; retrieved from http://ssrn.com/abstract=2160588) -->
+We report how we determined our sample size, all data exclusions (if any), all manipulations, and all measures in the study.
 
 ## Participants
 
@@ -105,52 +106,47 @@ We report how we determined our sample size, all data exclusions (if any), all m
 We used `r cite_r("r-references.bib")` for all our analyses.
 
 
-
-
 # Results
 
 
-Read in all previous data and bind to current dataset
+## Means plot
+```{r,  fig.height = 6, fig.cap = "same vs. different refers to whether the one and 3 subordinate trials recieved the same lable. 3-1 and 1-3 refers to the relative order of the one and 3 subordinate trials."}
+# remap condition values and select relevant conditions
+all_d_clean <- all_d %>%
+      mutate(condition = as.factor(condition),
+             condition = fct_recode(condition,
+                                     three_basic = "3bas",
+                                     three_subordinate = "3sub",
+                                     three_superordinate = "3sup"),
+              exp = as.factor(exp)) %>%
+      filter(condition == "one" | condition == "three_subordinate") %>%
+      select(exp, everything())
 
-
-Get means and plot
-```{r,  fig.height = 6, fig.cap = "same vs. different refers to whether the one and 3 subordinate trials recieved the same lable. 3--1 and 1--3 refers to the relative order of the one and 3 subordinate trials."}
-all.d$condition = plyr::mapvalues(all.d$condition,
-                               from = c("one", "3bas", "3sub", "3sup"), 
-                               to = c("one", "three_basic", 
-                                        "three_subordinate",
-                                        "three_superordinate"))
-all.d$condition = as.factor(all.d$condition)
-
-all.ms = all.d %>%
+# get condition means, and join in experiment values
+all_ms <- all_d_clean %>%
   gather(variable, value, c(prop_sub, prop_bas, prop_sup)) %>%
-  group_by(condition,variable, exp, subids) %>%
   mutate(value = as.numeric(value)) %>%
+  filter(variable == "prop_bas") %>%
+  group_by(condition, exp, subids) %>%
   summarize(value = mean(value)) %>%
-  group_by(condition,variable, exp) %>%
+  group_by(condition, exp) %>%
   # multi_boot_standard(column = "value")  %>%
   summarise(mean = mean(value), 
             error = qt(0.975,df=n()-1)*sd(value)/sqrt(n()),
             ci_lower = mean - error,  # FIXME to bootstrap
             ci_upper = mean + error) %>%
-  ungroup() %>%
-  mutate(variable = as.factor(variable)) %>%
-  filter(condition == "one" | condition == "three_subordinate") %>%
-  filter(variable == "prop_bas") %>%
-  mutate(exp = as.factor(exp)) %>%
   left_join(exp_key) 
 ```
 
 
 ```{r}
-
-ggplot(all.ms, 
+ggplot(all_ms, 
        aes(x = exp, y = mean, group = condition, fill = condition)) +
   geom_bar(position = "dodge", stat = "identity") +
   geom_linerange(aes(ymin = ci_lower, 
                      ymax = ci_upper), 
-                 position=position_dodge(width = .9)) +
-  facet_grid(order ~ timing, scales = "free_x", drop = TRUE) +
+                 position = position_dodge(width = .9)) +
+  facet_grid(order ~ timing, scales = "free", drop = TRUE) +
   ylim(0,1)+
   ylab("Proportion basic-level choices ") +
   xlab("Experiment") +
@@ -158,43 +154,102 @@ ggplot(all.ms,
   ggthemes::scale_color_solarized()
 ```
 
-## Plot effect size
-Get effect sizes of our experiments. 
+```{r, eval = F}
+p1 <- all_ms %>%
+  filter(order == "1-3", timing == "sequential") %>%
+  ggplot(aes(x = exp, y = mean, fill = condition)) +
+  geom_bar(position = "dodge", stat = "identity") +
+  geom_linerange(aes(ymin = ci_lower, 
+                     ymax = ci_upper), 
+                 position = position_dodge(width = .9)) +
+  ylim(0,1) +
+  ylab("") +
+  xlab("") +
+  ggthemes::theme_few() + 
+  ggthemes::scale_color_solarized() +
+  theme(legend.position = "none")
+
+p2 <- all_ms %>%
+  filter(order == "3-1", timing == "sequential") %>%
+  ggplot(aes(x = exp, y = mean, fill = condition)) +
+  geom_bar(position = "dodge", stat = "identity") +
+  geom_linerange(aes(ymin = ci_lower, 
+                     ymax = ci_upper), 
+                 position = position_dodge(width = .9)) +
+  ylim(0, 1) +
+  ylab("") +
+  xlab("") +
+  ggthemes::theme_few() + 
+  ggthemes::scale_color_solarized() +
+  theme(legend.position = "none")
+
+p3 <- all_ms %>%
+  filter(order == "1-3", timing == "simultaneous") %>%
+  ggplot(aes(x = exp, y = mean, fill = condition)) +
+  geom_bar(position = "dodge", stat = "identity") +
+  geom_linerange(aes(ymin = ci_lower, 
+                     ymax = ci_upper), 
+                 position = position_dodge(width = .9)) +
+  ylim(0, 1) +
+  ylab("") +
+  xlab("") +
+  ggthemes::theme_few() + 
+  ggthemes::scale_color_solarized() +
+  theme(legend.position = "none")
+
+p4 <- all_ms %>%
+  filter(order == "3-1", timing == "simultaneous") %>%
+  ggplot(aes(x = exp, y = mean, fill = condition)) +
+  geom_bar(position = "dodge", stat = "identity") +
+  geom_linerange(aes(ymin = ci_lower, 
+                     ymax = ci_upper), 
+                 position = position_dodge(width = .9)) +
+  ylim(0, 1) +
+  ylab("") +
+  xlab("") +
+  ggthemes::theme_few() + 
+  ggthemes::scale_color_solarized() +
+  theme(legend.position = "none")
+
+grid.arrange(p3, p1,p4 ,p2 , layout_matrix = rbind(c(1,2) ,c(3,4)))
+
+```
+
+## Effect size plot
 ```{r}
-all.ms.subj = all.d %>%
+# get subject level means
+all_ms_subj <- all_d_clean %>%
   gather(variable, value, c(prop_sub, prop_bas, prop_sup)) %>%
   group_by(condition,variable, exp, subids) %>%
   mutate(value = as.numeric(value)) %>%
   summarize(value = mean(value)) %>%
   filter(condition == "one" | condition == "three_subordinate", variable == 'prop_bas') %>%
   spread(condition, value) %>%
-  ungroup () %>%
+  ungroup() %>%
   select(-variable)
 
-effect.sizes.npaired  = all.ms.subj %>%
+# get effect sizes
+LF_effect_sizes <- all_ms_subj %>%
   group_by(exp) %>%
-  summarize(m.one = mean(one),
-            sd.one = sd(one),
-            m.3sub = mean(three_subordinate),
-            sd.3sub = sd(three_subordinate),
-            n= n()) %>%
-  do(data.frame(d = mes(.$m.one, .$m.3sub, .$sd.one,
-       .$sd.3sub, .$n, .$n, verbose = F)$d,
-       var.d = mes(.$m.one, .$m.3sub, .$sd.one,
-       .$sd.3sub, .$n, .$n, verbose = F)$var.d))%>%
-  mutate(high = d + (1.96*var.d),
-         low = d - (1.96*var.d),
-         es.type = "nonpaired",
-         exp = as.numeric(c(1:10)))  # fix this
-
-effect.sizes = effect.sizes.npaired %>%
-  mutate(n = 50, 
-         exp = as.factor(exp)) 
+  summarize(m_one = mean(one),
+            sd_one = sd(one),
+            m_3sub = mean(three_subordinate),
+            sd_3sub = sd(three_subordinate),
+            n = n()) %>%
+  do(data.frame(d = mes(.$m_one, .$m_3sub, .$sd_one,
+                     .$sd_3sub, .$n, .$n, verbose = F)$d,
+               d_var = mes(.$m_one, .$sd_3sub, .$sd_one,
+                    .$sd_3sub, .$n, .$n, verbose = F)$var.d)) %>%
+  mutate(high = d + (1.96*d_var),
+         low = d - (1.96*d_var),
+         es_type = "nonpaired",
+         exp = as.factor( c(1:10)),
+         n = 50)
 ```
 
 Calculate effect sizes from previous experiments. Here are the means and sd based on SPSS table 1.
-```{r}
-original.effect.sizes = data.frame(exp = c("XT_adults_e1", "XT_children_e2",
+```{r, include = F}
+literature_effect_sizes = data.frame(exp = c("XT_adults_e1", "XT_children_e2",
                         "SPSS_e1",
                         "SPSS_e2",
                         "SPSS_e3",
@@ -205,57 +260,98 @@ original.effect.sizes = data.frame(exp = c("XT_adults_e1", "XT_children_e2",
                         one_sd = c(40.40, 40.40, 40.40,37.18,35.20,32.09,24.51),
                         three_sd = c(24.97, 24.97, 24.97,36.11,42.63,25.45,24.25),
                         n = c(22, 36, 19, 20, 19,19,19))
-kable(original.effect.sizes)
+kable(literature_effect_sizes)
 ```
 
-Calculate previous effect sizes
+Calculate previous effect sizes from literature.
 ```{r}
-original.effect.sizes$d = mes(original.effect.sizes$one_means/100,
-                              original.effect.sizes$three_means/100, 
-                              original.effect.sizes$one_sd/100,
-                              original.effect.sizes$three_sd/100,
-                              original.effect.sizes$n,
-                              original.effect.sizes$n, verbose = F)$d
+literature_effect_sizes$d = mes(literature_effect_sizes$one_means/100,
+                              literature_effect_sizes$three_means/100, 
+                              literature_effect_sizes$one_sd/100,
+                              literature_effect_sizes$three_sd/100,
+                              literature_effect_sizes$n,
+                              literature_effect_sizes$n, verbose = F)$d
 
-original.effect.sizes$d_var = mes(original.effect.sizes$one_means/100,
-                                  original.effect.sizes$three_means/100,
-                                  original.effect.sizes$one_sd/100,
-                                  original.effect.sizes$three_sd/100,
-                                  original.effect.sizes$n, 
-                                  original.effect.sizes$n,
+literature_effect_sizes$d_var = mes(literature_effect_sizes$one_means/100,
+                                  literature_effect_sizes$three_means/100,
+                                  literature_effect_sizes$one_sd/100,
+                                  literature_effect_sizes$three_sd/100,
+                                  literature_effect_sizes$n, 
+                                  literature_effect_sizes$n,
                                   verbose = F)$var.d
 
-original.effect.sizes = original.effect.sizes %>%
+literature_effect_sizes = literature_effect_sizes %>%
                             mutate(high = d + (1.96*d_var),
-                                     low = d - (1.96*d_var)) %>%
+                                   low = d - (1.96*d_var)) %>%
                             select(-one_means, -three_means, -one_sd, -three_sd) %>%
-                            mutate(es.type = "nonpaired")
+                            mutate(es_type = "nonpaired")
 ```
 
-```{r, fig.height = 7, fig.cap = "same vs. different refers to whether the one and 3 subordinate trials recieved the same lable. 3--1 and 1--3 refers to the relative order of the one and 3 subordinate trials."}
-all.es =  original.effect.sizes %>%
-            bind_rows(effect.sizes) %>%
+ MA effect sizes
+```{r}
+all_es =  literature_effect_sizes %>%
+            bind_rows(LF_effect_sizes) %>%
             left_join(exp_key) %>%
-  mutate(source = ifelse(str_detect(exp, "XT"), "XT", 
-                         ifelse(str_detect(exp, "SPSS"), "SPSS", "LF")), 
-         source = fct_relevel(source, "XT","SPSS","LF"))
+            mutate(source = ifelse(str_detect(exp, "XT"), "XT2009a", 
+                               ifelse(str_detect(exp, "SPSS"), "SPSS2011", "LF")), 
+                   source = fct_relevel(source, "XT2009a","SPSS2011","LF"),
+                   timing = fct_relevel(timing,"simultaneous", "sequential")) %>%
+            mutate(source = as.numeric(source))
+
+seq13 <- rma(d, d_var, dat = filter(all_es, timing == "sequential", order == "1-3"))
+seq31 <- rma(d, d_var, dat = filter(all_es, timing == "sequential", order == "3-1"))
+sim13 <- rma(d, d_var, dat = filter(all_es, timing == "simultaneous", order == "1-3"))
+sim31 <- rma(d, d_var, dat = filter(all_es, timing == "simultaneous", order == "3-1"))
+
+ma_es <- data.frame(order = c("1-3", "3-1", "1-3", "3-1"),
+           timing = c("sequential", "sequential", "simultaneous", "simultaneous"),
+           d = c(seq13$b[[1]], seq31$b[[1]], sim13$b[[1]], sim31$b[[1]]),
+           d_low = c(seq13$ci.lb[[1]], seq31$ci.lb[[1]], sim13$ci.lb[[1]], sim31$ci.lb[[1]]),
+           d_high = c(seq13$ci.ub[[1]], seq31$ci.ub[[1]], sim13$ci.ub[[1]], sim31$ci.ub[[1]]))
+```
 
 
-# pch =  one_3sub_label
+```{r, fig.cap = "same vs. different refers to whether the one and 3 subordinate trials recieved the same lable. 3-1 and 1-3 refers to the relative order of the one and 3 subordinate trials."}
 
-ggplot(all.es, aes(x = source, y = d, col = one_3sub_label, pch = blocking)) +
-  geom_point(aes(size = n))+
-  geom_linerange(aes(ymax = high, ymin=low)) +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+ggplot(all_es) +
+  geom_rect(aes(xmin = -Inf, xmax = Inf, ymin = d_low, ymax = d_high), 
+            fill = "red", alpha = 0.05, inherit.aes = FALSE, data = ma_es) +
+  geom_hline(aes(yintercept = d), data = ma_es, color = "red") +
+  scale_color_manual(values=c("black","grey63")) +
+  geom_pointrange(aes(x = jitter(source, 1.2), y = d, ymax = high, 
+                      ymin = low, color = one_3sub_label, shape = blocking), 
+                  size = .5) +
+  geom_hline(yintercept = 0, linetype = 2, color = "black") +
   facet_grid(order ~ timing) +
-  geom_hline(yintercept = 0, linetype = 2) +
-  xlab("Experiment") + 
-  ggthemes::theme_few() +
-  ggthemes::scale_color_solarized()
+  scale_x_continuous(breaks = c(1:3), limits = c(.6, 3.3),
+                     labels = c("XT2009a","SPSS2011","LF")) +
+  ylab("Cohen's d") +
+  xlab("Paper") + 
+  guides(color = guide_legend("label"),
+         shape = guide_legend("trial type order"))  +
+  ggthemes::theme_few() 
+  #theme(axis.text.x = element_text(angle = 90))
+
+```
+
+```{r}
+mod <- rma(d ~ timing + order + one_3sub_label + blocking, d_var, dat = all_es)
+
+mod_df <- data.frame(`fixed effect` = c("Intercept", "Sequential vs. simultaneous timing", 
+                                        "3-1 vs. 1-3 condition order",
+                                          "Same vs. different label", "Random vs. blocked trial order"),
+                      beta = paste0(round(as.numeric(mod$beta),2), 
+                                          " [", round(as.numeric(mod$ci.lb),2), ","
+                                    , round(as.numeric(mod$ci.ub),2), "]"),
+                     `z-value` = round(as.numeric(mod$zval),2),
+                     `p-value` = round(as.numeric(mod$pval),2))
+
+kable(mod_df, align = c('l', 'r', 'r', 'r'),
+      col.names = c("Fixed effect", "beta", "z-value", "p-value"),
+       format = "latex", booktabs = TRUE) 
 ```
 
 # Discussion
-
 
 \newpage
 
