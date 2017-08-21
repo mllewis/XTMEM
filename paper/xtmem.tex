@@ -76,7 +76,7 @@
 \fi
 \hypersetup{breaklinks=true,
             pdfauthor={},
-            pdftitle={Suspicious coincidences revisited},
+            pdftitle={Still suspicious: The suspicious coincidence effect revisited},
             colorlinks=true,
             citecolor=blue,
             urlcolor=blue,
@@ -110,9 +110,9 @@
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 
 % Essential manuscript parts
-  \title{Suspicious coincidences revisited}
+  \title{Still suspicious: The suspicious coincidence effect revisited}
 
-  \shorttitle{Title}
+  \shorttitle{Suspicious coincidence effect revisited}
 
 
   \author{Molly L. Lewis\textsuperscript{1,2}~\& Michael C. Frank\textsuperscript{3}}
@@ -226,55 +226,87 @@ We used R (3.4.1, R Core Team, 2017) and the R-packages \emph{bindrcpp}
 \emph{compute.es} (0.2.4, Re, 2013), \emph{dplyr} (0.7.2, Wickham,
 Francois, Henry, \& Müller, 2017), \emph{forcats} (0.2.0, Wickham,
 2017a), \emph{ggplot2} (2.2.1, Wickham, 2009), \emph{jsonlite} (1.5,
-Ooms, 2014), \emph{knitr} (1.17, Xie, 2015), \emph{langcog} (0.1.9001,
-Braginsky, Yurovsky, \& Frank, n.d.), \emph{Matrix} (1.2.10, Bates \&
-Maechler, 2017), \emph{metafor} (2.0.0, Viechtbauer, 2010),
-\emph{papaja} (0.1.0.9492, Aust \& Barth, 2017), \emph{png} (0.1.7,
-Urbanek, 2013), \emph{purrr} (0.2.3, Henry \& Wickham, 2017),
-\emph{readr} (1.1.1, Wickham, Hester, \& Francois, 2017),
-\emph{rmarkdown} (1.6, Allaire et al., 2017), \emph{stringr} (1.2.0,
-Wickham, 2017b), \emph{tibble} (1.3.3, Müller \& Wickham, 2017),
+Ooms, 2014), \emph{kableExtra} (0.4.0, Zhu, 2017), \emph{knitr} (1.17,
+Xie, 2015), \emph{langcog} (0.1.9001, Braginsky, Yurovsky, \& Frank,
+n.d.), \emph{Matrix} (1.2.10, Bates \& Maechler, 2017), \emph{metafor}
+(2.0.0, Viechtbauer, 2010), \emph{papaja} (0.1.0.9492, Aust \& Barth,
+2017), \emph{png} (0.1.7, Urbanek, 2013), \emph{purrr} (0.2.3, Henry \&
+Wickham, 2017), \emph{readr} (1.1.1, Wickham, Hester, \& Francois,
+2017), \emph{rmarkdown} (1.6, Allaire et al., 2017), \emph{stringr}
+(1.2.0, Wickham, 2017b), \emph{tibble} (1.3.3, Müller \& Wickham, 2017),
 \emph{tidyr} (0.6.3, Wickham, 2017c), and \emph{tidyverse} (1.1.1,
 Wickham, 2017d) for all our analyses.
 
 \section{Results}\label{results}
 
-\subsection{Means plot}\label{means-plot}
+\begin{figure}
+\centering
+\includegraphics{xtmem_files/figure-latex/plot_means-1.pdf}
+\caption{(\#fig:plot\_means)Mean proportion generalization to basic
+level exemplars in the one (green) and three (pink) subordinate exemplar
+conditions for all 10 of our experiments. Each facet corresponds to a
+pairing of presentation timing (sequential vs.~simultaneous) and trial
+order (1-3 vs.~3-1). Error bars are bootstrapped 95\% confidence
+intervals.}
+\end{figure}
+
+\begin{table}[!h]
+\centering\begingroup\fontsize{12}{14}\selectfont
+
+\begin{tabular}{crrrrrr}
+\toprule
+\multicolumn{2}{c}{ } & \multicolumn{4}{c}{Manipulations} & \multicolumn{1}{c}{ } \\
+\cmidrule(l{2pt}r{2pt}){3-6}
+Experiment & N & Timing & Order & Blocking & Label & Effect Size\\
+\midrule
+1 & 50 & sequential & 1-3 & random & same & 1.42 [1.32, 1.52]\\
+2 & 50 & sequential & 1-3 & blocked & different & 1.26 [1.18, 1.34]\\
+3 & 50 & simultaneous & 1-3 & random & same & 1.32 [1.24, 1.4]\\
+4 & 50 & simultaneous & 1-3 & random & same & 1.14 [1.06, 1.22]\\
+5 & 50 & simultaneous & 1-3 & random & different & 1.16 [1.08, 1.24]\\
+\addlinespace
+6 & 50 & sequential & 3-1 & blocked & different & -0.44 [-0.52, -0.36]\\
+7 & 50 & sequential & 3-1 & blocked & same & -0.17 [-0.25, -0.09]\\
+8 & 50 & simultaneous & 3-1 & blocked & different & 0.02 [-0.06, 0.1]\\
+9 & 50 & simultaneous & 3-1 & random & different & -0.06 [-0.14, 0.02]\\
+10 & 50 & simultaneous & 3-1 & random & same & -0.14 [-0.22, -0.06]\\
+\bottomrule
+\end{tabular}\endgroup
+\end{table}
 
 \begin{figure}
 \centering
-\includegraphics{xtmem_files/figure-latex/unnamed-chunk-3-1.pdf}
-\caption{}
+\includegraphics{xtmem_files/figure-latex/plot_es-1.pdf}
+\caption{(\#fig:plot\_es)Cumulative plot of effect sizes for all 17
+studies conducted on the suspicious coincidence effect by XT (Xu \&
+Tenenbaum, 2007a), SPSS (Spencer, et al, 2011), and the current authors.
+Facets along the vertical indicate whether the single exemplar trial
+occurred first (1-3) or second (3-1). Facets along the horizontal
+indicate whether the exemplars were presented simulateously as in XT or
+sequentially as in SPSS. Point color indicates whether the single
+exemplar and three subordinate exemplars received the same (grey) or
+different (black) label. Point shape indicates whether trials were
+blocked by category (circle) or pseudo-random (triangle). Points are
+jittered along the x-axis for visibility. The red line reflects the
+meta-analytic estimate of the effect size. All error bars are 95\%
+confidence intervals.}
 \end{figure}
 
-\subsection{Effect size plot}\label{effect-size-plot}
-
-Calculate effect sizes from previous experiments. Here are the means and
-sd based on SPSS table 1.
-
-Calculate previous effect sizes from literature.
-
-MA effect sizes
-
-\begin{figure}
-\centering
-\includegraphics{xtmem_files/figure-latex/unnamed-chunk-9-1.pdf}
-\caption{\label{fig:unnamed-chunk-9}same vs.~different refers to whether the
-one and 3 subordinate trials recieved the same lable. 3-1 and 1-3 refers
-to the relative order of the one and 3 subordinate trials.}
-\end{figure}
+\begin{table}[!h]
+\centering\begingroup\fontsize{12}{14}\selectfont
 
 \begin{tabular}{lrrr}
 \toprule
 Fixed effect & beta & z-value & p-value\\
 \midrule
-Intercept & 1.33 [1,1.66] & 7.90 & 0.00\\
-Sequential vs. simultaneous timing & -0.18 [-0.47,0.11] & -1.24 & 0.21\\
-3-1 vs. 1-3 condition order & -1.4 [-1.66,-1.15] & -10.77 & 0.00\\
-Same vs. different label & 0.07 [-0.2,0.34] & 0.51 & 0.61\\
-Random vs. blocked trial order & -0.09 [-0.44,0.27] & -0.49 & 0.63\\
+Intercept & 1.33 [1, 1.66] & 7.90 & <.0001\\
+Sequential vs. simultaneous timing & -0.18 [-0.47, 0.11] & -1.24 & 0.21\\
+3-1 vs. 1-3 condition order & -1.4 [-1.66, -1.15] & -10.77 & <.0001\\
+Same vs. different label & 0.07 [-0.2, 0.34] & 0.51 & 0.61\\
+Random vs. blocked trial order & -0.09 [-0.44, 0.27] & -0.49 & 0.63\\
 \bottomrule
-\end{tabular}
+\end{tabular}\endgroup
+\end{table}
 
 \section{Discussion}\label{discussion}
 
@@ -398,6 +430,11 @@ Xu, F., \& Tenenbaum, J. (2007). Word learning as Bayesian inference.
 \hypertarget{ref-xu2007}{}
 Xu, F., \& Tenenbaum, J. B. (2007). Sensitivity to sampling in Bayesian
 word learning. \emph{Developmental Science}, \emph{10}(3), 288--297.
+
+\hypertarget{ref-R-kableExtra}{}
+Zhu, H. (2017). \emph{KableExtra: Construct complex table with 'kable'
+and pipe syntax}. Retrieved from
+\url{https://CRAN.R-project.org/package=kableExtra}
 
 
 
