@@ -1,4 +1,4 @@
-// XTMEM 6 -- Replication of XTMEM3 (3-1, diff labels, simultaneous)
+// XTMEM 6 -- dif-blocked-3-simultaneous (Replication of XTMEM3)
 // Overview: 
 //      (1) Helper
 //      (2) Parameters and Stimulus Setup 

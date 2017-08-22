@@ -1,4 +1,4 @@
-// XTMEM 5 -- Replication of replication of XTMEM 1 (simultatenous, 1-3, same label)
+// XTMEM 5 -- same-random-1-simultaneous (Replication of XTMEM 1) 
 // Overview: 
 //      (1) Helper
 //      (2) Parameters and Stimulus Setup 
@@ -68,7 +68,6 @@ var train_three_pics = shuffle([["c1_sub3", "c1_sub4", "c1_sub5"],
                                 ["c2_sub3", "c2_sup5", "c2_sup6"],  
                                 ["c3_sub3", "c3_sup5", "c3_sup6"]])
 
-// shuffle block order with constraint that one or sub appears first
 var  blocks = ["one", "three"]
 
 

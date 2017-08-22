@@ -1,4 +1,4 @@
-// XTMEM 3 -- Replication of XT 2007a with SPSS1 method (3-1 and diff labels for sub and one)
+// XTMEM 3 -- dif-blocked-3-simulatenous
 // Overview: 
 //      (1) Helper
 //      (2) Parameters and Stimulus Setup 

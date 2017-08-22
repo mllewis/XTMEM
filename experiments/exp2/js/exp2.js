@@ -1,4 +1,4 @@
-// XTMEM 2 -- Replication of SPSS Exp2
+// XTMEM 2 -- same-random-1-sequential (Replication of SPSS E2)
 // Overview: 
 //      (1) Helper
 //      (2) Parameters and Stimulus Setup 
@@ -41,7 +41,6 @@ $.fn.preload = function() {
 
 
 
-
 // ---------------- 2. PARAMETER SETUP ------------------
 var total_trials = 12;
 
@@ -66,7 +65,6 @@ var train_three_pics = shuffle([["c1_sub3", "c1_sub4", "c1_sub5"],
                                 ["c2_sub3", "c2_sup5", "c2_sup6"],  
                                 ["c3_sub3", "c3_sup5", "c3_sup6"]])
 
-// shuffle block order with constraint that one or sub appears first
 var  blocks = ["one", "three"]
 
 

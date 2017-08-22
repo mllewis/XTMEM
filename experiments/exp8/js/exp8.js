@@ -1,4 +1,4 @@
-// XTMEM 8 -- 3-1, same labels, simultaneous)
+// XTMEM 8 -- same-blocked-3-simultaneous
 // Overview: 
 //      (1) Helper
 //      (2) Parameters and Stimulus Setup 

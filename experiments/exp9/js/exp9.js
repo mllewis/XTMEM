@@ -1,4 +1,4 @@
-// XTMEM 9 -- 3-1 order, same labels, sequential
+// XTMEM 9 -- same-blocked-3-sequential
 // Overview: 
 //      (1) Helper
 //      (2) Parameters and Stimulus Setup 

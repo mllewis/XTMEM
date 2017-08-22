@@ -1,4 +1,4 @@
-// XTMEM 4 -- Exact replication of SPSS Exp2, with same trial order and number of labels
+// XTMEM 4 -- dif-blocked-3-sequential (Replication of SPSS E2)
 // Overview: 
 //      (1) Helper
 //      (2) Parameters and Stimulus Setup 

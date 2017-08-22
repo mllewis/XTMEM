@@ -98,10 +98,34 @@ exp_key <- read_csv("../analysis/experiment_key.csv") %>%
 We report how we determined our sample size, all data exclusions (if any), all manipulations, and all measures in the study.
 
 ## Participants
+50 participants were recruited on Amazon Mechanical Turk for each of our 10 experiments (N = 500). Participants were paid 40 cents for their participation
 
-## Material
+Our sample size was determined based on a pre-registered power calculation using a meta-anayltic estimate of the effect size from studies conducted by XT and SPSS (see SI for more details). The chosen sample size was approximately twice the estimated sample size necessary to obtain a power of 1.
+
+* Exclusions?
+
+## run: 3-same-sequential-random/1-dif-sequential-blocked
+9: same-blocked-3-seq [grey triangle -> circle]
+10: dif-random-1-seq [black circle]
+
+```{r, include = F}
+# Preregistration: https://osf.io/6xa44/register/5771ca429ad5a1020de2872e
+# pre-reg power calculation: 
+```
+
+
+## Stimuli
+Our stimuli closely resembled that of XT and SPSS. The pictures consisted of three sets of 15 photos from different basic level categories (vegetables, vehicles and animals). Within each category, five were subordinate exemplars (e.g. green pepper), four were basic level exemplars (e.g. peppers), and six were superordinate exemplars (e.g. vegetables). The exemplars were divided into a learning and test set.  
+
+Novel labels 
 
 ## Procedure
+
+### Manipulations:
+(1) Timing
+(2) Order
+(3) Blocking
+(4) Labels
 
 ## Data analysis
 
@@ -109,7 +133,6 @@ We used `r cite_r("r-references.bib")` for all our analyses.
 
 
 # Results
-
 
 ```{r get_means}
 # remap condition values and select relevant conditions
@@ -134,12 +157,12 @@ all_ms <- all_d_clean %>%
   # multi_boot_standard(column = "value")  %>%
   summarise(mean = mean(value), 
             error = qt(0.975,df=n()-1)*sd(value)/sqrt(n()),
-            ci_lower = mean - error,  # FIXME to bootstrap
+            ci_lower = mean - error,# FIXME to bootstrap
             ci_upper = mean + error) %>%
   left_join(exp_key)
 ```
 
-```{r plot_means, fig.height = 3, fig.cap = "Mean proportion generalization to basic level exemplars in the one (green) and three (pink) subordinate exemplar conditions for all 10 of our experiments. Each facet corresponds to a pairing of presentation timing (sequential vs. simultaneous) and trial order (1-3 vs. 3-1). Error bars are bootstrapped 95% confidence intervals."}
+```{r fig.height = 3, fig.cap = "Mean proportion generalization to basic level exemplars in the one (green) and three (pink) subordinate exemplar conditions for all 10 of our experiments. Each facet corresponds to a pairing of presentation timing (sequential vs. simultaneous) and trial order (1-3 vs. 3-1). Error bars are bootstrapped 95% confidence intervals."}
 
 all_ms_recoded <- all_ms %>%
    mutate(exp_recoded = fct_relevel(exp_recoded, as.character(seq(1:10))),
@@ -208,23 +231,34 @@ LF_effect_sizes <- LF_means %>%
   select(exp_recoded, n, everything())
 ```
 
-```{r exp_table}
+```{r}
 exp_table <- exp_key %>%
   slice(1:10) %>%
   left_join(LF_effect_sizes) %>%
-  mutate(d_string = paste0(d," [", round(low,2), ", ", round(high,2) , "]")) %>%
-  select(exp_recoded, n, timing, order, blocking, one_3sub_label, d_string) %>%
-  mutate(exp_recoded = as.numeric(exp_recoded)) %>%
+  mutate(d_string = paste0(d," [", round(low,2), ", ", round(high,2) , "]"),
+         direct_replication_of_string = ifelse(is.na(direct_replication_of),
+                                              "", direct_replication_of),
+         timing = str_replace_all(timing, "sequential", "seq."),
+         timing = str_replace_all(timing, "simultaneous", "simult."),
+         one_3sub_label = str_replace_all(one_3sub_label, "different", "diff."),
+         exp_recoded = as.numeric(exp_recoded)) %>%
+  select(exp_recoded, n, timing, order, blocking, 
+         one_3sub_label, d_string, direct_replication_of_string) %>%
   arrange(exp_recoded)
 
-kable(exp_table, align = c('c', 'r', 'r', 'r', "r", "r", "r"), 
+# caption = "Summary of our 10 experiments. N = sample size; Timing = presentation timing (simultaneous or sequential); Order = relative ordering of 1 vs. 3 subordinate trials; Blocking = trials blocked by category or pseudorandom; Label = same or different label used in 1 and 3 trials; Effect size = Cohen's d [95% CI]; Orginal Exp. = Corresponding prior experiment.",
+
+kable(exp_table, align = c('c', 'r', 'r', 'r', "r", "r", "r", "r"), 
       #col.names = c("Experiment \nNum.", "N", "Timing", "Condition \nOrder",
       #              "Trial \nOrder", "Label", "Effect Size"),
-      col.names = c("Experiment", "N", "Timing", "Order",
-                     "Blocking", "Label", "Effect Size"),
+      caption = "Summary of our 10 experiments.",
+      col.names = c("Exp.", "N", "Timing", "Order",
+                     "Blocking", "Label", "Effect Size", "Original \nExp."),
       format = "latex", booktabs = TRUE) %>%
     kable_styling(font_size = 12) %>%
-    add_header_above(c(" " = 2, "Manipulations" = 4, " ")) 
+    add_header_above(c(" " = 2, "Manipulations" = 4, " ")) %>%
+    add_footnote("N = sample size; Timing = presentation timing (sequential or simultaneous); Order = relative ordering of 1 and 3 subordinate trials; Blocking = trials blocked by category or pseudorandom; Label = same or different label in 1 and 3 trials; Effect size = Cohen's d [95% CI]; Orginal Exp.\ = corresponding prior experiment.", notation = "number")
+
 ```
 
 ```{r get_literature_es}
@@ -288,15 +322,16 @@ ma_es <- data.frame(order = c("1-3", "3-1", "1-3", "3-1"),
            d_high = c(seq13$ci.ub[[1]], seq31$ci.ub[[1]], sim13$ci.ub[[1]], sim31$ci.ub[[1]]))
 ```
 
-```{r plot_es, fig.width=5.5, fig.height=3.5, fig.cap = "Cumulative plot of effect sizes for all 17 studies conducted on the suspicious coincidence effect by XT (Xu & Tenenbaum, 2007a), SPSS (Spencer, et al, 2011), and the current authors.  Facets along the vertical  indicate whether the single exemplar trial occurred first (1-3) or second (3-1). Facets along the horizontal indicate whether the exemplars were presented simulateously as in XT or sequentially as in SPSS. Point color indicates whether the single exemplar and three subordinate exemplars received the same (grey) or different (black) label. Point shape indicates whether trials were blocked by category (circle) or pseudo-random (triangle). Points are jittered along the x-axis for visibility. The red line reflects the meta-analytic estimate of the effect size. All error bars are 95% confidence intervals."}
+```{r fig.width=5.5, fig.height=3.5, fig.cap = "Cumulative plot of effect sizes for all 17 studies conducted on the suspicious coincidence effect by XT (Xu & Tenenbaum, 2007a), SPSS (Spencer, et al, 2011), and the current authors.  Facets along the vertical  indicate whether the single exemplar trial occurred first (1-3) or second (3-1). Facets along the horizontal indicate whether the exemplars were presented simulateously as in XT or sequentially as in SPSS. Point color indicates whether the single exemplar and three subordinate exemplars received the same (grey) or different (black) label. Point shape indicates whether trials were blocked by category (circle) or pseudo-random (triangle). Points are jittered along the x-axis for visibility. The red line reflects the meta-analytic estimate of the effect size. All error bars are 95% confidence intervals."}
 
 ggplot(all_es) +
   geom_rect(aes(xmin = -Inf, xmax = Inf, ymin = d_low, ymax = d_high), 
             fill = "red", alpha = 0.05, inherit.aes = FALSE, data = ma_es) +
   geom_hline(aes(yintercept = d), data = ma_es, color = "red") +
-  scale_color_manual(values=c("black","grey63")) +
+  scale_color_manual(values = c("black","grey63")) +
   geom_pointrange(aes(x = jitter(source, 1.4),  y = d, ymax = high, 
-                      ymin = low, color = one_3sub_label, shape = fct_rev(blocking)), size = .5) +
+                      ymin = low, color = one_3sub_label, shape = fct_rev(blocking)), 
+                  size = .5) +
   geom_hline(yintercept = 0, linetype = 2, color = "black") +
   facet_grid(order ~ timing) +
   scale_x_continuous(breaks = c(1:3), limits = c(.6, 3.3),
@@ -306,17 +341,16 @@ ggplot(all_es) +
   guides(color = guide_legend("Label"),
          shape = guide_legend("Blocking"))  +
   ggthemes::theme_few() 
-
 ```
 
-```{r ma_model}
+```{r}
 mod <- rma(d ~ timing + order + one_3sub_label + blocking, d_var, dat = all_es)
 
 mod_df <- data.frame(fixed_effect = c("Intercept", 
-                                        "Sequential vs. simultaneous timing", 
-                                        "3-1 vs. 1-3 condition order",
-                                        "Same vs. different label", 
-                                        "Random vs. blocked trial order"),
+                                        "Simultaneous vs. sequential timing", 
+                                        "1-3 vs. 3-1 condition order",
+                                        "Different vs. same label", 
+                                        "Blocked vs. random trial order"),
                       beta_string = paste0(round(mod$beta, 2), 
                                         " [", round(mod$ci.lb, 2), ", "
                                   , round(mod$ci.ub,2) , "]"),
@@ -324,12 +358,11 @@ mod_df <- data.frame(fixed_effect = c("Intercept",
                       pval_string = round(mod$pval, 2)) %>%
           mutate(pval_string = ifelse(pval_string == 0, "<.0001", pval_string))
 
-
-kable(mod_df, align = c('l', 'r', 'r', 'r'), digits = 2,
+kable(mod_df, caption = "Meta-analytic model with manipulations as fixed effects.",
+      align = c('l', 'r', 'r', 'r'), digits = 2,
       col.names = c("Fixed effect", "beta", "z-value", "p-value"),
       format = "latex", booktabs = TRUE)  %>%
-      kable_styling(font_size = 12)
-
+      kable_styling(font_size = 12) 
 ```
 
 # Discussion

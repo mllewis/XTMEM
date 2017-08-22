@@ -1,4 +1,4 @@
-// XTMEM 7 -- simultatenous, 1-3, dif label
+// XTMEM 7 -- dif-random-1-simultaneous
 // Overview: 
 //      (1) Helper
 //      (2) Parameters and Stimulus Setup 
