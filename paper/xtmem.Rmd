@@ -84,10 +84,10 @@ Our current paper reports 10 pre-registered experiments. We recover the suspicio
 
 # Methods
 ```{r read_in_anon_data}
-files <- dir("../data/")
+files <- dir("../data/munged_data/")
 all_d <- data.frame()
 for (i in 1:length(files)[1]) {
-    s <- read.csv(paste0("../data/", files[i]))
+    s <- read.csv(paste0("../data/munged_data/", files[i]))
     all_d <- bind_rows(all_d, data.frame(s))
 }
 
@@ -165,7 +165,7 @@ all_ms <- all_d_clean %>%
 ```{r fig.height = 3, fig.cap = "Mean proportion generalization to basic level exemplars in the one (green) and three (pink) subordinate exemplar conditions for all 10 of our experiments. Each facet corresponds to a pairing of presentation timing (sequential vs. simultaneous) and trial order (1-3 vs. 3-1). Error bars are bootstrapped 95% confidence intervals."}
 
 all_ms_recoded <- all_ms %>%
-   mutate(exp_recoded = fct_relevel(exp_recoded, as.character(seq(1:10))),
+   mutate(exp_recoded = fct_relevel(exp_recoded, as.character(seq(1:11))),
             condition2 = paste(timing, order),
             condition2 = fct_recode(condition2, "sequential \n1-3 order" = "sequential 1-3", 
                                                    "simultaneous \n1-3 order" = "simultaneous 1-3",

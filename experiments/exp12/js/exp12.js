@@ -45,7 +45,7 @@ $.fn.preload = function() {
 var total_trials = 12;
 
 // -- Words--
-var words = shuffle(["wug", "rab", "fep", "rif", "mep", "tob",  "tev", "sib", "zom", "nur", "dit", "pag"  ])
+var words = shuffle(["wug", "rab", "fep", "rif", "mep", "tob",  "tev", "sib", "zom", "nur", "dit", "pag" ])
 
 // -- Pics -
 var test_pics = ["c1_sub1", "c1_sub2", "c1_bas1", "c1_bas2", "c1_sup1", "c1_sup2", "c1_sup3", "c1_sup4",
