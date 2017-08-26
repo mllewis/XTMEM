@@ -20,16 +20,22 @@ affiliation:
     institution   : "Department of Psychology, Stanford University"
 
 note: |  
-  $^*$To whom correspondence should be addressed. E-mail: mollylewis@uchicago.edu
+  $^*$To whom correspondence should be addressed. Email: mollylewis@uchicago.edu
 
 
 abstract: |
   Enter abstract here. Each new line herein must be indented, like this line.
   
-keywords          : "keywords"
+keywords          : "word learning, Bayesian inference, meta-analysis, concepts"
 wordcount         : "X"
 
 bibliography      : ["r-references.bib"]
+header-includes:
+  - \usepackage{setspace}
+  - \usepackage{float}
+  - \usepackage{graphicx}
+  - \AtBeginEnvironment{tabular}{\singlespacing}
+  - \usepackage{pbox}
 
 figsintext        : yes
 figurelist        : no
@@ -42,7 +48,7 @@ class             : "man"
 output            : papaja::apa6_pdf
 ---
 
-```{r load_packages, include = FALSE}
+```{r load_utility_packages, include = FALSE}
 library(papaja)
 library(rmarkdown)
 library(broom)
@@ -51,15 +57,15 @@ library(langcog)
 library(jsonlite)
 library(stringr)
 library(forcats)
-library(compute.es)
-library(metafor)
 library(knitr)
 library(kableExtra)
+```
 
+```{r global_options, include = FALSE}
 knitr::opts_chunk$set(warning = FALSE, 
                       message = FALSE, 
-                      cache = FALSE, 
-                      fig.pos = "T!")
+                      cache = FALSE,
+                      fig.pos = "t!")
 ```
 
 
@@ -80,7 +86,7 @@ Methodological differences:
 * blocking
 * same label vs. different label
 
-other evidence relevant on this replication
+other evidence relevant on this replicatione
 
 Our current paper reports 12 experiments, 10 of which were pre-registered. We recover the suspicious coincidence effect with a large effect size in both sequential and simultaneous presentation conditions. The effect only occurs, however, in experiments where the trial with one exemplar is presented *before* the key trial with three subordinate-consistent exemplars (the "suspicious coincidence"). We attribute this difference to participants' awareness of the possibility of subordinate generalizations following the three-exemplar trial; in these conditions, we see a high level of subordinate generalizations even for the one-exemplar trial (leading to the absence of a difference between conditions). In sum, and contra SPSS, the "suspicious coincidence" effect is robust to sequential presentation. The effect is sensitive to some features of the general experimental context, however, suggesting a potential interpretation in terms of the pragmatics of the task. 
 
@@ -99,43 +105,37 @@ exp_key <- read_csv("../analysis/experiment_key.csv") %>%
               mutate(order = gsub("\"", "", order))# this is because excel is dumb, grrr
 ```
 
-We report how we determined our sample size, all data exclusions (if any), all manipulations, and all measures in the study.
+We report how we determined our sample size, all manipulations, and all measures in the study. All stimuli, experimental code, sample sizes, and analyses were pre-registered (https://osf.io/yekhj/), with the exception of Exps. 4 and 8. 
 
 ## Participants
-50 participants were recruited on Amazon Mechanical Turk for each of our 12 experiments (N = 600). Participants were paid 40 cents for their participation
+```{r}
+all_d_filtered <- read_csv("../data/munged_data/all_data_munged_A.csv")
 
-Our sample size was determined based on a pre-registered power calculation using a meta-anayltic estimate of the effect size from studies conducted by XT and SPSS (see SI for more details). The chosen sample size was approximately twice the estimated sample size necessary to obtain a power of 1. 
+n_unique <- all_d_filtered %>%
+  distinct(exp, subids) %>%
+  summarize(n = n())
 
-* Exclusions?
+n_total <- all_d %>%
+  distinct(exp, subids) %>%
+  summarize(n = n())
+  
+percent_duplicates <- round((n_total-n_unique)/n_total, 2) * 100
+```
+Fifty participants were recruited on Amazon Mechanical Turk for each of our 12 experiments (N = 600), anbd paid 40-50 cents for their participation. Across all 12 experiments, `r percent_duplicates[[1]]`% of participants completed more than one experiment. We report data from all participants in the Main Text, but all reported findings hold when these participants excluded (see SI).
 
+Our sample size was determined based on a pre-registered power calculation using a meta-analytic estimate of the effect size from studies conducted by XT and SPSS. The chosen sample size was approximately twice the estimated sample size necessary to obtain a power of 1. 
 
-```{r, include = F}
-# Preregistration: https://osf.io/6xa44/register/5771ca429ad5a1020de2872e
-# pre-reg power calculation: 
+ ```{r, out.width = "50%", fig.align = "center", fig.cap = "Sample stimuli. Three superodinate (top), basic (middle), and subordinate (bottom) exemplars from the vegetable category."}
+ 
+include_graphics("figs/stim.pdf")
 ```
 
-
 ## Stimuli
-Our stimuli closely resembled that of XT and SPSS. The pictures consisted of three sets of 15 photos from different basic level categories (vegetables, vehicles and animals). Within each category, five were subordinate exemplars (e.g. green pepper), four were basic level exemplars (e.g. peppers), and six were superordinate exemplars (e.g. vegetables). The exemplars were divided into a learning and test set.  
+Our stimuli closely replicated that of XT and SPSS. The linguistic stimuli were 12 one-syllable novel labels (e.g., "wug"). The referent objects were three sets of 15 pictures from different basic level categories (vegetables, vehicles and animals). Within each category, five were subordinate exemplars (e.g. green pepper), four were basic level exemplars (e.g. peppers), and six were superordinate exemplars (e.g. vegetables; Fig. 1). The exemplars were divided into a learning and generalization set. For each category, the learning set consisted of 3 subordinate, 2 basic, and 2 superordinate pictures presented in different combinations on different trials (see Procedure). The generalization set for each category consisted of the remaining 8 pictures. The training and generalization sets were the same for all participants.
 
-Novel labels 
 
 ## Procedure
-
-### Manipulations:
-(1) Timing
-(2) Order
-(3) Blocking
-(4) Labels
-
-## Data analysis
-
-We used `r cite_r("r-references.bib")` for all our analyses.
-
-
-# Results
-
-```{r get_means}
+```{r get_es}
 # remap condition values and select relevant conditions
 all_d_clean <- all_d %>%
       mutate(condition = as.factor(condition),
@@ -147,42 +147,123 @@ all_d_clean <- all_d %>%
       filter(condition == "one" | condition == "three_subordinate") %>%
       select(exp, everything())
 
-# get condition means and CIs, and join in experiment values
-all_ms <- all_d_clean %>%
+# mean across categories (subject means)
+ms <- all_d_clean %>%
   gather(variable, value, c(prop_sub, prop_bas, prop_sup)) %>%
   mutate(value = as.numeric(value)) %>%
   filter(variable == "prop_bas") %>%
-  group_by(condition, exp, subids) %>%
-  summarize(value = mean(value)) %>%
-  group_by(condition, exp) %>%
+  group_by(condition, exp, subids) %>% 
+  summarize(value = mean(value))
+
+# means across participants (condition means)
+LF_means_wide <- ms %>%
+  spread(condition, value) %>%
+  group_by(exp) %>%
+  summarize(m_one = mean(one),
+            sd_one = sd(one),
+            m_3sub = mean(three_subordinate),
+            sd_3sub = sd(three_subordinate),
+            n = n()) %>%
+  left_join(exp_key)
+
+LF_effect_sizes <- LF_means_wide %>%
+  do(data.frame(d = compute.es::mes(.$m_one, .$m_3sub, .$sd_one,
+                     .$sd_3sub, .$n, .$n, verbose = F)$d,
+               d_var = compute.es::mes(.$m_one, .$sd_3sub, .$sd_one,
+                    .$sd_3sub, .$n, .$n, verbose = F)$var.d)) %>%
+  mutate(high = d + (1.96*d_var),
+         low = d - (1.96*d_var),
+         es_type = "nonpaired",
+         exp_recoded = LF_means_wide$exp_recoded) %>%
+  left_join(LF_means_wide %>% select(exp_recoded, n)) %>%
+  select(exp_recoded, n, everything())
+```
+
+```{r}
+exp_table <- exp_key %>%
+  slice(1:12) %>%
+  left_join(LF_effect_sizes) %>%
+  mutate(d_string = paste0(d," [", round(low,2), ", ", round(high, 2) , "]"),
+         direct_replication_of_string = ifelse(is.na(direct_replication_of),
+                                              "", direct_replication_of),
+         timing = str_replace_all(timing, "sequential", "seq."),
+         timing = str_replace_all(timing, "simultaneous", "simult."),
+         blocking = str_replace_all(blocking, "random", "pseudo-random"),
+         one_3sub_label = str_replace_all(one_3sub_label, "different", "diff."),
+         exp_recoded = as.numeric(exp_recoded)) %>%
+         #direct_replication_of_string = replace(direct_replication_of_string, exp_recoded == 1,"XT E1/E2[note]" )) %>%
+  select(exp_recoded, n, timing, order, blocking, 
+         one_3sub_label, d_string, direct_replication_of_string) %>%
+  arrange(exp_recoded)
+
+kable(exp_table, align = c('c', 'r', 'r', 'r', "r", "r", "r", "r"), 
+      caption = "Summary of our 12 experiments.",
+      col.names = c("Exp.", "N", "Timing", "Order",
+                     "Blocking", "Label", "Effect Size", "Original \nExp."),
+      format = "latex", booktabs = TRUE) %>%
+    kable_styling(font_size = 12) %>%
+    add_header_above(c(" " = 2, "Manipulations" = 4, " ")) %>%
+    add_footnote("N = sample size; Timing = presentation timing (sequential or simultaneous); Order = relative ordering of 1 and 3 subordinate trials; Blocking = trials blocked by category or pseudo-random; Label = same or different label in 1 and 3 trials; Effect size = Cohen's d [95% CI]; Original Exp.\ = corresponding experiment from prior literature.", notation = "number") 
+```
+
+Participants were first introduced to a picture of a character ("Mr. Frog"), and told that the character speaks a different language and their job was to help the character find the toys he wants. Participants next advanced to the main experiment by clicking a button, which consisted of a series of 12 trials each presented on a separate screen. The top of each screen displayed 1 or 3 training exemplars from one of the three stimulus categories, along with the following instruction: "Here [is a wug/are three wugs]. Can you give Mr. Frog all of the other wugs?." Below the learning exemplars, the 24 generalization exemplars (8 from each of the 3 categories) were displayed in a 4*x*6 grid, with the order of pictures was randomized across trials. For the generalization task, the instructions read, "To give a wug, click on it below. When you have given all the wugs, click the Next button." Participants could then select a picture from the generalization set by clicking on it. When an exemplar was selected, a red box appeared around the picture, and participants were allowed to change their selections by clicking on the picture a second time. The learning exemplars remained visible at the top of the screen during the generalization task. Once they had made their selections, participants advanced to the next trial by clicking the "Next" button.
+
+There were four trial types distinguished by the number and semantic level of the learning exemplars: one subordinate exemplar, three subordinate exemplars, three basic exemplars, and three superordate exemplars. Each participant completed each trial type for each of the three stimulus categories (vegetables, vehicles and animals). 
+
+Across 12 experiments, we manipulated four aspects of the trial design that differed between the XT and SPSS studies (summarized in Table 1): Presentation timing (simultaneous vs. sequential), trial order (1-3 vs. 3-1), label (same vs. different), and blocking (blocked vs. pseudo-random)\footnote{All experiments can be viewed directly at XXX.}. We describe each of these factors in more detail below. 
+
+### Presentation Timing
+Presentation timing was the key, theoretically motivated experimental design difference between the XT (E1 and E2\footnote{XT E1 and E2 differed in the age of participants (adults vs. children), but we collapse across this difference for the present analyses.}) and SPSS (E2 and E3). In XT, the learning exemplars were presented statically and simultaneously, while in SPSS, participants saw a sequence of individual exemplars with each exemplar visible only for 1s at a time. In the sequential design, three exemplar learning trials displayed pictures at three different locations (left, middle, and right) in a sequence that repeated twice, for a total of 6s.
+
+We reproduced these design aspects in the simultaneous and sequential versions of our experiments. In the single exemplar, sequential trials, the exemplar appeared (1s) and disappeared (1s) for three repetitions. The generalization pictures did not appear in the sequnetial condition until after the training pictures has appeared for 6 seconds, but  remained visibile as participants selected generalization exemplars.
+
+### Trial order
+In XT, the three one-subordinate trials occured first followed by all other trial types. In contrast, in SPSS (E2 and E3), the three-subordinate trials occured first. SPSS's replication of XT's simultanous design (SPSS E1) used the 1-3 ordering.[This isn't actually quite true: "The first block of trials always involved either one exemplar or three subordinate-level exemplars from each domain. The remaining blocks of trials were randomly ordered for each participant"... so 1 exemplar trials were first only half the time?]. 
+
+### Labels
+XT used the same label for each category for the three-subordinate and one-suborinate trials. SPSS used a different novel label on each of the 12 trials, such that the three-subordinate and one-subordinate trials were refered to with  distinct labels. Labels were randomized across trials.
+
+### Blocking
+Finally, the studies by XT and SPSS differ in terms of whether the trials were blocked by trial type: In XT, the first three trials were a block of one-subordinate trials and the remaining 9 trials were randomized, whereas SPSS blocked all four trial types. Within each block, category order was randomized.
+
+## Data analysis
+The key prediction of the suspicious coincidence effect is that participants should generalize to the basic level more often in one-subordinate trials relative to three-subordinate trials. To measure this, for each trial, we calculated the proportion generalizations to subordinate exemplars within the same category (out of 2) and basic exemplars within the same category (out of 2), and averaged across categories for each participant. We estimated the difference between the one-subordinate and three-subordinate conditions by calculating an effect size (Cohen's *d*) for each experiment. We then estimated the influence of each our design manipulations on the overall effect size by fitting a random-effect meta-analytic model with each of our four manipulations as fixed effects. We used the metafor package [@R-metafor] in R to fit our meta-analytic models.
+
+# Results
+Figure 2 shows the mean proportion generalizations to the basic level in the one- and three-subordinate trials for all 12 experiments, and Figure 3 shows the corresponding effect sizes (with XT and SPSS experiments included for reference). 
+
+```{r fig.height = 3, fig.cap = "Mean proportion generalizations to basic level exemplars in the one (pink) and three (green) subordinate exemplar conditions for all 12 of our experiments. Each facet corresponds to a pairing of presentation timing (sequential vs. simultaneous) and trial order (1-3 vs. 3-1). Error bars are bootstrapped 95% confidence intervals."}
+
+# mean across participants with CIS (condition means)
+LF_means_long <- ms %>%
+  group_by(condition, exp) %>% 
   # multi_boot_standard(column = "value")  %>%
   summarise(mean = mean(value), 
             error = qt(0.975,df=n()-1)*sd(value)/sqrt(n()),
             ci_lower = mean - error,# FIXME to bootstrap
             ci_upper = mean + error) %>%
   left_join(exp_key)
-```
 
-```{r fig.height = 3, fig.cap = "Mean proportion generalization to basic level exemplars in the one (green) and three (pink) subordinate exemplar conditions for all 12 of our experiments. Each facet corresponds to a pairing of presentation timing (sequential vs. simultaneous) and trial order (1-3 vs. 3-1). Error bars are bootstrapped 95% confidence intervals."}
-
-all_ms_recoded <- all_ms %>%
+LF_means_long_recoded <- LF_means_long %>%
+   ungroup()  %>%
    mutate(exp_recoded = fct_relevel(exp_recoded, as.character(seq(1:12))),
             condition2 = paste(timing, order),
             condition2 = fct_recode(condition2, "sequential \n1-3 order" = "sequential 1-3", 
                                                    "simultaneous \n1-3 order" = "simultaneous 1-3",
                                                    "sequential \n3-1 order" = "sequential 3-1",
                                                    "simultaneous \n3-1 order" = "simultaneous 3-1"),
-            condition2 = fct_relevel(condition2, c("sequential \n1-3 order", "simultaneous \n1-3 order",
-                                                   "sequential \n3-1 order", "simultaneous \n3-1 order")))
+            condition2 = fct_relevel(condition2, c("simultaneous \n1-3 order", "sequential \n1-3 order", 
+                                                   "simultaneous \n3-1 order", "sequential \n3-1 order")),
+            condition = fct_relevel(condition, c("one", "three")))
             
-ggplot(all_ms_recoded, 
+ggplot(LF_means_long_recoded, 
        aes(x = exp_recoded, y = mean, group = condition, fill = condition)) +
   geom_bar(position = "dodge", stat = "identity") +
   geom_linerange(aes(ymin = ci_lower, 
                      ymax = ci_upper), 
                  position = position_dodge(width = .9)) +
   facet_grid(. ~ condition2, scales = "free", drop = TRUE,  space = "free_x") +
-  scale_fill_discrete(labels = c("three", "one")) +
+  scale_fill_discrete(labels = c("one", "three")) +
   ylim(0, 1) +
   ylab("Prop. basic-level choices") +
   xlab("Experiment") +
@@ -196,73 +277,7 @@ ggplot(all_ms_recoded,
 ```
 
 
-```{r get_es}
-# get subject level means
-all_ms_subj <- all_d_clean %>%
-  left_join(exp_key %>% select(exp, exp_recoded)) %>%
-  select(-exp) %>%
-  gather(variable, value, c(prop_sub, prop_bas, prop_sup)) %>%
-  group_by(condition, variable, exp_recoded, subids) %>%
-  mutate(value = as.numeric(value)) %>%
-  summarize(value = mean(value)) %>%
-  filter(condition == "one" | condition == "three_subordinate", variable == 'prop_bas') %>%
-  spread(condition, value) %>%
-  ungroup() %>%
-  select(-variable)
-
-# get effect sizes
-LF_means <- all_ms_subj %>%
-  group_by(exp_recoded) %>%
-  summarize(m_one = mean(one),
-            sd_one = sd(one),
-            m_3sub = mean(three_subordinate),
-            sd_3sub = sd(three_subordinate),
-            n = n())
-
-LF_effect_sizes <- LF_means %>%
-  do(data.frame(d = mes(.$m_one, .$m_3sub, .$sd_one,
-                     .$sd_3sub, .$n, .$n, verbose = F)$d,
-               d_var = mes(.$m_one, .$sd_3sub, .$sd_one,
-                    .$sd_3sub, .$n, .$n, verbose = F)$var.d)) %>%
-  mutate(high = d + (1.96*d_var),
-         low = d - (1.96*d_var),
-         es_type = "nonpaired",
-         exp_recoded = LF_means$exp_recoded) %>%
-  left_join(LF_means %>% select(exp_recoded, n)) %>%
-  select(exp_recoded, n, everything())
-```
-
-```{r}
-exp_table <- exp_key %>%
-  slice(1:12) %>%
-  left_join(LF_effect_sizes) %>%
-  mutate(d_string = paste0(d," [", round(low,2), ", ", round(high, 2) , "]"),
-         direct_replication_of_string = ifelse(is.na(direct_replication_of),
-                                              "", direct_replication_of),
-         timing = str_replace_all(timing, "sequential", "seq."),
-         timing = str_replace_all(timing, "simultaneous", "simult."),
-         one_3sub_label = str_replace_all(one_3sub_label, "different", "diff."),
-         exp_recoded = as.numeric(exp_recoded)) %>%
-  select(exp_recoded, n, timing, order, blocking, 
-         one_3sub_label, d_string, direct_replication_of_string) %>%
-  arrange(exp_recoded)
-
-# caption = "Summary of our 10 experiments. N = sample size; Timing = presentation timing (simultaneous or sequential); Order = relative ordering of 1 vs. 3 subordinate trials; Blocking = trials blocked by category or pseudorandom; Label = same or different label used in 1 and 3 trials; Effect size = Cohen's d [95% CI]; Orginal Exp. = Corresponding prior experiment.",
-
-kable(exp_table, align = c('c', 'r', 'r', 'r', "r", "r", "r", "r"), 
-      #col.names = c("Experiment \nNum.", "N", "Timing", "Condition \nOrder",
-      #              "Trial \nOrder", "Label", "Effect Size"),
-      caption = "Summary of our 12 experiments.",
-      col.names = c("Exp.", "N", "Timing", "Order",
-                     "Blocking", "Label", "Effect Size", "Original \nExp."),
-      format = "latex", booktabs = TRUE) %>%
-    kable_styling(font_size = 12) %>%
-    add_header_above(c(" " = 2, "Manipulations" = 4, " ")) %>%
-    add_footnote("N = sample size; Timing = presentation timing (sequential or simultaneous); Order = relative ordering of 1 and 3 subordinate trials; Blocking = trials blocked by category or pseudorandom; Label = same or different label in 1 and 3 trials; Effect size = Cohen's d [95% CI]; Original Exp.\ = corresponding experiments from prior literature.", notation = "number")
-
-```
-
-```{r get_MA_es}
+```{r get_all_es}
 literature_effect_sizes <- read_csv("../data/literature_ES.csv") # see ../analysis/get_literature_ES.R
 
 all_es <- literature_effect_sizes %>%
@@ -272,22 +287,35 @@ all_es <- literature_effect_sizes %>%
                                ifelse(str_detect(exp_recoded, "SPSS"),
                                       "SPSS2011", "LF")), 
                    source = fct_relevel(source, "XT2007a","SPSS2011","LF"),
-                   timing = fct_relevel(timing,"simultaneous", "sequential")) %>%
-            mutate(source = as.numeric(source))
+                   source = as.numeric(source),
+                   source = ifelse(source == 2, 3, 
+                                   ifelse(source == 3, 5, source)), # playing with scale in plot below
+                   timing = fct_relevel(timing,"simultaneous", "sequential"),
+                   blocking = fct_recode(blocking, "pseudo-random" = "random"),
+                   d_string = paste0(d," [", round(low,2), ", ", round(high, 2) , "]"))
+```
 
-seq13 <- rma(d, d_var, dat = filter(all_es, timing == "sequential", order == "1-3"))
-seq31 <- rma(d, d_var, dat = filter(all_es, timing == "sequential", order == "3-1"))
-sim13 <- rma(d, d_var, dat = filter(all_es, timing == "simultaneous", order == "1-3"))
-sim31 <- rma(d, d_var, dat = filter(all_es, timing == "simultaneous", order == "3-1"))
 
-ma_es <- data.frame(order = c("1-3", "3-1", "1-3", "3-1"),
+In two exact replications of the XT method (XT E1 and X2), we replicate the suspicious coincidence effect (Exp. 1: *d* = `r filter(all_es, exp_recoded == "1") %>% select(d_string) %>% unlist()`; Exp. 2: *d* = `r filter(all_es, exp_recoded == "2") %>% select(d_string) %>% unlist()`), with a magnitude comparable to the original XT experiments (*d* = `r filter(all_es, exp_recoded == "XT_adults_e1") %>% select(d_string) %>% unlist()` and d = `r filter(all_es, exp_recoded == "XT_children_e2") %>% select(d_string) %>% unlist()`). We also replicate the reversal in the suspicious coincidence effect observed by SPSS (SPSS E2 and E3) in an exact replication of their method (Exp. 10; *d* = `r filter(all_es, exp_recoded == "10") %>% select(d_string) %>% unlist()`), and with a magnitude comparable to the original experiments (SPSS E2: *d* = `r filter(all_es, exp_recoded == "SPSS_e2") %>% select(d_string) %>% unlist()`; SPSS E3: *d* =  `r filter(all_es, exp_recoded == "SPSS_e3") %>% select(d_string) %>% unlist()`).
+
+Critically, however, the meta-analyic model across all 12 experiments suggests that only trial order is a reliable predictor of the magnitude of the susicpious coincidence effect. THE MODEL. 
+
+
+```{r get_MA_es}
+seq13 <- metafor::rma(d, d_var, dat = filter(all_es, timing == "sequential", order == "1-3"))
+seq31 <- metafor::rma(d, d_var, dat = filter(all_es, timing == "sequential", order == "3-1"))
+sim13 <- metafor::rma(d, d_var, dat = filter(all_es, timing == "simultaneous", order == "1-3"))
+sim31 <- metafor::rma(d, d_var, dat = filter(all_es, timing == "simultaneous", order == "3-1"))
+
+ma_es <- data.frame(
+           order = c("1-3", "3-1", "1-3", "3-1"),
            timing = c("sequential", "sequential", "simultaneous", "simultaneous"),
            d = c(seq13$b[[1]], seq31$b[[1]], sim13$b[[1]], sim31$b[[1]]),
            d_low = c(seq13$ci.lb[[1]], seq31$ci.lb[[1]], sim13$ci.lb[[1]], sim31$ci.lb[[1]]),
            d_high = c(seq13$ci.ub[[1]], seq31$ci.ub[[1]], sim13$ci.ub[[1]], sim31$ci.ub[[1]]))
 ```
 
-```{r fig.width=5.5, fig.height=3.5, fig.cap = "Cumulative plot of effect sizes for all 19 studies conducted on the suspicious coincidence effect by XT (Xu & Tenenbaum, 2007a), SPSS (Spencer, et al, 2011), and the current authors. The top-bottoom facets indicate whether the single exemplar trial occurred first (1-3) or second (3-1). The left-right facets  indicate whether the exemplars were presented simulateously as in XT or sequentially as in SPSS. Point color indicates whether the single exemplar and three subordinate exemplars received the same (grey) or different (black) label. Point shape indicates whether trials were blocked by category (circle) or pseudo-random (triangle). Points are jittered along the x-axis for visibility. The red line reflects the meta-analytic estimate of the effect size (SD are estimated for XT experiments using SPSS replications). All error bars are 95% confidence intervals."}
+```{r fig.width=5.5, fig.height=3.5, fig.cap = "Effect sizes for all 19 studies conducted on the suspicious coincidence effect by XT (Xu & Tenenbaum, 2007a), SPSS (Spencer, et al, 2011), and the current authors. The top-bottoom facets indicate whether the single exemplar trial occurred first (1-3) or second (3-1). The left-right facets  indicate whether the exemplars were presented simulateously as in XT or sequentially as in SPSS. Point color indicates whether the single exemplar and three subordinate exemplars received the same (grey) or different (black) label. Point shape indicates whether trials were blocked by category (circle) or pseudo-random (triangle). Points are jittered along the x-axis for visibility. The red line reflects the meta-analytic estimate of the effect size (for the XT experiments, standard deviations on effect sizes are estimated from the SPSS replication). All error bars are 95% confidence intervals."}
 
 ggplot(all_es) +
   geom_rect(aes(xmin = -Inf, xmax = Inf, ymin = d_low, ymax = d_high), 
@@ -299,7 +327,7 @@ ggplot(all_es) +
                   size = .5) +
   geom_hline(yintercept = 0, linetype = 2, color = "black") +
   facet_grid(order ~ timing) +
-  scale_x_continuous(breaks = c(1:3), limits = c(.6, 3.3),
+  scale_x_continuous(breaks = c(1, 3, 5), limits = c(.5, 5.5),
                      labels = c("XT","SPSS","LF")) +
   ylab("Cohen's d") +
   xlab("Paper") + 
@@ -309,13 +337,13 @@ ggplot(all_es) +
 ```
 
 ```{r}
-mod <- rma(d ~ timing + order + one_3sub_label + blocking, d_var, dat = all_es)
+mod <- metafor::rma(d ~ timing + order + one_3sub_label + blocking, d_var, dat = all_es)
 
 mod_df <- data.frame(fixed_effect = c("Intercept", 
                                         "Simultaneous vs. sequential timing", 
                                         "1-3 vs. 3-1 condition order",
                                         "Different vs. same label", 
-                                        "Blocked vs. random trial order"),
+                                        "Blocked vs. pseudo-random trial order"),
                       beta_string = paste0(round(mod$beta, 2), 
                                         " [", round(mod$ci.lb, 2), ", "
                                   , round(mod$ci.ub,2) , "]"),
@@ -333,6 +361,10 @@ kable(mod_df, caption = "Meta-analytic model with manipulations as fixed effects
 # Discussion
 
 \newpage
+
+```{r}
+#We used `r cite_r("r-references.bib")` for all our analyses.
+```
 
 # References
 ```{r create_r-references}

@@ -48,9 +48,10 @@ exp_key <- read_csv("../../analysis/experiment_key.csv") %>%
               mutate(order = gsub("\"", "", order))
 ```
 
-
+## what's going on with the other measures
+## A note on ES calculation (http://jakewestfall.org/blog/index.php/category/effect-size/)
 ##  Effect size by category 
-The plot below shows the effect size for each experiment (facet) for each of the three categories in our stimuli (animals, vegetables and vehicles). While there is some variability in effect size by category (the effect larger for animals), this variability is small relative to the effect of condition order. For reference, Table 1 describes the characteristics of each of the experiments.
+The plot below shows the effect size for each experiment (facet) for each of the three categories in our stimuli (animals, vegetables and vehicles). While there is some variability in effect size by category (the effect is larger for animals), this variability is small relative to the effect of condition order. For reference, Table 1 describes the characteristics of each of the experiments.
 
 ```{r get_means}
 # remap condition values and select relevant conditions
@@ -127,10 +128,11 @@ exp_table <- exp_key %>%
                                               "", direct_replication_of),
          timing = str_replace_all(timing, "sequential", "seq."),
          timing = str_replace_all(timing, "simultaneous", "simult."),
+        blocking = str_replace_all(blocking, "random", "pseudo-random"),
          one_3sub_label = str_replace_all(one_3sub_label, "different", "diff."),
          exp_recoded = as.numeric(exp_recoded)) %>%
   select(exp_recoded, timing, order, blocking, 
-         one_3sub_label, direct_replication_of_string) %>%
+          one_3sub_label, direct_replication_of_string) %>%
   arrange(exp_recoded)
 ```
 
@@ -139,6 +141,7 @@ kable(exp_table, align = c('c', 'r', 'r', 'r', "r", "r"),
       caption = "Table 1: Summary of our 12 experiments.",
       col.names = c("Exp.", "Timing", "Order",
                      "Blocking", "Label", "Original Exp.")) %>%
+    kable_styling(full_width = F) %>%
     column_spec(1, bold = T) %>%
     kable_styling(font_size = 12) 
 
@@ -156,9 +159,9 @@ n_total <- all_d %>%
   distinct(exp, subids) %>%
   summarize(n = n())
   
-prop_duplicates <- round((n_total-n_unique)/n_total, 2) * 100
+percent_duplicates <- round((n_total-n_unique)/n_total, 2) * 100
 ```
-`r prop_duplicates`% of  all participants (N = `r n_total`) completed more than one experiment. The data reported in the main text include all participants. Below we plot the effect sizes with participants who had already participanted in a prior experiment excluded (effect size estimates from XT and SPSS are also included for reference). The overall pattern looks the same as with all participants.
+`r percent_duplicates`% of  all participants (N = `r n_total`) completed more than one experiment. The data reported in the main text include all participants. Below we plot the effect sizes with participants who had already participanted in a prior experiment excluded (effect size estimates from XT and SPSS are also included for reference). The overall pattern looks the same as with all participants.
 
 ```{r, fig.height = 5, fig.width = 7}
 all_d_clean <- all_d_filtered %>%
@@ -208,13 +211,12 @@ LF_effect_sizes <- LF_means %>%
 literature_effect_sizes <- read_csv("../../data/literature_ES.csv") # see ../analysis/get_literature_ES.R
 
 all_es <- literature_effect_sizes %>%
-           bind_rows(LF_effect_sizes) %>%
+            bind_rows(LF_effect_sizes) %>%
             left_join(exp_key) %>%
             mutate(source = ifelse(str_detect(exp_recoded, "XT"), "XT2007a", 
                                ifelse(str_detect(exp_recoded, "SPSS"), "SPSS2011", "LF")), 
                    source = fct_relevel(source, "XT2007a","SPSS2011","LF"),
-                   timing = fct_relevel(timing,"simultaneous", "sequential")) %>%
-            mutate(source = as.numeric(source))
+                   timing = fct_relevel(timing,"simultaneous", "sequential"))
 
 seq13 <- rma(d, d_var, dat = filter(all_es, timing == "sequential", order == "1-3"))
 seq31 <- rma(d, d_var, dat = filter(all_es, timing == "sequential", order == "3-1"))

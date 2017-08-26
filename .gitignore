@@ -41,3 +41,4 @@ resources/goldberg_blowfish.pdf
 *.vrb
 *.xdy
 *.tdo
+.Rproj.user

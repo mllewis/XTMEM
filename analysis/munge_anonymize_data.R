@@ -1,13 +1,14 @@
 #### Munge and save anonymized version of XTMEM data for single exp###
 
-# set exp number
-EXPTNUM <- 12
 
 # load libraries and pacakges
-source("useful_ML.R")
+source("../analysis/useful_ML.R")
 library(tidyverse) 
 library(jsonlite)
 library(stringr)
+
+# set exp number
+EXPTNUM <- 12
 
 ## Read in and process data
 raw_path <- paste0("../experiments/exp", EXPTNUM, "/production-results/")

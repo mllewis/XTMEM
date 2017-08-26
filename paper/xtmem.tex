@@ -132,12 +132,12 @@
             Correspondence concerning this article should be addressed to Molly L. Lewis. E-mail: \href{mailto:mollylewis@uchicago.edu}{\nolinkurl{mollylewis@uchicago.edu}}
           }
                                   
-  \note{\(^*\)To whom correspondence should be addressed. E-mail:
+  \note{\(^*\)To whom correspondence should be addressed. Email:
 \href{mailto:mollylewis@uchicago.edu}{\nolinkurl{mollylewis@uchicago.edu}}}
 
   \abstract{Enter abstract here. Each new line herein must be indented, like this
 line.}
-  \keywords{keywords \\
+  \keywords{word learning, Bayesian inference, meta-analysis, concepts \\
 
     \indent Word count: X
   }
@@ -145,6 +145,11 @@ line.}
 
 
 
+  \usepackage{setspace}
+  \usepackage{float}
+  \usepackage{graphicx}
+  \AtBeginEnvironment{tabular}{\singlespacing}
+  \usepackage{pbox}
 
 \usepackage{amsthm}
 \newtheorem{theorem}{Theorem}
@@ -190,116 +195,76 @@ Methodological differences:
   same label vs.~different label
 \end{itemize}
 
-other evidence relevant on this replication
+other evidence relevant on this replicatione
 
-Our current paper reports 10 pre-registered experiments. We recover the
-suspicious coincidence effect with a large effect size in both
-sequential and simultaneous presentation conditions. The effect only
-occurs, however, in experiments where the trial with one exemplar is
-presented \emph{before} the key trial with three subordinate-consistent
-exemplars (the \enquote{suspicious coincidence}). We attribute this
-difference to participants' awareness of the possibility of subordinate
-generalizations following the three-exemplar trial; in these conditions,
-we see a high level of subordinate generalizations even for the
-one-exemplar trial (leading to the absence of a difference between
-conditions). In sum, and contra SPSS, the \enquote{suspicious
-coincidence} effect is robust to sequential presentation. The effect is
-sensitive to some features of the general experimental context, however,
-suggesting a potential interpretation in terms of the pragmatics of the
-task.
+Our current paper reports 12 experiments, 10 of which were
+pre-registered. We recover the suspicious coincidence effect with a
+large effect size in both sequential and simultaneous presentation
+conditions. The effect only occurs, however, in experiments where the
+trial with one exemplar is presented \emph{before} the key trial with
+three subordinate-consistent exemplars (the \enquote{suspicious
+coincidence}). We attribute this difference to participants' awareness
+of the possibility of subordinate generalizations following the
+three-exemplar trial; in these conditions, we see a high level of
+subordinate generalizations even for the one-exemplar trial (leading to
+the absence of a difference between conditions). In sum, and contra
+SPSS, the \enquote{suspicious coincidence} effect is robust to
+sequential presentation. The effect is sensitive to some features of the
+general experimental context, however, suggesting a potential
+interpretation in terms of the pragmatics of the task.
 
 \section{Methods}\label{methods}
 
-We report how we determined our sample size, all data exclusions (if
-any), all manipulations, and all measures in the study.
+We report how we determined our sample size, all manipulations, and all
+measures in the study. All stimuli, experimental code, sample sizes, and
+analyses were pre-registered (\url{https://osf.io/yekhj/}), with the
+exception of Exps. 4 and 8.
 
 \subsection{Participants}\label{participants}
 
-50 participants were recruited on Amazon Mechanical Turk for each of our
-12 experiments (N = 600). Participants were paid 40 cents for their
-participation
+Fifty participants were recruited on Amazon Mechanical Turk for each of
+our 12 experiments (N = 600), anbd paid 40-50 cents for their
+participation. Across all 12 experiments, 13\% of participants completed
+more than one experiment. We report data from all participants in the
+Main Text, but all reported findings hold when these participants
+excluded (see SI).
 
 Our sample size was determined based on a pre-registered power
-calculation using a meta-anayltic estimate of the effect size from
-studies conducted by XT and SPSS (see SI for more details). The chosen
-sample size was approximately twice the estimated sample size necessary
-to obtain a power of 1.
+calculation using a meta-analytic estimate of the effect size from
+studies conducted by XT and SPSS. The chosen sample size was
+approximately twice the estimated sample size necessary to obtain a
+power of 1.
 
-\begin{itemize}
-\tightlist
-\item
-  Exclusions?
-\end{itemize}
-
-\subsection{run:
-3-same-sequential-random/1-dif-sequential-blocked}\label{run-3-same-sequential-random1-dif-sequential-blocked}
-
-9: same-blocked-3-seq {[}grey triangle -\textgreater{} circle{]} 10:
-dif-random-1-seq {[}black circle{]}
+\begin{figure}[t!]
+ 
+ {\centering \includegraphics[width=0.5\linewidth]{figs/stim} 
+ 
+ }
+ 
+ \caption{Sample stimuli. Three superodinate (top), basic (middle), and subordinate (bottom) exemplars from the vegetable category.}\label{fig:unnamed-chunk-2}
+ \end{figure}
 
 \subsection{Stimuli}\label{stimuli}
 
-Our stimuli closely resembled that of XT and SPSS. The pictures
-consisted of three sets of 15 photos from different basic level
-categories (vegetables, vehicles and animals). Within each category,
-five were subordinate exemplars (e.g.~green pepper), four were basic
-level exemplars (e.g.~peppers), and six were superordinate exemplars
-(e.g.~vegetables). The exemplars were divided into a learning and test
-set.
-
-Novel labels
+Our stimuli closely replicated that of XT and SPSS. The linguistic
+stimuli were 12 one-syllable novel labels (e.g., \enquote{wug}). The
+referent objects were three sets of 15 pictures from different basic
+level categories (vegetables, vehicles and animals). Within each
+category, five were subordinate exemplars (e.g.~green pepper), four were
+basic level exemplars (e.g.~peppers), and six were superordinate
+exemplars (e.g.~vegetables; Fig. 1). The exemplars were divided into a
+learning and generalization set. For each category, the learning set
+consisted of 3 subordinate, 2 basic, and 2 superordinate pictures
+presented in different combinations on different trials (see Procedure).
+The generalization set for each category consisted of the remaining 8
+pictures. The training and generalization sets were the same for all
+participants.
 
 \subsection{Procedure}\label{procedure}
 
-\subsubsection{Manipulations:}\label{manipulations}
-
-\begin{enumerate}
-\def\labelenumi{(\arabic{enumi})}
-\tightlist
-\item
-  Timing
-\item
-  Order
-\item
-  Blocking
-\item
-  Labels
-\end{enumerate}
-
-\subsection{Data analysis}\label{data-analysis}
-
-We used R (3.4.1, R Core Team, 2017) and the R-packages \emph{bindrcpp}
-(0.2, Müller, 2017), \emph{broom} (0.4.2, Robinson, 2017),
-\emph{compute.es} (0.2.4, Re, 2013), \emph{dplyr} (0.7.2, Wickham,
-Francois, Henry, \& Müller, 2017), \emph{forcats} (0.2.0, Wickham,
-2017a), \emph{ggplot2} (2.2.1, Wickham, 2009), \emph{jsonlite} (1.5,
-Ooms, 2014), \emph{kableExtra} (0.4.0, Zhu, 2017), \emph{knitr} (1.17,
-Xie, 2015), \emph{langcog} (0.1.9001, Braginsky, Yurovsky, \& Frank,
-n.d.), \emph{Matrix} (1.2.10, Bates \& Maechler, 2017), \emph{metafor}
-(2.0.0, Viechtbauer, 2010), \emph{papaja} (0.1.0.9492, Aust \& Barth,
-2017), \emph{png} (0.1.7, Urbanek, 2013), \emph{purrr} (0.2.3, Henry \&
-Wickham, 2017), \emph{readr} (1.1.1, Wickham, Hester, \& Francois,
-2017), \emph{rmarkdown} (1.6, Allaire et al., 2017), \emph{stringr}
-(1.2.0, Wickham, 2017b), \emph{tibble} (1.3.3, Müller \& Wickham, 2017),
-\emph{tidyr} (0.6.3, Wickham, 2017c), and \emph{tidyverse} (1.1.1,
-Wickham, 2017d) for all our analyses.
-
-\section{Results}\label{results}
-
-\begin{figure}
-\centering
-\includegraphics{xtmem_files/figure-latex/unnamed-chunk-2-1.pdf}
-\caption{\label{fig:unnamed-chunk-2}Mean proportion generalization to basic
-level exemplars in the one (green) and three (pink) subordinate exemplar
-conditions for all 12 of our experiments. Each facet corresponds to a
-pairing of presentation timing (sequential vs.~simultaneous) and trial
-order (1-3 vs.~3-1). Error bars are bootstrapped 95\% confidence
-intervals.}
-\end{figure}
-
 \begin{table}
 
-\caption{\label{tab:unnamed-chunk-3}Summary of our 10 experiments.}
+\caption{\label{tab:unnamed-chunk-3}Summary of our 12 experiments.}
 \centering
 \fontsize{12}{14}\selectfont
 \begin{tabular}[t]{crrrrrrr}
@@ -309,49 +274,181 @@ intervals.}
 Exp. & N & Timing & Order & Blocking & Label & Effect Size & Original 
 Exp.\\
 \midrule
-1 & 50 & seq. & 1-3 & random & same & 1.42 [1.32, 1.52] & \\
-2 & 50 & seq. & 1-3 & random & diff. & 1.26 [1.18, 1.34] & \\
-3 & 50 & seq. & 1-3 & blocked & diff. & 1.31 [1.23, 1.39] & \\
-4 & 50 & simult. & 1-3 & random & same & 1.32 [1.24, 1.4] & XT E1/E2\\
-5 & 50 & simult. & 1-3 & random & same & 1.14 [1.06, 1.22] & XT E1/E2\\
+1 & 50 & simult. & 1-3 & pseudo-random & same & 1.32 [1.24, 1.4] & XT E1/E2\\
+2 & 50 & simult. & 1-3 & pseudo-random & same & 1.14 [1.06, 1.22] & XT E1/E2\\
+3 & 50 & simult. & 1-3 & pseudo-random & diff. & 1.16 [1.08, 1.24] & \\
+4 & 50 & seq. & 1-3 & pseudo-random & same & 1.42 [1.32, 1.52] & \\
+5 & 50 & seq. & 1-3 & pseudo-random & diff. & 1.26 [1.18, 1.34] & \\
 \addlinespace
-6 & 50 & simult. & 1-3 & random & diff. & 1.16 [1.08, 1.24] & \\
-7 & 50 & seq. & 3-1 & blocked & diff. & -0.44 [-0.52, -0.36] & SPSS E2/E3\\
-8 & 50 & seq. & 3-1 & blocked & same & -0.17 [-0.25, -0.09] & \\
-9 & 50 & seq. & 3-1 & random & same & -0.31 [-0.39, -0.23] & \\
-10 & 50 & simult. & 3-1 & blocked & diff. & 0.02 [-0.06, 0.1] & SPSS ES1/ES2\\
+6 & 50 & seq. & 1-3 & blocked & diff. & 1.31 [1.23, 1.39] & \\
+7 & 50 & simult. & 3-1 & blocked & diff. & 0.02 [-0.06, 0.1] & SPSS ES1/ES2\\
+8 & 50 & simult. & 3-1 & blocked & diff. & -0.06 [-0.14, 0.02] & \\
+9 & 50 & simult. & 3-1 & blocked & same & -0.14 [-0.22, -0.06] & \\
+10 & 50 & seq. & 3-1 & blocked & diff. & -0.44 [-0.52, -0.36] & SPSS E2/E3\\
 \addlinespace
-11 & 50 & simult. & 3-1 & blocked & diff. & -0.06 [-0.14, 0.02] & \\
-12 & 50 & simult. & 3-1 & blocked & same & -0.14 [-0.22, -0.06] & \\
+11 & 50 & seq. & 3-1 & pseudo-random & same & -0.31 [-0.39, -0.23] & \\
+12 & 50 & seq. & 3-1 & blocked & same & -0.17 [-0.25, -0.09] & \\
 \bottomrule
 \multicolumn{8}{l}{\textsuperscript{1} N = sample size; Timing = presentation timing (sequential or simultaneous); Order =}\\
 \multicolumn{8}{l}{relative ordering of 1 and 3 subordinate trials; Blocking = trials blocked by category or}\\
-\multicolumn{8}{l}{pseudorandom; Label = same or different label in 1 and 3 trials; Effect size = Cohen's d}\\
-\multicolumn{8}{l}{[95\% CI]; Orginal Exp. = corresponding experiments from prior literature.}\\
+\multicolumn{8}{l}{pseudo-random; Label = same or different label in 1 and 3 trials; Effect size = Cohen's d}\\
+\multicolumn{8}{l}{[95\% CI]; Original Exp. = corresponding experiment from prior literature.}\\
 \end{tabular}
 \end{table}
+
+Participants were first introduced to a picture of a character
+(\enquote{Mr.~Frog}), and told that the character speaks a different
+language and their job was to help the character find the toys he wants.
+Participants next advanced to the main experiment by clicking a button,
+which consisted of a series of 12 trials each presented on a separate
+screen. The top of each screen displayed 1 or 3 training exemplars from
+one of the three stimulus categories, along with the following
+instruction: \enquote{Here {[}is a wug/are three wugs{]}. Can you give
+Mr.~Frog all of the other wugs?.} Below the learning exemplars, the 24
+generalization exemplars (8 from each of the 3 categories) were
+displayed in a 4\emph{x}6 grid, with the order of pictures was
+randomized across trials. For the generalization task, the instructions
+read, \enquote{To give a wug, click on it below. When you have given all
+the wugs, click the Next button.} Participants could then select a
+picture from the generalization set by clicking on it. When an exemplar
+was selected, a red box appeared around the picture, and participants
+were allowed to change their selections by clicking on the picture a
+second time. The learning exemplars remained visible at the top of the
+screen during the generalization task. Once they had made their
+selections, participants advanced to the next trial by clicking the
+\enquote{Next} button.
+
+There were four trial types distinguished by the number and semantic
+level of the learning exemplars: one subordinate exemplar, three
+subordinate exemplars, three basic exemplars, and three superordate
+exemplars. Each participant completed each trial type for each of the
+three stimulus categories (vegetables, vehicles and animals).
+
+Across 12 experiments, we manipulated four aspects of the trial design
+that differed between the XT and SPSS studies (summarized in Table 1):
+Presentation timing (simultaneous vs.~sequential), trial order (1-3
+vs.~3-1), label (same vs.~different), and blocking (blocked
+vs.~pseudo-random)\footnote{All experiments can be viewed directly at XXX.}.
+We describe each of these factors in more detail below.
+
+\subsubsection{Presentation Timing}\label{presentation-timing}
+
+Presentation timing was the key, theoretically motivated experimental
+design difference between the XT (E1 and
+E2\footnote{XT E1 and E2 differed in the age of participants (adults vs. children), but we collapse across this difference for the present analyses.})
+and SPSS (E2 and E3). In XT, the learning exemplars were presented
+statically and simultaneously, while in SPSS, participants saw a
+sequence of individual exemplars with each exemplar visible only for 1s
+at a time. In the sequential design, three exemplar learning trials
+displayed pictures at three different locations (left, middle, and
+right) in a sequence that repeated twice, for a total of 6s.
+
+We reproduced these design aspects in the simultaneous and sequential
+versions of our experiments. In the single exemplar, sequential trials,
+the exemplar appeared (1s) and disappeared (1s) for three repetitions.
+The generalization pictures did not appear in the sequnetial condition
+until after the training pictures has appeared for 6 seconds, but
+remained visibile as participants selected generalization exemplars.
+
+\subsubsection{Trial order}\label{trial-order}
+
+In XT, the three one-subordinate trials occured first followed by all
+other trial types. In contrast, in SPSS (E2 and E3), the
+three-subordinate trials occured first. SPSS's replication of XT's
+simultanous design (SPSS E1) used the 1-3 ordering.{[}This isn't
+actually quite true: \enquote{The first block of trials always involved
+either one exemplar or three subordinate-level exemplars from each
+domain. The remaining blocks of trials were randomly ordered for each
+participant}\ldots{} so 1 exemplar trials were first only half the
+time?{]}.
+
+\subsubsection{Labels}\label{labels}
+
+XT used the same label for each category for the three-subordinate and
+one-suborinate trials. SPSS used a different novel label on each of the
+12 trials, such that the three-subordinate and one-subordinate trials
+were refered to with distinct labels. Labels were randomized across
+trials.
+
+\subsubsection{Blocking}\label{blocking}
+
+Finally, the studies by XT and SPSS differ in terms of whether the
+trials were blocked by trial type: In XT, the first three trials were a
+block of one-subordinate trials and the remaining 9 trials were
+randomized, whereas SPSS blocked all four trial types. Within each
+block, category order was randomized.
+
+\subsection{Data analysis}\label{data-analysis}
+
+The key prediction of the suspicious coincidence effect is that
+participants should generalize to the basic level more often in
+one-subordinate trials relative to three-subordinate trials. To measure
+this, for each trial, we calculated the proportion generalizations to
+subordinate exemplars within the same category (out of 2) and basic
+exemplars within the same category (out of 2), and averaged across
+categories for each participant. We estimated the difference between the
+one-subordinate and three-subordinate conditions by calculating an
+effect size (Cohen's \emph{d}) for each experiment. We then estimated
+the influence of each our design manipulations on the overall effect
+size by fitting a random-effect meta-analytic model with each of our
+four manipulations as fixed effects. We used the metafor package
+(Viechtbauer, 2010) in R to fit our meta-analytic models.
+
+\section{Results}\label{results}
+
+Figure 2 shows the mean proportion generalizations to the basic level in
+the one- and three-subordinate trials for all 12 experiments, and Figure
+3 shows the corresponding effect sizes (with XT and SPSS experiments
+included for reference).
 
 \begin{figure}
 \centering
 \includegraphics{xtmem_files/figure-latex/unnamed-chunk-4-1.pdf}
-\caption{\label{fig:unnamed-chunk-4}Cumulative plot of effect sizes for all
-19 studies conducted on the suspicious coincidence effect by XT (Xu \&
-Tenenbaum, 2007a), SPSS (Spencer, et al, 2011), and the current authors.
-Facets along the vertical indicate whether the single exemplar trial
-occurred first (1-3) or second (3-1). Facets along the horizontal
-indicate whether the exemplars were presented simulateously as in XT or
-sequentially as in SPSS. Point color indicates whether the single
-exemplar and three subordinate exemplars received the same (grey) or
-different (black) label. Point shape indicates whether trials were
-blocked by category (circle) or pseudo-random (triangle). Points are
-jittered along the x-axis for visibility. The red line reflects the
-meta-analytic estimate of the effect size. All error bars are 95\%
-confidence intervals.}
+\caption{\label{fig:unnamed-chunk-4}Mean proportion generalizations to basic
+level exemplars in the one (pink) and three (green) subordinate exemplar
+conditions for all 12 of our experiments. Each facet corresponds to a
+pairing of presentation timing (sequential vs.~simultaneous) and trial
+order (1-3 vs.~3-1). Error bars are bootstrapped 95\% confidence
+intervals.}
+\end{figure}
+
+In two exact replications of the XT method (XT E1 and X2), we replicate
+the suspicious coincidence effect (Exp. 1: \emph{d} = 1.32 {[}1.24,
+1.4{]}; Exp. 2: \emph{d} = 1.14 {[}1.06, 1.22{]}), with a magnitude
+comparable to the original XT experiments (\emph{d} = 2 {[}1.73, 2.27{]}
+and d = 1.01 {[}0.89, 1.13{]}). We also replicate the reversal in the
+suspicious coincidence effect observed by SPSS (SPSS E2 and E3) in an
+exact replication of their method (Exp. 10; \emph{d} = -0.44 {[}-0.52,
+-0.36{]}), and with a magnitude comparable to the original experiments
+(SPSS E2: \emph{d} = -0.61 {[}-0.81, -0.41{]}; SPSS E3: \emph{d} = -0.3
+{[}-0.52, -0.08{]}).
+
+Critically, however, the meta-analyic model across all 12 experiments
+suggests that only trial order is a reliable predictor of the magnitude
+of the susicpious coincidence effect. THE MODEL.
+
+\begin{figure}
+\centering
+\includegraphics{xtmem_files/figure-latex/unnamed-chunk-5-1.pdf}
+\caption{\label{fig:unnamed-chunk-5}Effect sizes for all 19 studies
+conducted on the suspicious coincidence effect by XT (Xu \& Tenenbaum,
+2007a), SPSS (Spencer, et al, 2011), and the current authors. The
+top-bottoom facets indicate whether the single exemplar trial occurred
+first (1-3) or second (3-1). The left-right facets indicate whether the
+exemplars were presented simulateously as in XT or sequentially as in
+SPSS. Point color indicates whether the single exemplar and three
+subordinate exemplars received the same (grey) or different (black)
+label. Point shape indicates whether trials were blocked by category
+(circle) or pseudo-random (triangle). Points are jittered along the
+x-axis for visibility. The red line reflects the meta-analytic estimate
+of the effect size (for the XT experiments, standard deviations on
+effect sizes are estimated from the SPSS replication). All error bars
+are 95\% confidence intervals.}
 \end{figure}
 
 \begin{table}
 
-\caption{\label{tab:unnamed-chunk-5}Meta-analytic model with manipulations as fixed effects.}
+\caption{\label{tab:unnamed-chunk-6}Meta-analytic model with manipulations as fixed effects.}
 \centering
 \fontsize{12}{14}\selectfont
 \begin{tabular}[t]{lrrr}
@@ -362,7 +459,7 @@ Intercept & 1.37 [1.09, 1.65] & 9.48 & <.0001\\
 Simultaneous vs. sequential timing & -0.13 [-0.33, 0.08] & -1.18 & 0.24\\
 1-3 vs. 3-1 condition order & -1.48 [-1.77, -1.18] & -9.90 & <.0001\\
 Different vs. same label & 0.03 [-0.21, 0.26] & 0.20 & 0.84\\
-Blocked vs. random trial order & -0.09 [-0.41, 0.24] & -0.52 & 0.6\\
+Blocked vs. pseudo-random trial order & -0.09 [-0.41, 0.24] & -0.52 & 0.6\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -376,111 +473,16 @@ Blocked vs. random trial order & -0.09 [-0.41, 0.24] & -0.52 & 0.6\\
 \setlength{\parindent}{-0.5in} \setlength{\leftskip}{0.5in}
 
 \hypertarget{refs}{}
-\hypertarget{ref-R-rmarkdown}{}
-Allaire, J., Cheng, J., Xie, Y., McPherson, J., Chang, W., Allen, J.,
-\ldots{} Arslan, R. (2017). \emph{Rmarkdown: Dynamic documents for r}.
-Retrieved from \url{https://CRAN.R-project.org/package=rmarkdown}
-
-\hypertarget{ref-R-papaja}{}
-Aust, F., \& Barth, M. (2017). \emph{papaja: Create APA manuscripts with
-R Markdown}. Retrieved from \url{https://github.com/crsh/papaja}
-
-\hypertarget{ref-R-Matrix}{}
-Bates, D., \& Maechler, M. (2017). \emph{Matrix: Sparse and dense matrix
-classes and methods}. Retrieved from
-\url{https://CRAN.R-project.org/package=Matrix}
-
-\hypertarget{ref-R-langcog}{}
-Braginsky, M., Yurovsky, D., \& Frank, M. (n.d.). \emph{Langcog:
-Language and cognition lab things}. Retrieved from
-\url{http://github.com/langcog/langcog}
-
-\hypertarget{ref-R-purrr}{}
-Henry, L., \& Wickham, H. (2017). \emph{Purrr: Functional programming
-tools}. Retrieved from \url{https://CRAN.R-project.org/package=purrr}
-
-\hypertarget{ref-R-bindrcpp}{}
-Müller, K. (2017). \emph{Bindrcpp: An 'rcpp' interface to active
-bindings}. Retrieved from
-\url{https://CRAN.R-project.org/package=bindrcpp}
-
-\hypertarget{ref-R-tibble}{}
-Müller, K., \& Wickham, H. (2017). \emph{Tibble: Simple data frames}.
-Retrieved from \url{https://CRAN.R-project.org/package=tibble}
-
-\hypertarget{ref-R-jsonlite}{}
-Ooms, J. (2014). The jsonlite package: A practical and consistent
-mapping between json data and r objects. \emph{arXiv:1403.2805
-{[}Stat.CO{]}}. Retrieved from \url{https://arxiv.org/abs/1403.2805}
-
-\hypertarget{ref-R-base}{}
-R Core Team. (2017). \emph{R: A language and environment for statistical
-computing}. Vienna, Austria: R Foundation for Statistical Computing.
-Retrieved from \url{https://www.R-project.org/}
-
-\hypertarget{ref-R-compute.es}{}
-Re, A. C. D. (2013). \emph{Compute.es: Compute effect sizes}. \emph{R
-Package}. Retrieved from
-\url{http://cran.r-project.org/web/packages/compute.es}
-
-\hypertarget{ref-R-broom}{}
-Robinson, D. (2017). \emph{Broom: Convert statistical analysis objects
-into tidy data frames}. Retrieved from
-\url{https://CRAN.R-project.org/package=broom}
-
 \hypertarget{ref-spencer2011learning}{}
 Spencer, J. P., Perone, S., Smith, L. B., \& Samuelson, L. K. (2011).
 Learning words in space and time: Probing the mechanisms behind the
 suspicious-coincidence effect. \emph{Psychological Science},
 \emph{22}(8), 1049--1057.
 
-\hypertarget{ref-R-png}{}
-Urbanek, S. (2013). \emph{Png: Read and write png images}. Retrieved
-from \url{https://CRAN.R-project.org/package=png}
-
 \hypertarget{ref-R-metafor}{}
 Viechtbauer, W. (2010). Conducting meta-analyses in R with the metafor
 package. \emph{Journal of Statistical Software}, \emph{36}(3), 1--48.
 Retrieved from \url{http://www.jstatsoft.org/v36/i03/}
-
-\hypertarget{ref-R-ggplot2}{}
-Wickham, H. (2009). \emph{Ggplot2: Elegant graphics for data analysis}.
-Springer-Verlag New York. Retrieved from \url{http://ggplot2.org}
-
-\hypertarget{ref-R-forcats}{}
-Wickham, H. (2017a). \emph{Forcats: Tools for working with categorical
-variables (factors)}. Retrieved from
-\url{https://CRAN.R-project.org/package=forcats}
-
-\hypertarget{ref-R-stringr}{}
-Wickham, H. (2017b). \emph{Stringr: Simple, consistent wrappers for
-common string operations}. Retrieved from
-\url{https://CRAN.R-project.org/package=stringr}
-
-\hypertarget{ref-R-tidyr}{}
-Wickham, H. (2017c). \emph{Tidyr: Easily tidy data with 'spread()' and
-'gather()' functions}. Retrieved from
-\url{https://CRAN.R-project.org/package=tidyr}
-
-\hypertarget{ref-R-tidyverse}{}
-Wickham, H. (2017d). \emph{Tidyverse: Easily install and load
-'tidyverse' packages}. Retrieved from
-\url{https://CRAN.R-project.org/package=tidyverse}
-
-\hypertarget{ref-R-dplyr}{}
-Wickham, H., Francois, R., Henry, L., \& Müller, K. (2017). \emph{Dplyr:
-A grammar of data manipulation}. Retrieved from
-\url{https://CRAN.R-project.org/package=dplyr}
-
-\hypertarget{ref-R-readr}{}
-Wickham, H., Hester, J., \& Francois, R. (2017). \emph{Readr: Read
-rectangular text data}. Retrieved from
-\url{https://CRAN.R-project.org/package=readr}
-
-\hypertarget{ref-R-knitr}{}
-Xie, Y. (2015). \emph{Dynamic documents with R and knitr} (2nd ed.).
-Boca Raton, Florida: Chapman; Hall/CRC. Retrieved from
-\url{https://yihui.name/knitr/}
 
 \hypertarget{ref-xu2007word}{}
 Xu, F., \& Tenenbaum, J. (2007). Word learning as Bayesian inference.
@@ -489,11 +491,6 @@ Xu, F., \& Tenenbaum, J. (2007). Word learning as Bayesian inference.
 \hypertarget{ref-xu2007}{}
 Xu, F., \& Tenenbaum, J. B. (2007). Sensitivity to sampling in Bayesian
 word learning. \emph{Developmental Science}, \emph{10}(3), 288--297.
-
-\hypertarget{ref-R-kableExtra}{}
-Zhu, H. (2017). \emph{KableExtra: Construct complex table with 'kable'
-and pipe syntax}. Retrieved from
-\url{https://CRAN.R-project.org/package=kableExtra}
 
 
 
