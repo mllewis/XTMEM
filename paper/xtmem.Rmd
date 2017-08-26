@@ -252,7 +252,7 @@ exp_table <- exp_key %>%
 kable(exp_table, align = c('c', 'r', 'r', 'r', "r", "r", "r", "r"), 
       #col.names = c("Experiment \nNum.", "N", "Timing", "Condition \nOrder",
       #              "Trial \nOrder", "Label", "Effect Size"),
-      caption = "Summary of our 10 experiments.",
+      caption = "Summary of our 12 experiments.",
       col.names = c("Exp.", "N", "Timing", "Order",
                      "Blocking", "Label", "Effect Size", "Original \nExp."),
       format = "latex", booktabs = TRUE) %>%

@@ -29,9 +29,11 @@ library(forcats)
 library(compute.es)
 library(stringr)
 library(metafor)
+library(kableExtra)
+
 
 opts_chunk$set(echo = T, message = F, warning = F, 
-               error = F, cache = T, tidy = F, fig.height = 4)
+               error = F, cache = F, tidy = F, fig.height = 4)
 ```  
 
 ```{r read_in_anon_data}
@@ -121,7 +123,6 @@ ggplot(LF_effect_sizes, aes(x = category,
 ```{r}
 exp_table <- exp_key %>%
   slice(1:12) %>%
-
   mutate(direct_replication_of_string = ifelse(is.na(direct_replication_of),
                                               "", direct_replication_of),
          timing = str_replace_all(timing, "sequential", "seq."),
@@ -131,8 +132,15 @@ exp_table <- exp_key %>%
   select(exp_recoded, timing, order, blocking, 
          one_3sub_label, direct_replication_of_string) %>%
   arrange(exp_recoded)
+```
 
-kable(exp_table)
+```{r}
+kable(exp_table, align = c('c', 'r', 'r', 'r', "r", "r"),
+      caption = "Table 1: Summary of our 12 experiments.",
+      col.names = c("Exp.", "Timing", "Order",
+                     "Blocking", "Label", "Original Exp.")) %>%
+    column_spec(1, bold = T) %>%
+    kable_styling(font_size = 12) 
 
 ```
 
@@ -150,7 +158,7 @@ n_total <- all_d %>%
   
 prop_duplicates <- round((n_total-n_unique)/n_total, 2) * 100
 ```
-`r prop_duplicates`% of  all participants (N = `r n_total`) participated in more than one experiment. The data reported in the main text include all participants. Below we plot the effect sizes with participants who had already participanted in a prior experiment excluded (effect size estimates from XT and SPSS are also included for reference)./ The overall pattern looks the same as with all participants.
+`r prop_duplicates`% of  all participants (N = `r n_total`) completed more than one experiment. The data reported in the main text include all participants. Below we plot the effect sizes with participants who had already participanted in a prior experiment excluded (effect size estimates from XT and SPSS are also included for reference). The overall pattern looks the same as with all participants.
 
 ```{r, fig.height = 5, fig.width = 7}
 all_d_clean <- all_d_filtered %>%
@@ -223,7 +231,7 @@ ggplot(all_es) +
   geom_rect(aes(xmin = -Inf, xmax = Inf, ymin = d_low, ymax = d_high), 
             fill = "red", alpha = 0.05, inherit.aes = FALSE, data = ma_es) +
   geom_hline(aes(yintercept = d), data = ma_es, color = "red") +
-  scale_color_manual(values = c("black","grey63")) +
+  scale_color_manual(values = c("black", "grey63")) +
   geom_pointrange(aes(x = jitter(source, 1.4),  y = d, ymax = high, 
                       ymin = low, color = one_3sub_label, shape = fct_rev(blocking)), 
                   size = .5) +
@@ -253,8 +261,9 @@ for (i in 1:length(raw_files)[1]) {
 
 raw_d_munged <- raw_d %>%
   left_join(exp_key %>% select(exp, exp_recoded, timing)) %>%
-  mutate(exp_recoded = fct_relevel(exp_recoded, "10", after = 9),
-         exp_recoded = fct_relevel(exp_recoded, "11", after = 10)) %>%
+  mutate(exp_recoded = fct_relevel(exp_recoded, "10", after = 11),
+         exp_recoded = fct_relevel(exp_recoded, "11", after = 11),
+         exp_recoded = fct_relevel(exp_recoded, "12", after = 11)) %>%
   select(-exp) %>%
   ungroup()
 ```
@@ -342,6 +351,7 @@ Task times were variable across experiments, but overall shorter for simultaneou
 ```{r}
 # fix this - dplyr doesn't play well with dates
 raw_d_mungedT <- raw_d_munged
+
 raw_d_mungedT$SubmitTime = gsub("T|Z","",raw_d_mungedT$SubmitTime)
 raw_d_mungedT$AcceptTime = gsub("T|Z","",raw_d_mungedT$AcceptTime)
 raw_d_mungedT$SubmitTime = strptime(raw_d_munged$SubmitTime, "%F%T")
