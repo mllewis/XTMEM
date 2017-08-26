@@ -1,6 +1,6 @@
 ---
-title: XTMEM SI
-subtitle: Meta-analysis of experiments
+title: "Still suspicious: The suspicious coincidence effect revisited"
+subtitle: Supplementary Information
 author: Molly Lewis 
 date: "`r Sys.Date()`"
 output: 
@@ -9,7 +9,7 @@ output:
     theme: cerulean
     toc_float: true
     toc: true
-    code_folding: show
+    code_folding: hide
 ---
   
 ******
@@ -17,7 +17,7 @@ output:
 
 
 ```{r setup, include = F}
-rm(list=ls())
+rm(list = ls())
 
 # load packages
 library(knitr)
@@ -28,17 +28,14 @@ library(langcog)
 library(forcats)
 library(compute.es)
 library(stringr)
-
-
-#source("useful_ML.R")
+library(metafor)
 
 opts_chunk$set(echo = T, message = F, warning = F, 
-               error = F, cache = F, tidy = F, fig.height = 4)
+               error = F, cache = T, tidy = F, fig.height = 4)
 ```  
 
-Read in all previous anonymzed data and bind to current dataset
 ```{r read_in_anon_data}
-files <- dir("../../data/munged_data/")
+files <- dir("../../data/munged_data/")[-1]
 all_d <- data.frame()
 for (i in 1:length(files)[1]) {
     s <- read_csv(paste0("../../data/munged_data/", files[i]))
@@ -46,12 +43,12 @@ for (i in 1:length(files)[1]) {
 }
 
 exp_key <- read_csv("../../analysis/experiment_key.csv") %>%
-              mutate(order = gsub("\"", "", order))# this is because excel is dumb, grrr
+              mutate(order = gsub("\"", "", order))
 ```
 
 
-##  By category analysis
-The plot shows the effect size for each experiment (each facet) for each of the three categories in our stimuli (animals, vegetables and vehicles). While there is some variability in effect size by category (the effect larger for animals), this variability is small relative to the effect of condition order.
+##  Effect size by category 
+The plot below shows the effect size for each experiment (facet) for each of the three categories in our stimuli (animals, vegetables and vehicles). While there is some variability in effect size by category (the effect larger for animals), this variability is small relative to the effect of condition order. For reference, Table 1 describes the characteristics of each of the experiments.
 
 ```{r get_means}
 # remap condition values and select relevant conditions
@@ -102,7 +99,7 @@ LF_effect_sizes <- LF_means %>%
   mutate(exp_recoded = as.numeric(exp_recoded))
 ```
 
-```{r}
+```{r, fig.height = 5, fig.width = 7}
 ggplot(LF_effect_sizes, aes(x = category, 
                             color = category,
                             y = d)) +
@@ -112,7 +109,7 @@ ggplot(LF_effect_sizes, aes(x = category,
                       color = category)) +
   geom_hline(yintercept = 0, linetype = 2, color = "black") +
   facet_wrap(~exp_recoded) +
-  ggtitle("Effect size by category")+ 
+  ggtitle("Effect size by category") + 
   ylab("Cohen's d") +
   ggthemes::theme_few()  +
   theme(axis.title.x = element_blank(),
@@ -120,41 +117,129 @@ ggplot(LF_effect_sizes, aes(x = category,
         strip.background = element_rect(fill = "grey"))
 ```
 
-### Duplicates
-TO DO: look at ES excluide duplicates (about 10%)
-```{r, include = F,  eval = F}
-NUMEXPS <- 8
 
-d = data.frame()
-for (j in 1:NUMEXPS){
-  files = dir(paste0("../experiments/exp", as.character(j), "/production-results/"))
-  for (i in 1:length(files)[1]) {
-      s <- fromJSON(paste0("../experiments/exp", as.character(j), "/production-results/", files[i]))
-      s$exp = j
-      s$answers$asses = ifelse(is.null(s$answers$asses), "NA", s$answers$asses)
-      d = bind_rows(d, data.frame(s))
-  }
-}
-names(d) <- str_replace(names(d), "answers.", "")
+```{r}
+exp_table <- exp_key %>%
+  slice(1:12) %>%
 
-d$WorkerId = as.factor(d$WorkerId)
+  mutate(direct_replication_of_string = ifelse(is.na(direct_replication_of),
+                                              "", direct_replication_of),
+         timing = str_replace_all(timing, "sequential", "seq."),
+         timing = str_replace_all(timing, "simultaneous", "simult."),
+         one_3sub_label = str_replace_all(one_3sub_label, "different", "diff."),
+         exp_recoded = as.numeric(exp_recoded)) %>%
+  select(exp_recoded, timing, order, blocking, 
+         one_3sub_label, direct_replication_of_string) %>%
+  arrange(exp_recoded)
 
-hit.counts = group_by(d, WorkerId) %>%
-  summarize(count = n()) %>%
-  arrange(-count) %>%
-  filter(count > 1) %>%
-  left_join(select(d, WorkerId, exp))
+kable(exp_table)
 
-good.hits = hit.counts %>%
-  group_by(WorkerId) %>%
-  mutate(first_exp = min(exp),
-         include = as.factor(ifelse(exp == first_exp, "keep", "remove"))) 
 ```
 
+## Repeat participants excluded
+```{r}
+all_d_filtered <- read_csv("../../data/munged_data/all_data_munged_A.csv")
 
+n_unique <- all_d_filtered %>%
+  distinct(exp, subids) %>%
+  summarize(n = n())
 
-## Task time
-Task times were quite variable but shorter for simultaneous timing experiments (green) compared to sequential (pink).
+n_total <- all_d %>%
+  distinct(exp, subids) %>%
+  summarize(n = n())
+  
+prop_duplicates <- round((n_total-n_unique)/n_total, 2) * 100
+```
+`r prop_duplicates`% of  all participants (N = `r n_total`) participated in more than one experiment. The data reported in the main text include all participants. Below we plot the effect sizes with participants who had already participanted in a prior experiment excluded (effect size estimates from XT and SPSS are also included for reference)./ The overall pattern looks the same as with all participants.
+
+```{r, fig.height = 5, fig.width = 7}
+all_d_clean <- all_d_filtered %>%
+      mutate(condition = as.factor(condition),
+             exp = as.character(exp),
+             condition = fct_recode(condition,
+                                     three_basic = "3bas",
+                                     three_subordinate = "3sub",
+                                     three_superordinate = "3sup")) %>%
+      filter(condition == "one" | condition == "three_subordinate") %>%
+      select(exp, everything())
+
+all_ms_subj <- all_d_clean %>%
+  left_join(exp_key %>% select(exp, exp_recoded)) %>%
+  select(-exp) %>%
+  gather(variable, value, c(prop_sub, prop_bas, prop_sup)) %>%
+  group_by(condition,variable, exp_recoded, subids) %>%
+  mutate(value = as.numeric(value)) %>%
+  summarize(value = mean(value)) %>%
+  filter(condition == "one" | condition == "three_subordinate", 
+         variable == 'prop_bas') %>%
+  spread(condition, value) %>%
+  ungroup() %>%
+  select(-variable)
+
+# get effect sizes
+LF_means <- all_ms_subj %>%
+  group_by(exp_recoded) %>%
+  summarize(m_one = mean(one),
+            sd_one = sd(one),
+            m_3sub = mean(three_subordinate),
+            sd_3sub = sd(three_subordinate),
+            n = n())
+
+LF_effect_sizes <- LF_means %>%
+  do(data.frame(d = mes(.$m_one, .$m_3sub, .$sd_one,
+                     .$sd_3sub, .$n, .$n, verbose = F)$d,
+               d_var = mes(.$m_one, .$sd_3sub, .$sd_one,
+                    .$sd_3sub, .$n, .$n, verbose = F)$var.d)) %>%
+  mutate(high = d + (1.96*d_var),
+         low = d - (1.96*d_var),
+         es_type = "nonpaired",
+         exp_recoded = LF_means$exp_recoded) %>%
+  left_join(LF_means %>% select(exp_recoded, n)) %>%
+  select(exp_recoded, n, everything())
+
+literature_effect_sizes <- read_csv("../../data/literature_ES.csv") # see ../analysis/get_literature_ES.R
+
+all_es <- literature_effect_sizes %>%
+           bind_rows(LF_effect_sizes) %>%
+            left_join(exp_key) %>%
+            mutate(source = ifelse(str_detect(exp_recoded, "XT"), "XT2007a", 
+                               ifelse(str_detect(exp_recoded, "SPSS"), "SPSS2011", "LF")), 
+                   source = fct_relevel(source, "XT2007a","SPSS2011","LF"),
+                   timing = fct_relevel(timing,"simultaneous", "sequential")) %>%
+            mutate(source = as.numeric(source))
+
+seq13 <- rma(d, d_var, dat = filter(all_es, timing == "sequential", order == "1-3"))
+seq31 <- rma(d, d_var, dat = filter(all_es, timing == "sequential", order == "3-1"))
+sim13 <- rma(d, d_var, dat = filter(all_es, timing == "simultaneous", order == "1-3"))
+sim31 <- rma(d, d_var, dat = filter(all_es, timing == "simultaneous", order == "3-1"))
+
+ma_es <- data.frame(order = c("1-3", "3-1", "1-3", "3-1"),
+           timing = c("sequential", "sequential", "simultaneous", "simultaneous"),
+           d = c(seq13$b[[1]], seq31$b[[1]], sim13$b[[1]], sim31$b[[1]]),
+           d_low = c(seq13$ci.lb[[1]], seq31$ci.lb[[1]], sim13$ci.lb[[1]], sim31$ci.lb[[1]]),
+           d_high = c(seq13$ci.ub[[1]], seq31$ci.ub[[1]], sim13$ci.ub[[1]], sim31$ci.ub[[1]]))
+
+ggplot(all_es) +
+  geom_rect(aes(xmin = -Inf, xmax = Inf, ymin = d_low, ymax = d_high), 
+            fill = "red", alpha = 0.05, inherit.aes = FALSE, data = ma_es) +
+  geom_hline(aes(yintercept = d), data = ma_es, color = "red") +
+  scale_color_manual(values = c("black","grey63")) +
+  geom_pointrange(aes(x = jitter(source, 1.4),  y = d, ymax = high, 
+                      ymin = low, color = one_3sub_label, shape = fct_rev(blocking)), 
+                  size = .5) +
+  geom_hline(yintercept = 0, linetype = 2, color = "black") +
+  facet_grid(order ~ timing) +
+  scale_x_continuous(breaks = c(1:3), limits = c(.6, 3.3),
+                     labels = c("XT","SPSS","LF")) +
+  ylab("Cohen's d") +
+  xlab("Paper") + 
+  guides(color = guide_legend("Label"),
+         shape = guide_legend("Blocking"))  +
+  ggthemes::theme_few()
+
+```
+
+## Demographics
 ```{r}
 raw_files <- dir("../../data/anonymized_raw_data/")
 raw_d <- data.frame()
@@ -172,25 +257,9 @@ raw_d_munged <- raw_d %>%
          exp_recoded = fct_relevel(exp_recoded, "11", after = 10)) %>%
   select(-exp) %>%
   ungroup()
-
-# fix this - dplyr doesn't play well with dates
-raw_d_mungedT <- raw_d_munged
-raw_d_mungedT$SubmitTime = gsub("T|Z","",raw_d_mungedT$SubmitTime)
-raw_d_mungedT$AcceptTime = gsub("T|Z","",raw_d_mungedT$AcceptTime)
-raw_d_mungedT$SubmitTime = strptime(raw_d_munged$SubmitTime, "%F%T")
-raw_d_mungedT$AcceptTime = strptime(raw_d_mungedT$AcceptTime, "%F%T")
-raw_d_mungedT$total_time = as.numeric(raw_d_mungedT$SubmitTime) - as.numeric(raw_d_mungedT$AcceptTime)
-
-ggplot(raw_d_mungedT, 
-       aes(x = exp_recoded, y = total_time/60, fill = timing)) +
-    ylab("raw_d_munged time (min.)") +
-    xlab("Experiment Num.") +
-    ggtitle("Task time")+
-    geom_boxplot() +
-    ggthemes::theme_few()  
 ```
 
-### Demographics
+### Education
 ```{r}
 raw_d_munged %>%
   mutate(education = as.factor(education),
@@ -205,18 +274,31 @@ raw_d_munged %>%
   summarise(n = n()) %>%
   mutate(prop = round(n / sum(n),2)) %>%
   kable()
+```
 
+### First language
+```{r}
 raw_d_munged %>%
-  mutate(language = tolower(language)) %>%
+  mutate(language = tolower(language),
+         language = ifelse(substr(language,0,1) == "e", # all e lanuages are english
+                           "English", "Other")) %>%
   group_by(language) %>%
-  summarise(n = n()) %>%
+    summarise(n = n()) %>%
+  mutate(prop = round(n / sum(n),2)) %>%
   kable()
+```
 
+### Gender
+```{r}
 raw_d_munged %>%
   group_by(gender) %>%
   summarise(n = n()) %>%
   mutate(prop = round(n / sum(n),2)) %>%
   kable()
+```
+
+### Age
+```{r}
 
 raw_d_munged %>%
   mutate(age = as.numeric(as.character(age))) %>%
@@ -230,7 +312,7 @@ raw_d_munged %>%
   ggtitle("Age distribution")
 ```
 
-Task questions
+## Task feedback
 ```{r}
 raw_d_munged %>%
   mutate(enjoyment = as.factor(enjoyment),
@@ -255,5 +337,23 @@ raw_d_munged %>%
 #unique(raw_d_munged$comments)
 ```
 
+## Task time
+Task times were variable across experiments, but overall shorter for simultaneous timing experiments (green) compared to sequential (pink).
+```{r}
+# fix this - dplyr doesn't play well with dates
+raw_d_mungedT <- raw_d_munged
+raw_d_mungedT$SubmitTime = gsub("T|Z","",raw_d_mungedT$SubmitTime)
+raw_d_mungedT$AcceptTime = gsub("T|Z","",raw_d_mungedT$AcceptTime)
+raw_d_mungedT$SubmitTime = strptime(raw_d_munged$SubmitTime, "%F%T")
+raw_d_mungedT$AcceptTime = strptime(raw_d_mungedT$AcceptTime, "%F%T")
+raw_d_mungedT$total_time = as.numeric(raw_d_mungedT$SubmitTime) - as.numeric(raw_d_mungedT$AcceptTime)
 
+ggplot(raw_d_mungedT, 
+       aes(x = exp_recoded, y = total_time/60, fill = timing)) +
+    ylab("Time (min.)") +
+    xlab("Experiment") +
+    ggtitle("Task time")+
+    geom_boxplot() +
+    ggthemes::theme_few()  
+```
 

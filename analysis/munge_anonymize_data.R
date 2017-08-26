@@ -1,7 +1,7 @@
 #### Munge and save anonymized version of XTMEM data for single exp###
 
 # set exp number
-EXPTNUM <- 11
+EXPTNUM <- 12
 
 # load libraries and pacakges
 source("useful_ML.R")
