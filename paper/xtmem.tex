@@ -308,7 +308,7 @@ three wugs{]}. Can you give Mr.~Frog all of the other wugs?.} Below the
 learning exemplars, 24 generalization exemplars (8 from each of the 3
 categories) were displayed in a 4\emph{x}6 grid. The order of
 generalizaiton pictures was randomized across trials. Participants were
-instructed to select the other category memebers (\enquote{To give a
+instructed to select the target category members (\enquote{To give a
 wug, click on it below. When you have given all the wugs, click the Next
 button.}). When an exemplar was selected, a red box appeared around the
 picture, and participants were allowed to change their selections by
@@ -321,7 +321,7 @@ There were four trial types distinguished by the number and semantic
 level of the learning exemplars: one subordinate exemplar, three
 subordinate exemplars, three basic exemplars, and three superordate
 exemplars. Each participant completed each trial type for each of the
-three stimulus categories (vegetables, vehicles and animals).
+three stimulus categories (vegetables, vehicles, and animals).
 
 Across 12 experiments, we manipulated four aspects of the trial design
 that differed between the XT and SPSS studies (summarized in Table 1):
@@ -395,15 +395,10 @@ four manipulations as fixed effects. We used the metafor package
 
 \section{Results}\label{results}
 
-Figure 2 shows the mean proportion generalizations to the basic level in
-the one- and three-subordinate trials for all 12 experiments, and Figure
-3 shows the corresponding effect sizes (with XT and SPSS experiments
-included for reference).
-
 \begin{figure}
 \centering
-\includegraphics{xtmem_files/figure-latex/unnamed-chunk-3-1.pdf}
-\caption{\label{fig:unnamed-chunk-3}Mean proportion generalizations to basic
+\includegraphics{xtmem_files/figure-latex/means_fig-1.pdf}
+\caption{(\#fig:means\_fig)Mean proportion generalizations to basic
 level exemplars in the one (pink) and three (green) subordinate exemplar
 conditions for all 12 of our experiments. Each facet corresponds to a
 pairing of presentation timing (simultaneous vs.~sequential) and trial
@@ -411,25 +406,16 @@ order (1-3 vs.~3-1). Error bars are bootstrapped 95\% confidence
 intervals.}
 \end{figure}
 
-In two exact replications of the XT method (XT E1 and X2), we replicate
-the suspicious coincidence effect (Exp. 1: \emph{d} = 1.32 {[}1.24,
-1.4{]}; Exp. 2: \emph{d} = 1.14 {[}1.06, 1.22{]}), with a magnitude
-comparable to the original XT experiments (\emph{d} = 2 {[}1.73, 2.27{]}
-and d = 1.01 {[}0.89, 1.13{]}). We also replicate the reversal in the
-suspicious coincidence effect observed by SPSS (SPSS E2 and E3) in an
-exact replication of their method (Exp. 10; \emph{d} = -0.44 {[}-0.52,
--0.36{]}), and with a magnitude comparable to the original experiments
-(SPSS E2: \emph{d} = -0.61 {[}-0.81, -0.41{]}; SPSS E3: \emph{d} = -0.3
-{[}-0.52, -0.08{]}).
-
-Critically, however, the meta-analyic model across all 12 experiments
-suggests that only trial order is a reliable predictor of the magnitude
-of the susicpious coincidence effect. THE MODEL.
+Figure \ref{fig:means_fig}shows the mean proportion generalizations to
+the basic level in the one- and three-subordinate trials for all 12
+experiments, and Figure \ref{fig:effect_sizes_fig} shows the
+corresponding effect sizes (with XT and SPSS experiments included for
+reference).
 
 \begin{figure}
 \centering
-\includegraphics{xtmem_files/figure-latex/unnamed-chunk-4-1.pdf}
-\caption{\label{fig:unnamed-chunk-4}Effect sizes for all 19 studies
+\includegraphics{xtmem_files/figure-latex/effect_sizes_fig-1.pdf}
+\caption{(\#fig:effect\_sizes\_fig)Effect sizes for all 19 studies
 conducted on the suspicious coincidence effect by XT (Xu \& Tenenbaum,
 2007a), SPSS (Spencer, et al, 2011), and the current authors. The
 top-bottoom facets indicate whether the single exemplar trial occurred
@@ -445,9 +431,20 @@ effect sizes are estimated from the SPSS replication). All error bars
 are 95\% confidence intervals.}
 \end{figure}
 
+In two exact replications of the XT method (XT E1 and X2), we replicate
+the suspicious coincidence effect (Exp. 1: \emph{d} = 1.32 {[}1.24,
+1.4{]}; Exp. 2: \emph{d} = 1.14 {[}1.06, 1.22{]}), with a magnitude
+comparable to the original XT experiments (\emph{d} = 2 {[}1.73, 2.27{]}
+and \emph{d} = 1.01 {[}0.89, 1.13{]}). We also replicate the reversal in
+the suspicious coincidence effect observed by SPSS (SPSS E2 and E3) in
+an exact replication of their method (Exp. 10; \emph{d} = -0.44
+{[}-0.52, -0.36{]}), and with a magnitude comparable to the original
+experiments (SPSS E2: \emph{d} = -0.61 {[}-0.81, -0.41{]}; SPSS E3:
+\emph{d} = -0.3 {[}-0.52, -0.08{]}).
+
 \begin{table}
 
-\caption{\label{tab:unnamed-chunk-5}Meta-analytic model with manipulations as fixed effects.}
+\caption{\label{tab:unnamed-chunk-3}Meta-analytic model with manipulations as fixed effects.}
 \centering
 \fontsize{12}{14}\selectfont
 \begin{tabular}[t]{lrrr}
@@ -456,12 +453,23 @@ Fixed effect & beta & z-value & p-value\\
 \midrule
 Intercept & 1.37 [1.09, 1.65] & 9.48 & <.0001\\
 Simultaneous vs. sequential timing & -0.13 [-0.33, 0.08] & -1.18 & 0.24\\
-1-3 vs. 3-1 condition order & -1.48 [-1.77, -1.18] & -9.90 & <.0001\\
+1-3 vs. 3-1 trial order & -1.48 [-1.77, -1.18] & -9.90 & <.0001\\
 Different vs. same label & 0.03 [-0.21, 0.26] & 0.20 & 0.84\\
-Blocked vs. pseudo-random trial order & -0.09 [-0.41, 0.24] & -0.52 & 0.6\\
+Blocked vs. pseudo-random trial structure & -0.09 [-0.41, 0.24] & -0.52 & 0.6\\
 \bottomrule
 \end{tabular}
 \end{table}
+
+Critically, however, the meta-analyic model across all 12 experiments
+reveals that only trial order is a reliable predictor of effect size
+(\(\beta\) = -1.48; \emph{Z} = -9.9; \emph{p} \textless{}.0001), while
+timing (\(\beta\) = -0.13; \emph{Z} = -1.18; \emph{p} = 0.24), blocking
+(\(\beta\) = -0.09; \emph{Z} = -0.52; \emph{p} = 0.6), and label are not
+(\(\beta\) = 0.03; \emph{Z} = 0.2; \emph{p} = 0.84); Table 2). Contra
+SPSS, this suggests that the suspcious coincidence is robust to
+spatio-temoral presentation aspects of the learning exemplars. In the
+General Discussion, we consider why trial order might influence the
+suspicious coincidence effect.
 
 \section{Discussion}\label{discussion}
 

@@ -1,20 +1,33 @@
 ---
-title: "Still suspicious: The suspicious coincidence effect revisited"
-subtitle: Supplementary Information
-author: Molly Lewis 
+title: 'Still suspicious: The suspicious coincidence effect revisited'
+author: "Molly Lewis"
 date: "`r Sys.Date()`"
-output: 
+output:
   html_document:
-    number_sections: false
-    theme: cerulean
-    toc_float: true
-    toc: true
     code_folding: hide
+    number_sections: yes
+    theme: cerulean
+    toc: yes
+    toc_float: no
+runtime: shiny
+subtitle: Supplementary Information
+resource_files:
+- data/munged_data/exp1_data_munged.csv
+- data/munged_data/exp2_data_munged.csv
+- data/munged_data/exp3_data_munged.csv
+- data/munged_data/exp4_data_munged.csv
+- data/munged_data/exp5_data_munged.csv
+- data/munged_data/exp6_data_munged.csv
+- data/munged_data/exp7_data_munged.csv
+- data/munged_data/exp8_data_munged.csv
+- data/munged_data/exp9_data_munged.csv
+- data/munged_data/exp10_data_munged.csv
+- data/munged_data/exp11_data_munged.csv
+- data/munged_data/exp12_data_munged.csv
 ---
   
 ******
 ******
-
 
 ```{r setup, include = F}
 rm(list = ls())
@@ -30,28 +43,114 @@ library(compute.es)
 library(stringr)
 library(metafor)
 library(kableExtra)
-
+library(shiny)
 
 opts_chunk$set(echo = T, message = F, warning = F, 
                error = F, cache = F, tidy = F, fig.height = 4)
 ```  
 
 ```{r read_in_anon_data}
-files <- dir("../../data/munged_data/")[-1]
+files <- c("exp1_data_munged.csv", "exp10_data_munged.csv", "exp11_data_munged.csv", "exp12_data_munged.csv", "exp2_data_munged.csv" , "exp3_data_munged.csv", "exp4_data_munged.csv"  ,"exp5_data_munged.csv", "exp6_data_munged.csv" , "exp7_data_munged.csv" ,
+"exp8_data_munged.csv",  "exp9_data_munged.csv") 
 all_d <- data.frame()
-for (i in 1:length(files)[1]) {
-    s <- read_csv(paste0("../../data/munged_data/", files[i]))
+for (i in 1:length(files)) {
+    s <- read_csv(paste0("data/munged_data/", files[i]))
     all_d <- bind_rows(all_d, data.frame(s))
 }
 
-exp_key <- read_csv("../../analysis/experiment_key.csv") %>%
+exp_key <- read_csv("data/experiment_key.csv") %>%
               mutate(order = gsub("\"", "", order))
 ```
 
-## what's going on with the other measures
-## A note on ES calculation (http://jakewestfall.org/blog/index.php/category/effect-size/)
-##  Effect size by category 
-The plot below shows the effect size for each experiment (facet) for each of the three categories in our stimuli (animals, vegetables and vehicles). While there is some variability in effect size by category (the effect is larger for animals), this variability is small relative to the effect of condition order. For reference, Table 1 describes the characteristics of each of the experiments.
+```{r}
+exp_table <- exp_key %>%
+  slice(1:12) %>%
+  mutate(direct_replication_of_string = ifelse(is.na(direct_replication_of),
+                                              "", direct_replication_of),
+        blocking = str_replace_all(blocking, "random", "pseudo-random"),
+         one_3sub_label = str_replace_all(one_3sub_label, "different", "diff."),
+         exp_recoded = as.numeric(exp_recoded)) %>%
+  select(exp_recoded, timing, order, blocking, 
+          one_3sub_label, direct_replication_of_string) %>%
+  arrange(exp_recoded)
+```
+# Effect size calculation
+The classical Cohen's *d* measure was originally developed for between-subject designs and, as such, researchers have adapted the measure to within-subject designs in a variety of ways (http://jakewestfall.org/blog/index.php/category/effect-size/). We calculate our effect sizes using the "classic" Cohen's *d* formula, which takes the mean difference between conditions divided by the pooled standard deviation. Because this method does not take into account the fact that the means are within-subject, these are conservative estimates of effect size (since within-subject designs have more power). We use the `mes` function from the `compute.es` package to calculate our effect sizes. 
+
+# All conditions and measures
+In the Main Text, we report the proportion basic level selections for two training conditions, one-subordinate and three-subordinate. Here we report the data for all four conditions, for all three dependent measures (proportion basic level, subordinate level, and superordinate selections). Ranges are bootstrapped 95% confidence intervals.
+
+```{r}
+all_plot_data <- all_d %>%
+  gather(variable, value, c(prop_sub, prop_bas, prop_sup)) %>%
+  group_by(exp, condition, variable) %>%
+  mutate(value = as.numeric(value)) %>%
+  #multi_boot_standard(column = "value")  %>%
+  summarise(mean = mean(value), 
+            error = qt(0.975,df=n()-1)*sd(value)/sqrt(n()),
+            ci_lower = mean - error,# FIXME to bootstrap
+            ci_upper = mean + error) %>%
+  ungroup() %>%
+  mutate(variable = as.factor(variable),
+         exp = as.character(exp),
+        condition = fct_recode(condition, "1 sub." = "one",
+                                          "3 basic"= "three_basic",
+                                          "3 sub." = "three_subordinate",
+                                          "3 super." = "three_superordinate"),
+          variable = fct_recode(variable, "basic" = "prop_bas",
+                                          "subordinate"= "prop_sub",
+                                          "superordinate" = "prop_sup")) %>%
+  left_join(exp_key %>% select(exp, exp_recoded))
+```
+
+```{r, echo = FALSE}
+shinyApp(
+  
+  ui = fluidPage(
+    selectInput("expnum", "Select experiment number:", 
+                choices = as.character(1:12), width = '25%'),
+    wellPanel(htmlOutput("exp_description")),
+    plotOutput("all_measures_plot")
+  ),
+  
+  server = function(input, output) {
+    
+    output$exp_description <- renderText({
+        desc <- filter(exp_key, exp_recoded == input$expnum)
+        description_string <- paste0("<b>Timing:</b> ", desc$timing[[1]],
+                                     ",     <b>Trial order:</b> ", desc$order[[1]],
+                                     ",     <b>Blocking:</b> ", desc$blocking[[1]],
+                                     ",     <b>Label:</b> ", desc$one_3sub_label[[1]])
+        description_string
+        
+        HTML(paste(description_string))
+    })
+    
+    output$all_measures_plot <- renderPlot({
+      
+    all_plot_data %>%
+      filter(exp_recoded == input$expnum) %>%
+      ggplot(aes(x = condition, y = mean, group = variable, fill = variable)) +
+      geom_bar(position = "dodge", stat = "identity") +
+      geom_linerange(aes(ymin = ci_lower, 
+                     ymax = ci_upper), 
+                 position = position_dodge(width = .9)) +
+      ylab("Proportion of objects selected") +
+      xlab("Learning exemplars") +
+      guides(fill=guide_legend(title="Object type")) +
+      theme_bw() +
+              theme(text = element_text(size = 17)) +
+
+      ggtitle(paste0("Experiment #", input$expnum))
+    })
+  },
+  
+  options = list(height = 600)
+)
+```
+
+#  By category analyses
+In the Main Text, we report our analyses collapsed across all three stimulus categories (animals, vehicles and vegtables). Here we present the effect sizes for each experiment separately for the different stimulus categories. While there is some variability in effect size by category (the effect is larger for animals), this variability is small relative to the effect of condition order. Ranges are 95% confidence intervals.
 
 ```{r get_means}
 # remap condition values and select relevant conditions
@@ -65,20 +164,20 @@ all_d_clean <- all_d %>%
       filter(condition == "one" | condition == "three_subordinate") %>%
       select(exp, everything())
 
-all_ms_subj <- all_d_clean %>%
+all_ms_subj2 <- all_d_clean %>%
   left_join(exp_key %>% select(exp, exp_recoded)) %>%
   select(-exp) %>%
-  gather(variable, value, c(prop_sub, prop_bas, prop_sup)) %>%
+  gather(variable, value, c(prop_sub, prop_bas, prop_sup))  %>%
   group_by(condition, category, variable, exp_recoded, subids) %>%
   mutate(value = as.numeric(value)) %>%
   summarize(value = mean(value)) %>%
-  filter(condition == "one" | condition == "three_subordinate",
+filter(condition == "one" | condition == "three_subordinate",
          variable == 'prop_bas') %>%
   spread(condition, value) %>%
-  ungroup() %>%
+  ungroup()  %>%
   select(-variable)
 
-LF_means <- all_ms_subj %>%
+LF_means2 <- all_ms_subj2 %>%
   group_by(exp_recoded, category) %>%
   summarize(m_one = mean(one),
             sd_one = sd(one),
@@ -86,7 +185,7 @@ LF_means <- all_ms_subj %>%
             sd_3sub = sd(three_subordinate),
             n = n())
 
-LF_effect_sizes <- LF_means %>%
+LF_effect_sizes2<- LF_means2 %>%
   ungroup() %>%
   do(data.frame(d = mes(.$m_one, .$m_3sub, .$sd_one,
                      .$sd_3sub, .$n, .$n, verbose = F)$d,
@@ -95,61 +194,61 @@ LF_effect_sizes <- LF_means %>%
   mutate(high = d + (1.96*d_var),
          low = d - (1.96*d_var),
          es_type = "nonpaired",
-         exp_recoded = LF_means$exp_recoded,
-         category = LF_means$category) %>%
-  left_join(LF_means %>% select(exp_recoded, n)) %>%
-  select(exp_recoded, n, everything()) %>%
-  mutate(exp_recoded = as.numeric(exp_recoded))
+         exp_recoded = LF_means2$exp_recoded,
+         category = LF_means2$category) 
+
 ```
 
-```{r, fig.height = 5, fig.width = 7}
-ggplot(LF_effect_sizes, aes(x = category, 
-                            color = category,
-                            y = d)) +
-  geom_pointrange(size = .2, 
-                    aes(ymax = high, 
-                      ymin = low, 
-                      color = category)) +
-  geom_hline(yintercept = 0, linetype = 2, color = "black") +
-  facet_wrap(~exp_recoded) +
-  ggtitle("Effect size by category") + 
-  ylab("Cohen's d") +
-  ggthemes::theme_few()  +
-  theme(axis.title.x = element_blank(),
-        axis.text.x = element_blank(),
-        strip.background = element_rect(fill = "grey"))
+```{r, echo = FALSE}
+shinyApp(
+  
+  ui = fluidPage(
+    selectInput("expnum", "Select experiment number:", 
+                choices = as.character(1:12), width = '30%'),
+    wellPanel(htmlOutput("exp_description")),
+    
+    
+    plotOutput("by_category_plot")
+  ),
+  
+  server = function(input, output) {
+    
+    output$exp_description <- renderText({
+        desc <- filter(exp_key, exp_recoded == input$expnum)
+        description_string <- paste0("<b>Timing:</b> ", desc$timing[[1]],
+                                     ",     <b>Trial order:</b> ", desc$order[[1]],
+                                     ",     <b>Blocking:</b> ", desc$blocking[[1]],
+                                     ",     <b>Label:</b> ", desc$one_3sub_label[[1]])
+        description_string
+        
+        HTML(paste(description_string))
+    })
+    
+    output$by_category_plot <- renderPlot({
+
+    LF_effect_sizes2 %>%
+      filter(exp_recoded == input$expnum) %>%
+      ggplot(aes(x = category, y = d)) +
+      geom_hline(yintercept = 0, linetype = 2, color = "black",size = 1.1) +
+        geom_pointrange(size = 1.2, aes(ymax = high, ymin = low, color = category)) +
+        ggtitle("Effect size (Cohen's d) by category") +
+        ylim(-.5, 1.7)+
+        ylab("Cohen's d") +
+        ggthemes::theme_few()  +
+        theme(text = element_text(size = 17),
+              legend.position = "none") +
+        ggtitle(paste0("Experiment #", input$expnum))
+    })
+  },
+  
+  options = list(width = "70%", height = 600)
+)
 ```
 
 
+# Repeat participants excluded
 ```{r}
-exp_table <- exp_key %>%
-  slice(1:12) %>%
-  mutate(direct_replication_of_string = ifelse(is.na(direct_replication_of),
-                                              "", direct_replication_of),
-         timing = str_replace_all(timing, "sequential", "seq."),
-         timing = str_replace_all(timing, "simultaneous", "simult."),
-        blocking = str_replace_all(blocking, "random", "pseudo-random"),
-         one_3sub_label = str_replace_all(one_3sub_label, "different", "diff."),
-         exp_recoded = as.numeric(exp_recoded)) %>%
-  select(exp_recoded, timing, order, blocking, 
-          one_3sub_label, direct_replication_of_string) %>%
-  arrange(exp_recoded)
-```
-
-```{r}
-kable(exp_table, align = c('c', 'r', 'r', 'r', "r", "r"),
-      caption = "Table 1: Summary of our 12 experiments.",
-      col.names = c("Exp.", "Timing", "Order",
-                     "Blocking", "Label", "Original Exp.")) %>%
-    kable_styling(full_width = F) %>%
-    column_spec(1, bold = T) %>%
-    kable_styling(font_size = 12) 
-
-```
-
-## Repeat participants excluded
-```{r}
-all_d_filtered <- read_csv("../../data/munged_data/all_data_munged_A.csv")
+all_d_filtered <- read_csv("data/munged_data/all_data_munged_A.csv")
 
 n_unique <- all_d_filtered %>%
   distinct(exp, subids) %>%
@@ -208,7 +307,7 @@ LF_effect_sizes <- LF_means %>%
   left_join(LF_means %>% select(exp_recoded, n)) %>%
   select(exp_recoded, n, everything())
 
-literature_effect_sizes <- read_csv("../../data/literature_ES.csv") # see ../analysis/get_literature_ES.R
+literature_effect_sizes <- read_csv("data/literature_ES.csv") # see ../../analysis/get_literature_ES.R
 
 all_es <- literature_effect_sizes %>%
             bind_rows(LF_effect_sizes) %>%
@@ -216,6 +315,7 @@ all_es <- literature_effect_sizes %>%
             mutate(source = ifelse(str_detect(exp_recoded, "XT"), "XT2007a", 
                                ifelse(str_detect(exp_recoded, "SPSS"), "SPSS2011", "LF")), 
                    source = fct_relevel(source, "XT2007a","SPSS2011","LF"),
+                   source = as.numeric(source),
                    timing = fct_relevel(timing,"simultaneous", "sequential"))
 
 seq13 <- rma(d, d_var, dat = filter(all_es, timing == "sequential", order == "1-3"))
@@ -248,13 +348,14 @@ ggplot(all_es) +
   ggthemes::theme_few()
 
 ```
+---> add meta-analytic model
 
-## Demographics
+# Demographics{.tabset}
 ```{r}
-raw_files <- dir("../../data/anonymized_raw_data/")
+raw_files <- dir("data/anonymized_raw_data/")
 raw_d <- data.frame()
 for (i in 1:length(raw_files)[1]) {
-    s <- read_csv(paste0("../../data/anonymized_raw_data/", raw_files[i])) %>%
+    s <- read_csv(paste0("data/anonymized_raw_data/", raw_files[i])) %>%
         mutate(exp = unlist(str_split(files[i], "_|exp"))[2]) %>%
         select(exp, subids, SubmitTime, AcceptTime,
                asses, comments, age, gender, education, enjoyment, language)
@@ -270,7 +371,7 @@ raw_d_munged <- raw_d %>%
   ungroup()
 ```
 
-### Education
+## Education
 ```{r}
 raw_d_munged %>%
   mutate(education = as.factor(education),
@@ -287,7 +388,7 @@ raw_d_munged %>%
   kable()
 ```
 
-### First language
+## First language
 ```{r}
 raw_d_munged %>%
   mutate(language = tolower(language),
@@ -299,7 +400,7 @@ raw_d_munged %>%
   kable()
 ```
 
-### Gender
+## Gender
 ```{r}
 raw_d_munged %>%
   group_by(gender) %>%
@@ -308,7 +409,7 @@ raw_d_munged %>%
   kable()
 ```
 
-### Age
+## Age
 ```{r}
 
 raw_d_munged %>%
@@ -323,7 +424,9 @@ raw_d_munged %>%
   ggtitle("Age distribution")
 ```
 
-## Task feedback
+# Task feedback{.tabset}
+
+## Enjoyment
 ```{r}
 raw_d_munged %>%
   mutate(enjoyment = as.factor(enjoyment),
@@ -336,7 +439,10 @@ raw_d_munged %>%
   summarise(n = n()) %>%
   mutate(prop = round(n / sum(n),2)) %>%
   kable()
+```
 
+## Understanding
+```{r}
 raw_d_munged %>%
   mutate(asess = as.factor(asses)) %>%
   rename(`Did you read instructions?` = "asses") %>%
@@ -348,7 +454,7 @@ raw_d_munged %>%
 #unique(raw_d_munged$comments)
 ```
 
-## Task time
+# Task time
 Task times were variable across experiments, but overall shorter for simultaneous timing experiments (green) compared to sequential (pink).
 ```{r}
 # fix this - dplyr doesn't play well with dates

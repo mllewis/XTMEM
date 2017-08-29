@@ -16,3 +16,5 @@ stringr
 Matrix
 metafor
 bindrcpp
+shiny
+kableExtra
