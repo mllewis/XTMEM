@@ -98,19 +98,13 @@ We report how we determined our sample size, all manipulations, and all measures
 ## Participants
 ```{r read_in_data}
 ### all data
-files <- dir("../data/munged_data/")[-1]
-  
-all_d <- data.frame()
-for (i in 1:length(files)[1]) {
-    s <- read.csv(paste0("../data/munged_data/", files[i]))
-    all_d <- bind_rows(all_d, data.frame(s))
-}
+all_d <- read_csv("../data/anonymized_data/all_data_munged_A.csv")
 
 ### data with repeat participants excluded
-all_d_filtered <- read_csv("../data/munged_data/all_data_munged_A.csv")
+all_d_filtered <- read_csv("../data/anonymized_data/no_dups_data_munged_A.csv")
 
 ## key to experiment factors
-exp_key <- read_csv("../analysis/experiment_key.csv") %>%
+exp_key <- read_csv("../data/experiment_key.csv") %>%
               mutate(order = gsub("\"", "", order))# this is because excel is dumb, grrr
 ```
 
@@ -125,7 +119,7 @@ n_total <- all_d %>%
   
 percent_duplicates <- round((n_total - n_unique)/n_total, 2) * 100
 ```
-Fifty participants were recruited on Amazon Mechanical Turk for each of our 12 experiments (N = 600), and paid 40-50 cents for their participation. Across all 12 experiments, `r percent_duplicates[[1]]`% of participants completed more than one experiment. We report data from all participants in the Main Text, but the pattern of reported findings holds when these participants are excluded (see SI).
+Fifty participants were recruited on Amazon Mechanical Turk for each of our 12 experiments (N = 600), and paid 40-50 cents for their participation. Across all 12 experiments, `r percent_duplicates[[1]]`% of participants completed more than one experiment. We report data from all participants in the Main Text, but the pattern of reported findings holds when these participants are excluded (see SI)\footnote{Supplemental information can be found at [https://mlewis.shinyapps.io/xtmem_SI/](https://mlewis.shinyapps.io/xtmem_SI/)}.
 
 We determined our sample size on the basis of a pre-registered power calculation using a meta-analytic estimate of the effect size from studies conducted by XT and SPSS. The chosen sample size was approximately twice the estimated sample size necessary to obtain a power of 1. 
 

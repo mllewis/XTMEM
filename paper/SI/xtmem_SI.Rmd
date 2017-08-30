@@ -11,19 +11,6 @@ output:
     toc_float: no
 runtime: shiny
 subtitle: Supplementary Information
-resource_files:
-- data/munged_data/exp1_data_munged.csv
-- data/munged_data/exp2_data_munged.csv
-- data/munged_data/exp3_data_munged.csv
-- data/munged_data/exp4_data_munged.csv
-- data/munged_data/exp5_data_munged.csv
-- data/munged_data/exp6_data_munged.csv
-- data/munged_data/exp7_data_munged.csv
-- data/munged_data/exp8_data_munged.csv
-- data/munged_data/exp9_data_munged.csv
-- data/munged_data/exp10_data_munged.csv
-- data/munged_data/exp11_data_munged.csv
-- data/munged_data/exp12_data_munged.csv
 ---
   
 ******
@@ -50,13 +37,8 @@ opts_chunk$set(echo = T, message = F, warning = F,
 ```  
 
 ```{r read_in_anon_data}
-files <- c("exp1_data_munged.csv", "exp10_data_munged.csv", "exp11_data_munged.csv", "exp12_data_munged.csv", "exp2_data_munged.csv" , "exp3_data_munged.csv", "exp4_data_munged.csv"  ,"exp5_data_munged.csv", "exp6_data_munged.csv" , "exp7_data_munged.csv" ,
-"exp8_data_munged.csv",  "exp9_data_munged.csv") 
-all_d <- data.frame()
-for (i in 1:length(files)) {
-    s <- read_csv(paste0("data/munged_data/", files[i]))
-    all_d <- bind_rows(all_d, data.frame(s))
-}
+all_d <- read_csv("data/anonymized_data/all_data_munged_A.csv")
+# this data has been pre-processed with analysis/munge_anonymize_data.R script
 
 exp_key <- read_csv("data/experiment_key.csv") %>%
               mutate(order = gsub("\"", "", order))
@@ -248,7 +230,8 @@ shinyApp(
 
 # Repeat participants excluded
 ```{r}
-all_d_filtered <- read_csv("data/munged_data/all_data_munged_A.csv")
+all_d_filtered <- read_csv("data/anonymized_data/no_dups_data_munged_A.csv") 
+# this file has been pre-processed with analysis/munge_anonymize_data_no_dups.R script
 
 n_unique <- all_d_filtered %>%
   distinct(exp, subids) %>%
@@ -352,17 +335,10 @@ ggplot(all_es) +
 
 # Demographics{.tabset}
 ```{r}
-raw_files <- dir("data/anonymized_raw_data/")
-raw_d <- data.frame()
-for (i in 1:length(raw_files)[1]) {
-    s <- read_csv(paste0("data/anonymized_raw_data/", raw_files[i])) %>%
-        mutate(exp = unlist(str_split(files[i], "_|exp"))[2]) %>%
-        select(exp, subids, SubmitTime, AcceptTime,
-               asses, comments, age, gender, education, enjoyment, language)
-    raw_d <- bind_rows(raw_d, data.frame(s))
-}
+raw_d <- read_csv("data/anonymized_data/all_raw_A.csv")
 
 raw_d_munged <- raw_d %>%
+  mutate(exp = as.character(exp)) %>%
   left_join(exp_key %>% select(exp, exp_recoded, timing)) %>%
   mutate(exp_recoded = fct_relevel(exp_recoded, "10", after = 11),
          exp_recoded = fct_relevel(exp_recoded, "11", after = 11),
