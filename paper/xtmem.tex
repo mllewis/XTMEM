@@ -150,6 +150,7 @@ line.}
   \usepackage{graphicx}
   \AtBeginEnvironment{tabular}{\singlespacing}
   \usepackage{pbox}
+  \usepackage{hyphsubst}
 
 \usepackage{amsthm}
 \newtheorem{theorem}{Theorem}
@@ -172,33 +173,88 @@ line.}
 
 \subsection{Intro}\label{intro}
 
-What is the suspicious coincidence effect?
+Suppose you're learning a foreign language and you learn that a chili
+pepper can be called \enquote{wug.} What does \enquote{wug} mean? This
+question is challenging of course because the same object can be refered
+to by many different labels depending on the level of abstraction that
+the speaker wishes to convey. One could refer to the same chili pepper
+using the labels \enquote{chili pepper} at the subordinate level,
+\enquote{pepper} at the basic level, or \enquote{vegetable} at the
+superodinate level. For the naive learner, this ambiguity poses a
+fundamental challenge for inferring the meaning of the word since every
+instance of \enquote{wug} that the learner hears is consistent with
+extensions at all three levels of abstraction. Furthermore, children
+rarely receive the kind of negative evidence (\enquote{this is
+\emph{not} a wug}) that would help disambiguate the word's meaning. Yet,
+despite the apparent difficulty of the learning problem, children
+sucessfully learn words at multiple levels of abstraction.
 
-(Spencer, Perone, Smith, \& Samuelson, 2011; F. Xu \& Tenenbaum, 2007;
-Fei Xu \& Tenenbaum, 2007)
+Xu and Tenenbaum (2007a; henceforth XT) provide one account as to how
+children might learn such words without relying on negative evidence.
+Within a Bayesian framwork, they suggest that learners implicitly
+consider the likelihood of hearing different word-objects pairs under
+different hypotheses about the extension of a word. One consequence of
+this assumption is that learners should be sensitive to the number of
+word-objects pairs they observe when determining a word's meaning. In
+particular, XT predict that a learner should think that it would be a
+\enquote{suspcious coincidence} if they observed three subordinate
+examples (chili peppers) with the word \enquote{wug}, but the true
+meaning of the word were at the basic level (e.g, pepper). More
+generally, they predict that a learner should be more likely to
+generalize narrowly to the subordinate level when they observe more
+word-object pairs. In two experiments, they find that both adults and
+children show exactly this pattern.
 
-Why is it important?
+This finding has been foundational to a number of other more recent
+findings. * strong sampling * Gweon, Tenenbaum, and Schulz (2009) {[}TO
+DO{]}
 
-Spencer et al. paper
+In a follow-up study to XT, Spencer, Perone, Smith, and Samuelson (2011;
+henceforth SPSS) offer an alternative explanation for the suspcicious
+coincidence effect. They argue that the effect can be accounted for by
+basic memory processes in which the co-occurence of objects in time and
+space highlights differences across exemplars, thus leading to increased
+conceptual discrimination. They predict that this increased conceptual
+discrimination should make it more likely for participants to generalize
+to the subordinate level when more subordinate category exemplars are
+observed---the suspicious coincidence pattern observed by XT. SPSS test
+this possibility by replicating the original XT experiments with one
+small change: Rather than presenting the learning exemplars
+simulateneously, they present them in sequence such that only one
+learning exemplar is visible at a time. The sequential presentation of
+objects, the argue, more closely reflects the experience of learners in
+the real world who encounter objects in time and space.
 
-Methodological differences:
+In a series of experiments, SPSS replicate XT's finding with
+simultaneous presentation of the learning exemplars, but fail to
+replicate it with the sequential presentation. In fact, they observe a
+reversal of the effect under sequential presentation conditions, such
+that participants were more likely to generalize to the basic level when
+more subordinate exemplars were presented.
 
-\begin{itemize}
-\tightlist
-\item
-  simultaneous vs.~sequential
-\item
-  3-1 vs.~1-3
-\item
-  blocking
-\item
-  same label vs.~different label
-\end{itemize}
+These findings are surprising in part because it is not clear that
+effects of basic memory processes should lead to broader generalization.
+While SPSS argue that simultaneous presentation highlights differences
+across exemplars, others have suggested that this method highlights
+their commonalities and increases memory consolidation, thus predicting
+\emph{greater} generalization in the sequential condition (Lawson,
+2017). Indeed, several findings suggest that preschoolers demonstrate
+the suspicious coinccendince effect when generalizing properties under
+sequential presentation (Lawson, 2014), and that this effect disappears
+under simultanous presentation (Lawson, 2017).
 
-other evidence relevant on this replicatione
+On the other hand, there is reason to think that estimates of rational
+inference in word learning may be over-estimated. In other work, we find
+that a related effect predicted by XT (Xu \& Tenenbaum, 2007a)---strong
+versus weak sampling---appears to be much smaller in magnitude relative
+to the original estimate (Lewis \& Frank, 2016).
 
-Our current paper reports 12 experiments, 10 of which were
-pre-registered. We recover the suspicious coincidence effect with a
+Given the theoretical importance of the suspicious coincidence effect
+and the conflicting empirical picture, we sought to replicate the
+suspicious coincidence effect. We report 12 experiments, 10 of which
+were pre-registered, that varied four design aspects that differed
+between XT and SPPS: Presentation timing, trial order, blocking, and
+label consistency. We recover the suspicious coincidence effect with a
 large effect size in both sequential and simultaneous presentation
 conditions. The effect only occurs, however, in experiments where the
 trial with one exemplar is presented \emph{before} the key trial with
@@ -228,7 +284,7 @@ participation. Across all 12 experiments, 13\% of participants completed
 more than one experiment. We report data from all participants in the
 Main Text, but the pattern of reported findings holds when these
 participants are excluded (see
-SI)\footnote{Supplemental information can be found at [https://mlewis.shinyapps.io/xtmem_SI/](https://mlewis.shinyapps.io/xtmem_SI/)}.
+SI)\footnote{Supplemental information can be found at "}.
 
 We determined our sample size on the basis of a pre-registered power
 calculation using a meta-analytic estimate of the effect size from
@@ -398,8 +454,8 @@ four manipulations as fixed effects. We used the metafor package
 
 \begin{figure}
 \centering
-\includegraphics{xtmem_files/figure-latex/means_fig-1.pdf}
-\caption{(\#fig:means\_fig)Mean proportion generalizations to basic
+\includegraphics{xtmem_files/figure-latex/unnamed-chunk-3-1.pdf}
+\caption{\label{fig:unnamed-chunk-3}Mean proportion generalizations to basic
 level exemplars in the one (pink) and three (green) subordinate exemplar
 conditions for all 12 of our experiments. Each facet corresponds to a
 pairing of presentation timing (simultaneous vs.~sequential) and trial
@@ -415,8 +471,8 @@ sizes (with XT and SPSS experiments included for reference).
 
 \begin{figure}
 \centering
-\includegraphics{xtmem_files/figure-latex/unnamed-chunk-3-1.pdf}
-\caption{\label{fig:unnamed-chunk-3}Effect sizes for all 19 studies
+\includegraphics{xtmem_files/figure-latex/unnamed-chunk-4-1.pdf}
+\caption{\label{fig:unnamed-chunk-4}Effect sizes for all 19 studies
 conducted on the suspicious coincidence effect by XT (Xu \& Tenenbaum,
 2007a), SPSS (Spencer, et al, 2011), and the current authors. The
 top-bottoom facets indicate whether the single exemplar trial occurred
@@ -445,7 +501,7 @@ experiments (SPSS E2: \emph{d} = -0.61 {[}-0.81, -0.41{]}; SPSS E3:
 
 \begin{table}
 
-\caption{\label{tab:unnamed-chunk-4}Meta-analytic model with manipulations as fixed effects.}
+\caption{\label{tab:unnamed-chunk-5}Meta-analytic model with manipulations as fixed effects.}
 \centering
 \fontsize{12}{14}\selectfont
 \begin{tabular}[t]{lrrr}
@@ -474,13 +530,45 @@ suspicious coincidence effect.
 
 \section{Discussion}\label{discussion}
 
+\begin{itemize}
+\tightlist
+\item
+  why is there a reversal: 1- 3 story
+\item
+  other task context effect: Lawson and Fischer (exp. 2), Lewis and
+  Frank
+\end{itemize}
+
 \newpage
 
 \section{References}\label{references}
 
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+nocite: \textbar{} Spencer, Perone, Smith, and Samuelson (2011) Xu and
+Tenenbaum (2007b)
+
 \setlength{\parindent}{-0.5in} \setlength{\leftskip}{0.5in}
 
 \hypertarget{refs}{}
+\hypertarget{ref-lawson2014three}{}
+Lawson, C. A. (2014). Three-year-olds obey the sample size principle of
+induction: The influence of evidence presentation and sample size
+disparity on young children's generalizations. \emph{Journal of
+Experimental Child Psychology}, \emph{123}, 147--154.
+
+\hypertarget{ref-lawson2017influence}{}
+Lawson, C. A. (2017). The influence of task dynamics on inductive
+generalizations: How sequential and simultaneous presentation of
+evidence impact the strength and scope of property projections.
+\emph{Journal of Cognition and Development}.
+
+\hypertarget{ref-lewis2016understanding}{}
+Lewis, M. L., \& Frank, M. C. (2016). Understanding the effect of social
+context on learning: A replication of xu and tenenbaum (2007b).
+\emph{Journal of Experimental Psychology: General}, \emph{145}(9),
+e72--e80.
+
 \hypertarget{ref-spencer2011learning}{}
 Spencer, J. P., Perone, S., Smith, L. B., \& Samuelson, L. K. (2011).
 Learning words in space and time: Probing the mechanisms behind the
@@ -492,13 +580,13 @@ Viechtbauer, W. (2010). Conducting meta-analyses in R with the metafor
 package. \emph{Journal of Statistical Software}, \emph{36}(3), 1--48.
 Retrieved from \url{http://www.jstatsoft.org/v36/i03/}
 
-\hypertarget{ref-xu2007word}{}
-Xu, F., \& Tenenbaum, J. (2007). Word learning as Bayesian inference.
-\emph{Psychological Review}, \emph{114}(2), 245.
-
 \hypertarget{ref-xu2007}{}
-Xu, F., \& Tenenbaum, J. B. (2007). Sensitivity to sampling in Bayesian
+Xu, F., \& Tenenbaum, J. B. (2007a). Sensitivity to sampling in Bayesian
 word learning. \emph{Developmental Science}, \emph{10}(3), 288--297.
+
+\hypertarget{ref-xu2007word}{}
+Xu, F., \& Tenenbaum, J. B. (2007b). Word learning as Bayesian
+inference. \emph{Psychological Review}, \emph{114}(2), 245.
 
 
 

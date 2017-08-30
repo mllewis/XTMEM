@@ -1,6 +1,6 @@
 ---
 title: 'Still suspicious: The suspicious coincidence effect revisited'
-author: "Molly Lewis"
+author: "Molly Lewis and Michael C. Frank"
 date: "`r Sys.Date()`"
 output:
   html_document:
@@ -36,12 +36,31 @@ opts_chunk$set(echo = T, message = F, warning = F,
                error = F, cache = F, tidy = F, fig.height = 4)
 ```  
 
+
+INTRO TEXT
+
+# View experiments
+To directly view an experiment, select an experiment from the drop down menu, and click the "View Experiment" button. The experiment will open in a new window. 
+```{r}
+
+```
+
 ```{r read_in_anon_data}
-all_d <- read_csv("data/anonymized_data/all_data_munged_A.csv")
 # this data has been pre-processed with analysis/munge_anonymize_data.R script
+all_d <- read_csv("data/anonymized_data/all_data_munged_A.csv") %>%
+           mutate(condition = fct_recode(condition,
+                                          "1 sub." = "one",
+                                          "3 basic"= "three_basic",
+                                          "3 sub." = "three_subordinate",
+                                          "3 super." = "three_superordinate",
+                                          "3 basic" = "3bas",
+                                          "3 super." = "3sup",
+                                          "3 sub." = "3sub"),
+                  condition = fct_relevel(condition, "1 sub.", "3 sub.", "3 basic", "3 super."))
 
 exp_key <- read_csv("data/experiment_key.csv") %>%
-              mutate(order = gsub("\"", "", order))
+              mutate(order = gsub("\"", "", order), 
+                     exp = as.numeric(exp))
 ```
 
 ```{r}
@@ -57,10 +76,46 @@ exp_table <- exp_key %>%
   arrange(exp_recoded)
 ```
 # Effect size calculation
-The classical Cohen's *d* measure was originally developed for between-subject designs and, as such, researchers have adapted the measure to within-subject designs in a variety of ways (http://jakewestfall.org/blog/index.php/category/effect-size/). We calculate our effect sizes using the "classic" Cohen's *d* formula, which takes the mean difference between conditions divided by the pooled standard deviation. Because this method does not take into account the fact that the means are within-subject, these are conservative estimates of effect size (since within-subject designs have more power). We use the `mes` function from the `compute.es` package to calculate our effect sizes. 
+The classical Cohen's *d* measure was originally developed for between-subject designs and, as such, researchers have adapted the measure to within-subject designs in a variety of ways (http://jakewestfall.org/blog/index.php/category/effect-size/). We calculate our effect sizes using the "classic" Cohen's *d* formula, which takes the mean difference between conditions divided by the pooled standard deviation. Note that because this method does not take into account the fact that the means are within-subject, these are conservative estimates of effect size (since within-subject designs have more power). We use the `mes` function from the `compute.es` package to calculate our effect sizes
+
+Here is an example calculation of the effect size for Exp. 1. We first get the means and variances across participants of the proportion basic selections for the 1 subordinate and 3 subordinate conditions.
+
+```{r}
+es_1_calc <- all_d %>%
+      left_join(exp_key %>% select(exp, exp_recoded)) %>%
+      filter(exp_recoded == 1) %>% # we only want exp 1 
+      filter(condition == "1 sub." | condition == "3 sub.") %>% # we only care about these conds. for the calculating d
+      gather(variable, value, c(prop_sub, prop_bas, prop_sup)) %>%
+      filter(variable == "prop_bas") %>% # we only care about this DV for calculating d
+      group_by(condition, subids) %>% 
+      summarize(value = mean(value)) %>% # get the mean for each subjects across trials
+      group_by(condition) %>%
+      summarize(mean_prop_bas = mean(value), 
+                var_prop_bas = var(value)) # get the mean for each condition acros subjects
+               
+
+kable(es_1_calc, digits = 2, col.names = c("Condition", "Mean", "Var")) 
+
+#%>% kable_styling(full_width = F, font_size = 14) ## gr, this doesn't work.
+```
+
+We then calculate Cohen's *d* as follows: 
+$$
+\begin{align}
+d &= \frac{M_1 - M_2}
+{\sigma_{pooled}} \tag{Cohen's d}\\
+&= \frac{M_{1sub} - M_{3sub}}
+{\sqrt{(\frac{var_{1sub} + var_{3sub}}{2})}}\\
+&= \frac{.64 - .18}
+{\sqrt{(\frac{.15 + .09}{2})}}\\
+&\ \approx 1.32
+\end{align}
+$$
+
+For Exp. 1, we calculate Cohen's *d* = 1.32. 
 
 # All conditions and measures
-In the Main Text, we report the proportion basic level selections for two training conditions, one-subordinate and three-subordinate. Here we report the data for all four conditions, for all three dependent measures (proportion basic level, subordinate level, and superordinate selections). Ranges are bootstrapped 95% confidence intervals.
+In the Main Text, we report the proportion basic level selections for two training conditions, one-subordinate and three-subordinate. Here we report the data for all four conditions and all three dependent measures (proportion basic level, subordinate level, and superordinate selections).
 
 ```{r}
 all_plot_data <- all_d %>%
@@ -74,11 +129,6 @@ all_plot_data <- all_d %>%
             ci_upper = mean + error) %>%
   ungroup() %>%
   mutate(variable = as.factor(variable),
-         exp = as.character(exp),
-        condition = fct_recode(condition, "1 sub." = "one",
-                                          "3 basic"= "three_basic",
-                                          "3 sub." = "three_subordinate",
-                                          "3 super." = "three_superordinate"),
           variable = fct_recode(variable, "basic" = "prop_bas",
                                           "subordinate"= "prop_sub",
                                           "superordinate" = "prop_sup")) %>%
@@ -117,6 +167,7 @@ shinyApp(
       geom_linerange(aes(ymin = ci_lower, 
                      ymax = ci_upper), 
                  position = position_dodge(width = .9)) +
+      ylim(0,1)+
       ylab("Proportion of objects selected") +
       xlab("Learning exemplars") +
       guides(fill=guide_legend(title="Object type")) +
@@ -131,43 +182,39 @@ shinyApp(
 )
 ```
 
+<font size="2"> Ranges are 95% confidence intervals.; Timing = presentation timing (sequential or simultaneous); Order = relative ordering of 1 and 3 subordinate trials; Blocking = trials blocked by category or pseudo-random; Label = same or different label in 1 and 3 trials. </font>
+
 #  By category analyses
-In the Main Text, we report our analyses collapsed across all three stimulus categories (animals, vehicles and vegtables). Here we present the effect sizes for each experiment separately for the different stimulus categories. While there is some variability in effect size by category (the effect is larger for animals), this variability is small relative to the effect of condition order. Ranges are 95% confidence intervals.
+In the Main Text, we report our analyses collapsed across all three stimulus categories (animals, vehicles and vegtables). Here we present the effect sizes for each experiment separately for the different stimulus categories. While there is some variability in effect size by category (the effect is generally larger for animals), this variability is small relative to the effect of condition order. 
 
 ```{r get_means}
 # remap condition values and select relevant conditions
 all_d_clean <- all_d %>%
-      mutate(condition = as.factor(condition),
-             exp = as.character(exp),
-             condition = fct_recode(condition,
-                                     three_basic = "3bas",
-                                     three_subordinate = "3sub",
-                                     three_superordinate = "3sup")) %>%
-      filter(condition == "one" | condition == "three_subordinate") %>%
+      mutate(condition = as.factor(condition)) %>%
+      filter(condition == "1 sub." | condition == "3 sub.") %>%
       select(exp, everything())
 
-all_ms_subj2 <- all_d_clean %>%
+all_ms_subj_cat <- all_d_clean %>%
   left_join(exp_key %>% select(exp, exp_recoded)) %>%
   select(-exp) %>%
   gather(variable, value, c(prop_sub, prop_bas, prop_sup))  %>%
   group_by(condition, category, variable, exp_recoded, subids) %>%
   mutate(value = as.numeric(value)) %>%
   summarize(value = mean(value)) %>%
-filter(condition == "one" | condition == "three_subordinate",
-         variable == 'prop_bas') %>%
+filter(variable == 'prop_bas') %>%
   spread(condition, value) %>%
   ungroup()  %>%
   select(-variable)
 
-LF_means2 <- all_ms_subj2 %>%
+LF_means_cat <- all_ms_subj_cat %>%
   group_by(exp_recoded, category) %>%
-  summarize(m_one = mean(one),
-            sd_one = sd(one),
-            m_3sub = mean(three_subordinate),
-            sd_3sub = sd(three_subordinate),
+  summarize(m_one = mean(`1 sub.`),
+            sd_one = sd(`1 sub.`),
+            m_3sub = mean(`3 sub.`),
+            sd_3sub = sd(`3 sub.`),
             n = n())
 
-LF_effect_sizes2<- LF_means2 %>%
+LF_effect_sizes_cat <- LF_means_cat %>%
   ungroup() %>%
   do(data.frame(d = mes(.$m_one, .$m_3sub, .$sd_one,
                      .$sd_3sub, .$n, .$n, verbose = F)$d,
@@ -176,8 +223,8 @@ LF_effect_sizes2<- LF_means2 %>%
   mutate(high = d + (1.96*d_var),
          low = d - (1.96*d_var),
          es_type = "nonpaired",
-         exp_recoded = LF_means2$exp_recoded,
-         category = LF_means2$category) 
+         exp_recoded = LF_means_cat$exp_recoded,
+         category = LF_means_cat$category) 
 
 ```
 
@@ -208,7 +255,7 @@ shinyApp(
     
     output$by_category_plot <- renderPlot({
 
-    LF_effect_sizes2 %>%
+    LF_effect_sizes_cat %>%
       filter(exp_recoded == input$expnum) %>%
       ggplot(aes(x = category, y = d)) +
       geom_hline(yintercept = 0, linetype = 2, color = "black",size = 1.1) +
@@ -227,6 +274,8 @@ shinyApp(
 )
 ```
 
+<font size="2"> Ranges are 95% confidence intervals.; Timing = presentation timing (sequential or simultaneous); Order = relative ordering of 1 and 3 subordinate trials; Blocking = trials blocked by category or pseudo-random; Label = same or different label in 1 and 3 trials. </font>
+
 
 # Repeat participants excluded
 ```{r}
@@ -243,19 +292,9 @@ n_total <- all_d %>%
   
 percent_duplicates <- round((n_total-n_unique)/n_total, 2) * 100
 ```
-`r percent_duplicates`% of  all participants (N = `r n_total`) completed more than one experiment. The data reported in the main text include all participants. Below we plot the effect sizes with participants who had already participanted in a prior experiment excluded (effect size estimates from XT and SPSS are also included for reference). The overall pattern looks the same as with all participants.
+`r percent_duplicates`% of  all participants (N = `r n_total`) completed more than one experiment. The data reported in the Main Text include all participants. Below we plot the effect sizes with participants excluded who had already participanted in a prior experiment (effect size estimates from XT and SPSS are also included for reference). The overall pattern looks the same as with all participants.
 
 ```{r, fig.height = 5, fig.width = 7}
-all_d_clean <- all_d_filtered %>%
-      mutate(condition = as.factor(condition),
-             exp = as.character(exp),
-             condition = fct_recode(condition,
-                                     three_basic = "3bas",
-                                     three_subordinate = "3sub",
-                                     three_superordinate = "3sup")) %>%
-      filter(condition == "one" | condition == "three_subordinate") %>%
-      select(exp, everything())
-
 all_ms_subj <- all_d_clean %>%
   left_join(exp_key %>% select(exp, exp_recoded)) %>%
   select(-exp) %>%
@@ -263,7 +302,7 @@ all_ms_subj <- all_d_clean %>%
   group_by(condition,variable, exp_recoded, subids) %>%
   mutate(value = as.numeric(value)) %>%
   summarize(value = mean(value)) %>%
-  filter(condition == "one" | condition == "three_subordinate", 
+  filter(condition == "1 sub." | condition == "3 sub.", 
          variable == 'prop_bas') %>%
   spread(condition, value) %>%
   ungroup() %>%
@@ -272,10 +311,10 @@ all_ms_subj <- all_d_clean %>%
 # get effect sizes
 LF_means <- all_ms_subj %>%
   group_by(exp_recoded) %>%
-  summarize(m_one = mean(one),
-            sd_one = sd(one),
-            m_3sub = mean(three_subordinate),
-            sd_3sub = sd(three_subordinate),
+  summarize(m_one = mean(`1 sub.`),
+            sd_one = sd(`1 sub.`),
+            m_3sub = mean(`3 sub.`),
+            sd_3sub = sd(`3 sub.`),
             n = n())
 
 LF_effect_sizes <- LF_means %>%
@@ -331,14 +370,15 @@ ggplot(all_es) +
   ggthemes::theme_few()
 
 ```
+
 ---> add meta-analytic model
 
 # Demographics{.tabset}
+Below we report the demographic characteristics (education, language, gender, and age) of our full sample (N = 600).
 ```{r}
 raw_d <- read_csv("data/anonymized_data/all_raw_A.csv")
 
 raw_d_munged <- raw_d %>%
-  mutate(exp = as.character(exp)) %>%
   left_join(exp_key %>% select(exp, exp_recoded, timing)) %>%
   mutate(exp_recoded = fct_relevel(exp_recoded, "10", after = 11),
          exp_recoded = fct_relevel(exp_recoded, "11", after = 11),
@@ -386,14 +426,18 @@ raw_d_munged %>%
 ```
 
 ## Age
-```{r}
 
+```{r}
+mean_age <- round(mean(as.numeric(as.character(raw_d_munged$age)), na.rm = T),2)
+```
+
+Histogram of participant age. The red line indicates the mean (*M* = `r mean_age`).
+```{r}
 raw_d_munged %>%
-  mutate(age = as.numeric(as.character(age))) %>%
+  mutate(age = ) %>%
   ggplot(aes(x = age)) +
   geom_histogram() +
-  geom_vline(aes(xintercept = mean(as.numeric(as.character(age)),
-                                   na.rm = T)), 
+  geom_vline(aes(xintercept = mean_age), 
                  color = "red") +
   xlab("Age (years)") +
   theme_bw() +
@@ -401,6 +445,7 @@ raw_d_munged %>%
 ```
 
 # Task feedback{.tabset}
+These questions were presented to participants after the main task. Their completion was optional. 
 
 ## Enjoyment
 ```{r}
@@ -411,7 +456,8 @@ raw_d_munged %>%
                         "Worse than the Average HIT" = "0",
                         "An Average HIT" = "1",
                         "Better than average HIT" = "2")) %>%
-  group_by(enjoyment) %>%
+  rename(`Did you enjoy the hit?` = "enjoyment") %>%
+  group_by(`Did you enjoy the hit?`) %>%
   summarise(n = n()) %>%
   mutate(prop = round(n / sum(n),2)) %>%
   kable()
