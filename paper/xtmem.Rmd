@@ -91,7 +91,7 @@ Given the theoretical importance of the suspicious coincidence effect and the co
 
 # Methods
 
-We report how we determined our sample size, all manipulations, and all measures in the study. All stimuli, experimental code, sample sizes, and analyses were pre-registered with the exception of Exps. 4 and 8, and all are publically available (https://osf.io/yekhj/).
+We report how we determined our sample size, all manipulations, and all measures in the study. All stimuli, experimental code, sample sizes, and analyses were pre-registered with the exception of Exps. 8 and 12, and all are publically available (https://osf.io/yekhj/).
 
 ## Participants
 ```{r read_in_data}
@@ -103,7 +103,8 @@ all_d_filtered <- read_csv("../data/anonymized_data/no_dups_data_munged_A.csv")
 
 ## key to experiment factors
 exp_key <- read_csv("../data/experiment_key.csv") %>%
-              mutate(order = gsub("\"", "", order))# this is because excel is dumb, grrr
+              mutate(order = gsub("\"", "", order)) %>%# this is because excel is dumb, grrr 
+              select(-preregistered)
 ```
 
 ```{r, get_n_unique_participants}
@@ -119,7 +120,7 @@ percent_duplicates <- round((n_total - n_unique)/n_total, 2) * 100
 
 # https://mlewis.shinyapps.io/xtmem_SI/"
 ```
-Fifty participants were recruited on Amazon Mechanical Turk for each of our 12 experiments (N = 600), and paid 40-50 cents for their participation. Across all 12 experiments, `r percent_duplicates[[1]]`% of participants completed more than one experiment. We report data from all participants in the Main Text, but the pattern of reported findings holds when these participants are excluded (see SI)\footnote{Supplemental information can be found at "}.
+Fifty participants were recruited on Amazon Mechanical Turk for each of our 12 experiments (N = 600), and paid 40-50 cents for their participation. Across all 12 experiments, `r percent_duplicates[[1]]`% of participants completed more than one experiment. We report data from all participants in the Main Text, but the pattern of reported findings holds when these participants are excluded (see SI).\footnote{Supplemental information can be found at "}
 
 We determined our sample size on the basis of a pre-registered power calculation using a meta-analytic estimate of the effect size from studies conducted by XT and SPSS. The chosen sample size was approximately twice the estimated sample size necessary to obtain a power of .99. 
 
@@ -129,7 +130,7 @@ include_graphics("figs/stim.pdf")
 ```
 
 ## Stimuli
-Our stimuli closely resembeled that of XT and SPSS. [this pics just came from search the internet] The linguistic stimuli were 12 one-syllable novel labels (e.g., "wug"), and the referent objects were three sets of 15 pictures from different basic level categories (vegetables, vehicles and animals). Within each category, five were subordinate exemplars (e.g., green pepper), four were basic level exemplars (e.g., peppers), and six were superordinate exemplars (e.g., vegetables; Fig.\ 1). The exemplars were divided into a learning and generalization set. For each category, the learning set consisted of 3 subordinate, 2 basic, and 2 superordinate pictures presented in different combinations on different trials (see Procedure). The generalization set for each category consisted of the remaining 8 pictures. The learning and generalization sets were the same for all participants.
+Our stimuli closely resembeled that of XT and SPSS. [these pics just came from search the internet] The linguistic stimuli were 12 one-syllable novel labels (e.g., "wug"), and the referent objects were three sets of 15 pictures from different basic level categories (vegetables, vehicles and animals). Within each category, five were subordinate exemplars (e.g., green pepper), four were basic level exemplars (e.g., peppers), and six were superordinate exemplars (e.g., vegetables; Fig.\ 1). The exemplars were divided into a learning and generalization set. For each category, the learning set consisted of 3 subordinate, 2 basic, and 2 superordinate pictures presented in different combinations on different trials (see Procedure). The generalization set for each category consisted of the remaining 8 pictures. The learning and generalization sets were the same for all participants.
 
 
 ## Procedure
@@ -201,14 +202,14 @@ kable(exp_table, align = c('c', 'r', 'r', 'r', "r", "r", "r", "r"),
       format = "latex", booktabs = TRUE) %>%
     kable_styling(font_size = 12) %>%
     add_header_above(c(" " = 2, "Manipulations" = 4, " ")) %>%
-    add_footnote("N = sample size; Timing = presentation timing (sequential or simultaneous); Order = relative ordering of 1 and 3 subordinate trials; Blocking = trials blocked by category or pseudo-random; Label = same or different label in 1 and 3 trials; Effect size = Cohen's d [95% CI]; Original Exp.\ = corresponding experiment from prior literature.", notation = "number") 
+    add_footnote("N = sample size; Timing = presentation timing (sequential or simultaneous); Order = relative ordering of 1 and 3 subordinate trials; Blocking = trials blocked by category or pseudo-random; Label = same or different label in 1 and 3 trials; Effect size = Cohen's d [95% CI]; Original Exp.\ = corresponding experiment from prior literature (E = Main Experiment; ES = Supplemental Experiment).", notation = "number") 
 ```
 
 Participants were first introduced to a picture of a character ("Mr. Frog") and instructions describing the task. They were told that the character speaks a different language and their job was to help the character find the toys he wants. Participants then advanced to the main experiment, which consisted of a series of 12 trials on separate screens. On each trial,  one or three learning exemplars from one of the three stimulus categories appeared at the top of the screen, along with the following instructions: "Here [is a wug/are three wugs]. Can you give Mr. Frog all of the other wugs?." Below the learning exemplars, 24 generalization exemplars (8 from each of the 3 categories) were displayed in a 4*x*6 grid. The order of generalizaiton pictures was randomized across trials. Participants were instructed to select the target category members ("To give a wug, click on it below. When you have given all the wugs, click the Next button."). When an exemplar was selected, a red box appeared around the picture, and participants were allowed to change their selections by clicking on the picture a second time. The learning exemplars remained visible at the top of the screen during the generalization task. Once they had made their selections, participants advanced to the next trial by clicking the "Next" button.
 
 There were four trial types distinguished by the number and semantic level of the learning exemplars: one subordinate exemplar, three subordinate exemplars, three basic exemplars, and three superordate exemplars. Each participant completed each trial type for each of the three stimulus categories (vegetables, vehicles, and animals). 
 
-Across 12 experiments, we manipulated four aspects of the trial design that differed between XT and SPSS (summarized in Table 1): Presentation timing (simultaneous vs. sequential), trial order (1-3 vs. 3-1), label (same vs. different), and blocking (blocked vs. pseudo-random).\footnote{All experiments can be viewed directly at XXX.}. We describe each of these factors in more detail below
+Across 12 experiments, we manipulated four aspects of the trial design that differed between XT and SPSS (summarized in Table 1): Presentation timing (simultaneous vs. sequential), trial order (1-3 vs. 3-1), label (same vs. different), and blocking (blocked vs. pseudo-random).\footnote{All experiments can be viewed directly at XXX.} We describe each of these factors in more detail below
 
 ### Presentation Timing
 Presentation timing was the key, theoretically motivated experimental design difference between the XT (E1 and E2\footnote{XT E1 and E2 differed in the age of participants (adults vs.\ children), but we collapse across this difference for the present analyses.}) and SPSS (E2 and E3). In XT, the learning exemplars were presented statically and simultaneously, while in SPSS, participants saw a sequence of individual exemplars with each exemplar visible only for 1s at a time. In the sequential design, three-exemplar learning trials displayed pictures at three different locations (left, middle, and right) in a sequence that repeated twice, for a total of 6s.
@@ -276,11 +277,11 @@ ggplot(LF_means_long_recoded,
         legend.key.size = unit(.5, "cm"),
         legend.background =  element_rect(color = "black", size = 0.5)) 
   #ggthemes::theme_few() # I kind of like the reference lines and grey facet labels here...small differences between experiments seem important for this plot, and the grey facet labels set them apart from the surrounding text
-  #ggthemes::scale_color_solarized() # I'm not in love with the default color scheme, but solarized doesn't seem to work for me here?
+  #ggthemes::scale_color_solarized() # I'm all for a non-default color scheme, but solarized doesn't seem to do anything when I try it here?
 
 ```
 
-Figure 1 shows the mean proportion generalizations to the basic level in the one- and three-subordinate trials for all 12 experiments\footnote{See SI for means across all measures and conditions}, and Figure 2 shows the corresponding effect sizes (with XT and SPSS experiments included for reference). 
+Figure 1 shows the mean proportion generalizations to the basic level in the one- and three-subordinate trials for all 12 experiments,\footnote{See SI for means across all measures and conditions} and Figure 2 shows the corresponding effect sizes (with XT and SPSS experiments included for reference). 
 
 ```{r get_all_es}
 literature_effect_sizes <- read_csv("../data/literature_ES.csv") # see ../analysis/get_literature_ES.R
@@ -337,7 +338,7 @@ ggplot(all_es) +
   ggthemes::theme_few() 
 ```
 
-In two exact replications of the XT method (XT E1 and X2), we replicate the suspicious coincidence effect (Exp. 1: *d* = `r filter(all_es, exp_recoded == "1") %>% select(d_string) %>% unlist()`; Exp. 2: *d* = `r filter(all_es, exp_recoded == "2") %>% select(d_string) %>% unlist()`), with a magnitude comparable to the original XT experiments (*d* = `r filter(all_es, exp_recoded == "XT_adults_e1") %>% select(d_string) %>% unlist()` and *d* = `r filter(all_es, exp_recoded == "XT_children_e2") %>% select(d_string) %>% unlist()`). We also replicate the reversal in the suspicious coincidence effect observed by SPSS (SPSS E2 and E3) in an exact replication of their method (Exp. 10; *d* = `r filter(all_es, exp_recoded == "10") %>% select(d_string) %>% unlist()`), and with a magnitude comparable to the original experiments (SPSS E2: *d* = `r filter(all_es, exp_recoded == "SPSS_e2") %>% select(d_string) %>% unlist()`; SPSS E3: *d* =  `r filter(all_es, exp_recoded == "SPSS_e3") %>% select(d_string) %>% unlist()`).
+In two exact replications of the XT method, we replicate the suspicious coincidence effect (Exp. 1: *d* = `r filter(all_es, exp_recoded == "1") %>% select(d_string) %>% unlist()`; Exp. 2: *d* = `r filter(all_es, exp_recoded == "2") %>% select(d_string) %>% unlist()`), with a magnitude comparable to the original XT experiments (XT E1: *d* = `r filter(all_es, exp_recoded == "XT_adults_e1") %>% select(d_string) %>% unlist()`; XT E2: *d* = `r filter(all_es, exp_recoded == "XT_children_e2") %>% select(d_string) %>% unlist()`). We also replicate the reversal in the suspicious coincidence effect observed by SPSS in an exact replication of their method (Exp. 10; *d* = `r filter(all_es, exp_recoded == "10") %>% select(d_string) %>% unlist()`), and with a magnitude comparable to the original experiments (SPSS E2: *d* = `r filter(all_es, exp_recoded == "SPSS_e2") %>% select(d_string) %>% unlist()`; SPSS E3: *d* =  `r filter(all_es, exp_recoded == "SPSS_e3") %>% select(d_string) %>% unlist()`).
 
 ```{r}
 mod <- metafor::rma(d ~ timing + order + one_3sub_label + blocking, d_var, dat = all_es)
@@ -396,7 +397,7 @@ label_string <- mod_df %>%
                       select(full_string)
 ```
 
-Critically, however, the meta-analyic model across all 12 experiments reveals that only trial order is a reliable predictor of effect size ($\beta$ `r trial_order_string[[1]]`), while timing ($\beta$ `r timing_string[[1]]`), blocking ($\beta$ `r blocking_string[[1]]`), and label are not ($\beta$ `r label_string[[1]]`; Table 2). Contra SPSS, this suggests that the suspcious coincidence is robust to spatio-temoral  aspects of the presentation learning exemplars. In the General Discussion, we consider why trial order might influence the suspicious coincidence effect.
+Critically, however, the meta-analyic model across all 12 experiments reveals that only trial order is a reliable predictor of effect size ($\beta$ `r trial_order_string[[1]]`), while timing ($\beta$ `r timing_string[[1]]`), blocking ($\beta$ `r blocking_string[[1]]`), and label are not ($\beta$ `r label_string[[1]]`; Table 2). These data thus reveal that the suspicious coincidence is robust to spatio-temoral aspects of the presentation learning exemplars, in contrast to the conclusion drawn by SPSS. In the General Discussion, we consider why trial order might influence the suspicious coincidence effect.
 
 # Discussion
 
