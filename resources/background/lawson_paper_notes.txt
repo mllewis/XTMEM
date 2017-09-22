@@ -1,0 +1,45 @@
+Notes on Lawson papers 
+
+(1) Lawson and Fisher (2011)
+
+- manipulate diversity and sample size
+- evidence presented sequentially
+- stimuli = mammals, birds, and invertebrates
+
+Exp 1: 
+- adults, preschoolers, and 7uo
+- small sample size = 4; larg = 16
+- size manipulate dbetween subject
+- told fact about each of exemplars (mammals)
+- then asked to generalize to mammals, birds, and invertebrates
+- RESULTS: preschoolers (but not other groups) more likely generalize to to birds/inv. with large sample, compared to small
+(i.e.: XXX -> broad; X -> narrow (only mamals)
+
+Exp 2: 
+- size manipulated within subject
+- only adults show an effect: they generalize to the mammals only in the large condition
+
+Exp 3:
+- training set only rabbits
+- same pattern
+
+Exp. 4: most anagous to XT
+- no effect of sample size
+
+--> No evidence for suspicious coincidence effect, generalize more broadly (mamals + vertibrates + inverts) when get 16 exemplars, 
+compared to 4.
+
+#####################
+(2) Lawson (2015)
+
+Simultaneous presentation supports alignment of shared features (Gentner & Namy, 1999), whereas sequential presentation supports detection of differences between the presented items (Lappin & Bell, 1972; Quinn & Bhatt, 2010). Because comparison of differences, rather than similarities, between items is a necessary condition for the SSP, sequential presentation might better facilitate the SSP than simultaneous presentation. In addition, sequential presentation of exemplars might confer an information process- ing advantage for large samples of input. For example, sequential presentation supports consolidation of multiple items in visible short-term memory, whereas simultaneous presentation does not (Liu & Becker, 2013). 
+
+- Exp. 1: learn property about large sample and small sample and extend one of two properties to new exemplars (all cats)
+
+--> Simultaneous presentation supports alignment and sequential highlights differences
+
+(3) Lawson (2017)
+
+- Experiment 1 revealed that simultaneous presenta- tion yielded a higher rate and a broader scope of projections than did sequential presentation. - Experiment 2 confirmed that these effects were not due to how items were labeled. 
+- Experiments 3 and 4 explored the interplay between evidence presentation and specific task features that impact how participants compare evidence and target exemplars. In Experiment 3, there were no differences between the 2 presentation formats when evidence exemplars were removed prior to the projection phase, thereby eliminating the opportunity to compare evidence exemplars and targets. 
+- Experiment 4 showed that sequential presentation yielded a high rate of projec- tions when participants were not afforded the opportunity to com- pare exemplars within the evidence sample. These results have implications for understanding the mechanisms that guide children’s inductive decisions.
