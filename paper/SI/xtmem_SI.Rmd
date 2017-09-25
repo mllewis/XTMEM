@@ -6,7 +6,7 @@ output:
   html_document:
     code_folding: hide
     number_sections: yes
-    theme: cerulean
+    theme: paper
     toc: yes
     toc_float: no
 runtime: shiny
@@ -37,13 +37,50 @@ opts_chunk$set(echo = T, message = F, warning = F,
 ```  
 
 
-INTRO TEXT
+This document was created from an R markdown file. The manuscript itself was also produced from an R markdown file, and all analyses presented in the paper can be reproduced from that document (https://github.com/mllewis/XTMEM/blob/master/paper/xtmem.Rmd).
 
 # View experiments
 To directly view an experiment, select an experiment from the drop down menu, and click the "View Experiment" button. The experiment will open in a new window. 
-```{r}
 
+
+```{r, echo = FALSE}
+shinyApp(
+  
+  ui = fluidPage(
+    
+    tags$head(tags$style(HTML('#go{background-color:red}'))),
+    tags$head(tags$style(type = "text/css", '.well{width: 520px}')),
+    selectInput("expnum", "Select experiment number:", choices = as.character(1:12), width = '30%'),
+    wellPanel(htmlOutput("exp_description")),
+    actionButton("go", "View Experiment")),
+  
+  server = function(input, output) {
+    
+    output$exp_description <- renderText({
+        desc <- filter(exp_key, exp_recoded == input$expnum)
+        description_string <- paste0("<b>Timing:</b> ", desc$timing[[1]],
+                                     ",     <b>Trial order:</b> ", desc$order[[1]],
+                                     ",     <b>Blocking:</b> ", desc$blocking[[1]],
+                                     ",     <b>Label:</b> ", desc$one_3sub_label[[1]])
+        description_string
+
+        HTML(paste(description_string))
+    })
+
+       observeEvent(input$go, {
+       exp_original <- filter(exp_key, exp_recoded == input$expnum)$exp
+       html_string <- paste0("http://langcog.stanford.edu/expts/MLL/XTMEM/exp", exp_original, "/exp", exp_original, ".html")
+       return(browseURL(html_string))
+    
+  })
+        
+}, options = list(height = 250))
 ```
+
+# Effect size calculation
+The classical Cohen's *d* measure was originally developed for between-subject designs and, as such, researchers have adapted the measure to within-subject designs in a variety of ways (http://jakewestfall.org/blog/index.php/category/effect-size/). We calculate our effect sizes using the "classic" Cohen's *d* formula, which takes the mean difference between conditions divided by the pooled standard deviation. Note that because this method does not take into account the fact that the means are within-subject, these are conservative estimates of effect size (since within-subject designs have more power). We use the `mes` function from the `compute.es` package to calculate our effect sizes
+
+Here is an example calculation of the effect size for Exp. 1. We first get the means and variances across participants of the proportion basic selections for the 1 subordinate and 3 subordinate conditions.
 
 ```{r read_in_anon_data}
 # this data has been pre-processed with analysis/munge_anonymize_data.R script
@@ -58,27 +95,13 @@ all_d <- read_csv("data/anonymized_data/all_data_munged_A.csv") %>%
                                           "3 sub." = "3sub"),
                   condition = fct_relevel(condition, "1 sub.", "3 sub.", "3 basic", "3 super."))
 
+## key to experiment factors
 exp_key <- read_csv("data/experiment_key.csv") %>%
-              mutate(order = gsub("\"", "", order), 
-                     exp = as.numeric(exp))
+              mutate(order = gsub("\"", "", order),
+                     exp = as.integer(exp)
+) %>%  # this is because excel is dumb, grrr 
+              select(-preregistered) 
 ```
-
-```{r}
-exp_table <- exp_key %>%
-  slice(1:12) %>%
-  mutate(direct_replication_of_string = ifelse(is.na(direct_replication_of),
-                                              "", direct_replication_of),
-        blocking = str_replace_all(blocking, "random", "pseudo-random"),
-         one_3sub_label = str_replace_all(one_3sub_label, "different", "diff."),
-         exp_recoded = as.numeric(exp_recoded)) %>%
-  select(exp_recoded, timing, order, blocking, 
-          one_3sub_label, direct_replication_of_string) %>%
-  arrange(exp_recoded)
-```
-# Effect size calculation
-The classical Cohen's *d* measure was originally developed for between-subject designs and, as such, researchers have adapted the measure to within-subject designs in a variety of ways (http://jakewestfall.org/blog/index.php/category/effect-size/). We calculate our effect sizes using the "classic" Cohen's *d* formula, which takes the mean difference between conditions divided by the pooled standard deviation. Note that because this method does not take into account the fact that the means are within-subject, these are conservative estimates of effect size (since within-subject designs have more power). We use the `mes` function from the `compute.es` package to calculate our effect sizes
-
-Here is an example calculation of the effect size for Exp. 1. We first get the means and variances across participants of the proportion basic selections for the 1 subordinate and 3 subordinate conditions.
 
 ```{r}
 es_1_calc <- all_d %>%
@@ -114,8 +137,8 @@ $$
 
 For Exp. 1, we calculate Cohen's *d* = 1.32. 
 
-# All conditions and measures
-In the Main Text, we report the proportion basic level selections for two training conditions, one-subordinate and three-subordinate. Here we report the data for all four conditions and all three dependent measures (proportion basic level, subordinate level, and superordinate selections).
+# Results for all conditions and measures
+In the Main Text, we report the proportion basic level selections for two training conditions, one-subordinate and three-subordinate. Here we report the data for all four conditions and all three dependent measures (proportion basic level, subordinate level, and superordinate level selections).
 
 ```{r}
 all_plot_data <- all_d %>%
@@ -139,6 +162,7 @@ all_plot_data <- all_d %>%
 shinyApp(
   
   ui = fluidPage(
+    tags$head(tags$style(type = "text/css", '.well{width: 520px}')),
     selectInput("expnum", "Select experiment number:", 
                 choices = as.character(1:12), width = '25%'),
     wellPanel(htmlOutput("exp_description")),
@@ -182,7 +206,7 @@ shinyApp(
 )
 ```
 
-<font size="2"> Ranges are 95% confidence intervals.; Timing = presentation timing (sequential or simultaneous); Order = relative ordering of 1 and 3 subordinate trials; Blocking = trials blocked by category or pseudo-random; Label = same or different label in 1 and 3 trials. </font>
+<font size="2"> Timing = presentation timing (sequential or simultaneous); Order = relative ordering of 1 and 3 subordinate trials; Blocking = trials blocked by category or pseudo-random; Label = same or different label in 1 and 3 trials; Ranges are 95% confidence intervals. </font>
 
 #  By category analyses
 In the Main Text, we report our analyses collapsed across all three stimulus categories (animals, vehicles and vegtables). Here we present the effect sizes for each experiment separately for the different stimulus categories. While there is some variability in effect size by category (the effect is generally larger for animals), this variability is small relative to the effect of condition order. 
@@ -232,6 +256,7 @@ LF_effect_sizes_cat <- LF_means_cat %>%
 shinyApp(
   
   ui = fluidPage(
+    tags$head(tags$style(type = "text/css", '.well{width: 520px}')),
     selectInput("expnum", "Select experiment number:", 
                 choices = as.character(1:12), width = '30%'),
     wellPanel(htmlOutput("exp_description")),
@@ -259,7 +284,7 @@ shinyApp(
       filter(exp_recoded == input$expnum) %>%
       ggplot(aes(x = category, y = d)) +
       geom_hline(yintercept = 0, linetype = 2, color = "black",size = 1.1) +
-        geom_pointrange(size = 1.2, aes(ymax = high, ymin = low, color = category)) +
+        geom_pointrange(size = 1, aes(ymax = high, ymin = low, color = category)) +
         ggtitle("Effect size (Cohen's d) by category") +
         ylim(-.5, 1.7)+
         ylab("Cohen's d") +
@@ -274,12 +299,19 @@ shinyApp(
 )
 ```
 
-<font size="2"> Ranges are 95% confidence intervals.; Timing = presentation timing (sequential or simultaneous); Order = relative ordering of 1 and 3 subordinate trials; Blocking = trials blocked by category or pseudo-random; Label = same or different label in 1 and 3 trials. </font>
+<font size="2">Timing = presentation timing (sequential or simultaneous); Order = relative ordering of 1 and 3 subordinate trials; Blocking = trials blocked by category or pseudo-random; Label = same or different label in 1 and 3 trials; Ranges are 95% confidence intervals. </font>
 
 
 # Repeat participants excluded
 ```{r}
-all_d_filtered <- read_csv("data/anonymized_data/no_dups_data_munged_A.csv") 
+all_d_filtered <- read_csv("data/anonymized_data/no_dups_data_munged_A.csv")  %>%
+    mutate(condition = as.factor(condition),
+             condition = fct_recode(condition,
+                                     three_basic = "3bas",
+                                     three_subordinate = "3sub",
+                                     three_superordinate = "3sup")) %>%
+      filter(condition == "one" | condition == "three_subordinate") %>%
+      select(exp, everything())
 # this file has been pre-processed with analysis/munge_anonymize_data_no_dups.R script
 
 n_unique <- all_d_filtered %>%
@@ -295,38 +327,36 @@ percent_duplicates <- round((n_total-n_unique)/n_total, 2) * 100
 `r percent_duplicates`% of  all participants (N = `r n_total`) completed more than one experiment. The data reported in the Main Text include all participants. Below we plot the effect sizes with participants excluded who had already participanted in a prior experiment (effect size estimates from XT and SPSS are also included for reference). The overall pattern looks the same as with all participants.
 
 ```{r, fig.height = 5, fig.width = 7}
-all_ms_subj <- all_d_clean %>%
+all_ms_subj <- all_d_filtered %>%
   left_join(exp_key %>% select(exp, exp_recoded)) %>%
   select(-exp) %>%
   gather(variable, value, c(prop_sub, prop_bas, prop_sup)) %>%
   group_by(condition,variable, exp_recoded, subids) %>%
   mutate(value = as.numeric(value)) %>%
   summarize(value = mean(value)) %>%
-  filter(condition == "1 sub." | condition == "3 sub.", 
+  filter(condition == "one" | condition == "three_subordinate", 
          variable == 'prop_bas') %>%
-  spread(condition, value) %>%
-  ungroup() %>%
-  select(-variable)
+  spread(condition, value) 
 
-# get effect sizes
-LF_means <- all_ms_subj %>%
+  # means across participants (condition means)
+LF_means_wide <- all_ms_subj %>%
   group_by(exp_recoded) %>%
-  summarize(m_one = mean(`1 sub.`),
-            sd_one = sd(`1 sub.`),
-            m_3sub = mean(`3 sub.`),
-            sd_3sub = sd(`3 sub.`),
-            n = n())
+  summarize(m_one = mean(one),
+            sd_one = sd(one),
+            m_3sub = mean(three_subordinate),
+            sd_3sub = sd(three_subordinate),
+            n = n()) 
 
-LF_effect_sizes <- LF_means %>%
-  do(data.frame(d = mes(.$m_one, .$m_3sub, .$sd_one,
+LF_effect_sizes <- LF_means_wide %>%
+  do(data.frame(d = compute.es::mes(.$m_one, .$m_3sub, .$sd_one,
                      .$sd_3sub, .$n, .$n, verbose = F)$d,
-               d_var = mes(.$m_one, .$sd_3sub, .$sd_one,
+               d_var = compute.es::mes(.$m_one, .$sd_3sub, .$sd_one,
                     .$sd_3sub, .$n, .$n, verbose = F)$var.d)) %>%
   mutate(high = d + (1.96*d_var),
          low = d - (1.96*d_var),
          es_type = "nonpaired",
-         exp_recoded = LF_means$exp_recoded) %>%
-  left_join(LF_means %>% select(exp_recoded, n)) %>%
+         exp_recoded = LF_means_wide$exp_recoded) %>%
+  left_join(LF_means_wide %>% select(exp_recoded, n)) %>%
   select(exp_recoded, n, everything())
 
 literature_effect_sizes <- read_csv("data/literature_ES.csv") # see ../../analysis/get_literature_ES.R
@@ -371,7 +401,29 @@ ggplot(all_es) +
 
 ```
 
----> add meta-analytic model
+Below is the meta-analytical model presented in the Main Text for the sample with repeat-participants excluded. The pattern is the same as for the full sample. 
+```{r}
+mod <- metafor::rma(d ~ timing + order + one_3sub_label + blocking, d_var, dat = all_es)
+
+mod_df <- data.frame(fixed_effect = c("Intercept", 
+                                        "Simultaneous vs. sequential timing", 
+                                        "1-3 vs. 3-1 trial order",
+                                        "Different vs. same label", 
+                                        "Blocked vs. pseudo-random trial structure"),
+                      beta_string = paste0(round(mod$beta, 2), 
+                                        " [", round(mod$ci.lb, 2), ", "
+                                  , round(mod$ci.ub,2) , "]"),
+                      zval = mod$zval,
+                      pval_string = round(mod$pval, 2)) %>%
+          mutate(pval_string = ifelse(pval_string == 0, "<.0001", pval_string))
+
+# MA model table
+
+kable(mod_df, caption = "Meta-analytic model with manipulations as fixed effects.",
+      align = c('l', 'r', 'r', 'r'), digits = 2,
+      col.names = c("Fixed effect", "beta", "z-value", "p-value")) %>%
+      kable_styling(font_size = 12) 
+```
 
 # Demographics{.tabset}
 Below we report the demographic characteristics (education, language, gender, and age) of our full sample (N = 600).
