@@ -48,7 +48,7 @@ shinyApp(
   
   ui = fluidPage(
     
-    tags$head(tags$style(HTML('#go{background-color:red}'))),
+    tags$head(tags$style(HTML('#go{background-color:blue;color:white}'))),
     tags$head(tags$style(type = "text/css", '.well{width: 520px}')),
     selectInput("expnum", "Select experiment number:", choices = as.character(1:12), width = '30%'),
     wellPanel(htmlOutput("exp_description")),
@@ -145,11 +145,11 @@ all_plot_data <- all_d %>%
   gather(variable, value, c(prop_sub, prop_bas, prop_sup)) %>%
   group_by(exp, condition, variable) %>%
   mutate(value = as.numeric(value)) %>%
-  #multi_boot_standard(column = "value")  %>%
-  summarise(mean = mean(value), 
-            error = qt(0.975,df=n()-1)*sd(value)/sqrt(n()),
-            ci_lower = mean - error,# FIXME to bootstrap
-            ci_upper = mean + error) %>%
+  multi_boot_standard(col = "value")  %>%
+  #summarise(mean = mean(value), 
+  #          error = qt(0.975,df=n()-1)*sd(value)/sqrt(n()),
+  #          ci_lower = mean - error,# FIXME to bootstrap
+  #          ci_upper = mean + error) %>%
   ungroup() %>%
   mutate(variable = as.factor(variable),
           variable = fct_recode(variable, "basic" = "prop_bas",
@@ -299,7 +299,7 @@ shinyApp(
 )
 ```
 
-<font size="2">Timing = presentation timing (sequential or simultaneous); Order = relative ordering of 1 and 3 subordinate trials; Blocking = trials blocked by category or pseudo-random; Label = same or different label in 1 and 3 trials; Ranges are 95% confidence intervals. </font>
+<font size="2">Timing = presentation timing (sequential or simultaneous); Order = relative ordering of 1 and 3 subordinate trials; Blocking = trials blocked by category or pseudo-random; Label = same or different label in 1 and 3 trials; Ranges are bootstrapped 95% confidence intervals. </font>
 
 
 # Repeat participants excluded

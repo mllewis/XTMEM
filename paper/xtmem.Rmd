@@ -24,7 +24,10 @@ note: |
 
 
 abstract: |
-  Enter abstract here. Each new line herein must be indented, like this line.
+  In recent work, Kovács, Téglás, and Endress (2010) argued that human adults automatically represented other agents’
+  beliefs even when those beliefs were completely irrelevant to the task being performed. In a series of 13 experiments,
+  we replicated these previous findings but demonstrated that the effects found arose from artifacts in the experimental
+  paradigm. In particular, the critical findings demonstrating automatic belief computation were driven by
   
 keywords          : "word learning, Bayesian inference, meta-analysis, concepts"
 wordcount         : "X"
@@ -61,7 +64,7 @@ library(forcats)
 library(knitr)
 library(kableExtra)
 
-# TO DO: - fix 95% CIS; write GD
+# TO DO: write abstract
 ```
 
 ```{r global_options, include = FALSE}
@@ -243,11 +246,7 @@ The key prediction of the suspicious coincidence effect is that participants sho
 # mean across participants with CIS (condition means)
 LF_means_long <- ms %>%
   group_by(condition, exp) %>% 
-  # multi_boot_standard(column = "value")  %>%
-  summarise(mean = mean(value), 
-            error = qt(0.975,df=n()-1)*sd(value)/sqrt(n()),
-            ci_lower = mean - error, # FIXME to bootstrap
-            ci_upper = mean + error) %>%
+  multi_boot_standard(col = "value")  %>%
   left_join(exp_key)
 
 # relabel for fig
@@ -289,7 +288,7 @@ ggplot(LF_means_long_recoded,
   ggthemes::scale_fill_solarized()
 ```
 
-Figure 1 shows the mean proportion generalizations to the basic level in the one- and three-subordinate trials for all 12 experiments,\footnote{See SI for means across all measures and conditions} and Figure 2 shows the corresponding effect sizes (with XT and SPSS experiments included for reference). 
+Figure 1 shows the mean proportion generalizations to the basic level in the one- and three-subordinate trials for all 12 experiments,\footnote{See SI for means across all measures and conditions.} and Figure 2 shows the corresponding effect sizes (with XT and SPSS experiments included for reference). 
 
 ```{r get_all_es}
 literature_effect_sizes <- read_csv("../data/literature_ES.csv") # see ../analysis/get_literature_ES.R
@@ -405,20 +404,90 @@ label_string <- mod_df %>%
                       select(full_string)
 ```
 
-Critically, however, the meta-analyic model across all 12 experiments reveals that only trial order is a reliable predictor of effect size ($\beta$ `r trial_order_string[[1]]`), while timing ($\beta$ `r timing_string[[1]]`), blocking ($\beta$ `r blocking_string[[1]]`), and label are not ($\beta$ `r label_string[[1]]`; Table 2). These data thus reveal that the suspicious coincidence is robust to spatio-temoral aspects of the presentation learning exemplars, in contrast to the conclusion drawn by SPSS. In the General Discussion, we consider why trial order might influence the suspicious coincidence effect.
+Critically, however, the meta-analyic model across all 12 experiments reveals that only trial order is a reliable predictor of effect size ($\beta$ `r trial_order_string[[1]]`), while timing ($\beta$ `r timing_string[[1]]`), blocking ($\beta$ `r blocking_string[[1]]`), and label are not ($\beta$ `r label_string[[1]]`; Table 2). These data thus reveal that the suspicious coincidence is robust to spatio-temporal aspects of the presentation learning exemplars, in contrast to the conclusion drawn by SPSS. In the General Discussion, we consider why trial order might influence the suspicious coincidence effect.
 
-# Discussion
+# General Discussion
+Xu and Tenenbaum (2007a) present  evidence that learners are able to infer subordinate word meanings by attending to statistical properties of the input: It would be a "suspicious coincidence" to observe three subordinate exemplars with the same label if the label refered to the basic level, and thus, the label must have a subordinate meaning. Perone, Smith, and Samuelson (2011) replicate this effect, but argue that it only occurs when the training exemplars are presented simultaneously---an ecologically unlikely circumstance. Across 12 studies, we attempt to resolve this empirical discrepancy by systematically manipulating parameters of the experimental design that differed between the two sets of studies. We replicate the data patterns of both sets of authors. However, our exploration of the parameter space leads us to a different conclusion than SPSS: We find that the suspicious coincidence effect is robust to the presentation timing of exemplars, but is sensitive to order effects. Specifically, we only observe the suspicious coincidence effect when the single exemplar trials are presented first.
 
-* why is there a reversal: 1- 3 story
-* other task context effect: Lawson and Fischer (exp. 2), Lewis and Frank
+```{r SC_reversal}
+three_one_exps <- all_d_clean %>%
+  gather(variable, value, c(prop_sub, prop_bas, prop_sup)) %>%
+  mutate(value = as.numeric(value)) %>%
+  filter(variable == "prop_bas") %>%
+  group_by(condition, exp, subids) %>% 
+  summarize(value = mean(value)) %>%
+  left_join(exp_key) %>%
+  filter(exp_recoded %in% c("4", "5", "6", "10", "11", "12")) %>%
+  spread(condition, value, -2:-12)
+
+t_test <- t.test(three_one_exps$one, three_one_exps$three_subordinate, paired = FALSE)
+t_statistic = round(t_test$statistic,2)[[1]]
+p_statistic = round(t_test$p.value, 2)
+
+three_one_exps_wide <- all_d_clean %>%
+  gather(variable, value, c(prop_sub, prop_bas, prop_sup)) %>%
+  mutate(value = as.numeric(value)) %>%
+  filter(variable == "prop_bas") %>%
+  group_by(condition, exp, subids) %>% 
+  summarize(value = mean(value)) %>%
+  left_join(exp_key) %>%
+  ungroup() %>%
+  filter(exp_recoded %in% c("4", "5", "6", "10", "11", "12"))  %>%
+  spread(condition, value) %>%
+  summarize(m_one = mean(one),
+            sd_one = sd(one),
+            m_3sub = mean(three_subordinate),
+            sd_3sub = sd(three_subordinate),
+            n = n()) 
+
+three_one_effect_size <- three_one_exps_wide %>%
+  do(data.frame(d = compute.es::mes(.$m_one, .$m_3sub, .$sd_one,
+                     .$sd_3sub, .$n, .$n, verbose = F)$d,
+               d_var = compute.es::mes(.$m_one, .$sd_3sub, .$sd_one,
+                    .$sd_3sub, .$n, .$n, verbose = F)$var.d)) %>%
+  mutate(high = d + (1.96*d_var),
+         low = d - (1.96*d_var),
+         d_string = paste0(d," [", round(low,2), ", ", round(high, 2) , "]"))
+
+one_three_exps_wide <- all_d_clean %>%
+  gather(variable, value, c(prop_sub, prop_bas, prop_sup)) %>%
+  mutate(value = as.numeric(value)) %>%
+  filter(variable == "prop_bas") %>%
+  group_by(condition, exp, subids) %>% 
+  summarize(value = mean(value)) %>%
+  left_join(exp_key) %>%
+  ungroup() %>%
+  filter(exp_recoded %in% c("1", "2", "3", "7", "8", "9"))  %>%
+  spread(condition, value) %>%
+  summarize(m_one = mean(one),
+            sd_one = sd(one),
+            m_3sub = mean(three_subordinate),
+            sd_3sub = sd(three_subordinate),
+            n = n()) 
+
+one_three_effect_size <- one_three_exps_wide %>%
+  do(data.frame(d = compute.es::mes(.$m_one, .$m_3sub, .$sd_one,
+                     .$sd_3sub, .$n, .$n, verbose = F)$d,
+               d_var = compute.es::mes(.$m_one, .$sd_3sub, .$sd_one,
+                    .$sd_3sub, .$n, .$n, verbose = F)$var.d)) %>%
+  mutate(high = d + (1.96*d_var),
+         low = d - (1.96*d_var))
+
+ES_diff = one_three_effect_size$d - three_one_effect_size$d
+
+```
+
+The critical difference between the 1-3 and 3-1 ordering was the rate of generalization to the basic level in the one exemplar trial: When the single exemplar trial occurred second, participants generalized to the basic level at a much lower rate than when the single exemplar trial occurred first. Why might the ordering matter? While our data are not able to directly speak to this question, we speculate that this difference may be due to the fact that learners are tracking exemplar frequency across trials. When the single exemplar trial occurs second, it is effectively the *fourth* exemplar from the same subordinate category that learners have observed in a row; not  a single exemplar. This hypothesis predicts that participants should be less likely to generalize to the basic level on "single" exemplar trials compared to three-subordinate trials under the 3-1 ordering, thus leading to a reversal of the suspicious coincidence effect. We find some evidence consistent with this prediction in an analysis of generalizations to the basic level across all experiments with the 3-1 ordering (*t*(581) = `r t_statistic`; *p* = `r p_statistic`; *d* = `r three_one_effect_size$d_string`).
+
+Unfortunately, the trial order effect we observe is not theoretically relevant to our understanding of the suspicious coincidence effect, and sampling effects more broadly; it is an artifact of the experimental setup. This finding does, however, highlight the influence of seemingly minor experimental design parameters on the observed pattern of data. In the present set of experiments, experiments with the 1-3 versus 3-1 ordering differed by an effect size of `r ES_diff` --- a sizeable difference that is likely to invite an unwarrented theoretical explanation.
+
+Experimental design parameters are especially important to consider in the context of replication. When conducting a replication of an existing finding, small design parameters may influence the magnitude of the effect [@lewis2016understanding] and even its presence [@phillips2015second]. To identify the cause of an effects, experimenters must verify that an effect is robust to theoretically-irrelevant design decisions, and replicators must reproduce the original design decisions with as much fidelity as possible. 
+
+Our studies demonstrate that the suspicious coincidence effect is robust to a range of experimental parameters, and adds to a growing body of work suggesting that sampling plays a critical role in learners ability to make efficient inferences on the basis of limited data. 
+
 
 \newpage
 
-```{r, include = F}
-#We used `r cite_r("r-references.bib")` for all our analyses.
-#---
-
-```
 
 # References
 
