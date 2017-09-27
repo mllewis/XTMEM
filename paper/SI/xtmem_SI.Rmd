@@ -46,13 +46,34 @@ To directly view an experiment, select an experiment from the drop down menu, an
 ```{r, echo = FALSE}
 shinyApp(
   
+  
   ui = fluidPage(
+    
+    tags$head(
+    tags$style(HTML("
+      a.button {
+        background-color: #75aadb ; /* Blue */
+        border: none;
+        color: white;
+        padding: 10px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 14px;
+        margin: 2px 1.5px;
+        cursor: pointer;
+        border-radius: 12px;
+      }
+
+    "))
+  ),
     
     tags$head(tags$style(HTML('#go{background-color:blue;color:white}'))),
     tags$head(tags$style(type = "text/css", '.well{width: 520px}')),
     selectInput("expnum", "Select experiment number:", choices = as.character(1:12), width = '30%'),
     wellPanel(htmlOutput("exp_description")),
-    actionButton("go", "View Experiment")),
+    htmlOutput("view_experiment_button")),
+    #actionButton("go", "View Experiment")),
   
   server = function(input, output) {
     
@@ -66,19 +87,34 @@ shinyApp(
 
         HTML(paste(description_string))
     })
-
-       observeEvent(input$go, {
+      
+    output$view_experiment_button <- renderUI({ 
        exp_original <- filter(exp_key, exp_recoded == input$expnum)$exp
-       html_string <- paste0("http://langcog.stanford.edu/expts/MLL/XTMEM/exp", exp_original, "/exp", exp_original, ".html")
-       return(browseURL(html_string))
-    
-  })
+       link_string <- paste0("https://langcog.stanford.edu/expts/MLL/XTMEM/exp", exp_original, "/exp", 
+                             exp_original, ".html")
+       
+       tags$a(href = link_string, "View Experiment", target="_blank", class = "button")
+       #tags$button()
+      
+     # html_string <- HTML(paste0("<a href =", link_string, ">View Experiment <button id = 'view_experiment_button' ></button></a>"))
+      
+      #a("test", href="http://google.com", target="_blank")  
+     #return(html_string)
+    })
+      
+      #observeEvent(input$go, {
+      # exp_original <- filter(exp_key, exp_recoded == input$expnum)$exp
+      # html_string <- paste0("http://langcog.stanford.edu/expts/MLL/XTMEM/exp", 
+      #                       exp_original, "/exp", exp_original, ".html")
+      # browseURL(html_string)}, 
+      # ignoreNULL = TRUE, ignoreInit = TRUE)
+  
         
 }, options = list(height = 250))
 ```
 
 # Effect size calculation
-The classical Cohen's *d* measure was originally developed for between-subject designs and, as such, researchers have adapted the measure to within-subject designs in a variety of ways (http://jakewestfall.org/blog/index.php/category/effect-size/). We calculate our effect sizes using the "classic" Cohen's *d* formula, which takes the mean difference between conditions divided by the pooled standard deviation. Note that because this method does not take into account the fact that the means are within-subject, these are conservative estimates of effect size (since within-subject designs have more power). We use the `mes` function from the `compute.es` package to calculate our effect sizes
+The classical Cohen's *d* measure was originally developed for between-subject designs and, as such, researchers have adapted the measure to within-subject designs in a variety of ways (http://jakewestfall.org/blog/index.php/category/effect-size/). We calculate our effect sizes using the "classic" Cohen's *d* formula, which takes the mean difference between conditions divided by the pooled standard deviation. Note that because this method does not take into account the fact that the means are within-subject, these are conservative estimates of effect size (since within-subject designs have more power). We use the `mes` function from the `compute.es` package (AC Del Re, 2013)  to calculate our effect sizes
 
 Here is an example calculation of the effect size for Exp. 1. We first get the means and variances across participants of the proportion basic selections for the 1 subordinate and 3 subordinate conditions.
 
@@ -524,8 +560,6 @@ raw_d_munged %>%
   summarise(n = n()) %>%
   mutate(prop = round(n / sum(n),2)) %>%
   kable()
-
-#unique(raw_d_munged$comments)
 ```
 
 # Task time
@@ -548,4 +582,8 @@ ggplot(raw_d_mungedT,
     geom_boxplot() +
     ggthemes::theme_few()  
 ```
+
+**References**
+
+AC Del Re (2013). compute.es: Compute Effect Sizes. R package version 0.2-2. URL http://cran.r-project.org/web/packages/compute.es.
 

@@ -135,11 +135,24 @@
   \note{\(^*\)To whom correspondence should be addressed. Email:
 \href{mailto:mollylewis@uchicago.edu}{\nolinkurl{mollylewis@uchicago.edu}}}
 
-  \abstract{Enter abstract here. Each new line herein must be indented, like this
-line.}
+  \abstract{In previous work, Xu and Tenenbaum (2007a) provide evidence that
+learners are able to infer the subordinate meaning of a word from only
+positive examples of the category. They argue that learners make this
+inference by assuming that examples are sampled from the true underlying
+category (``strong sampling''), entailing that certain data patterns are
+more consistent with a subordinate meaning than others (the ``suspicious
+coincidence'' effect). More recent work (Spencer, Perone, Smith \&
+Samuelson, 2011) questions the relevance of this finding by arguing that
+the effect only occurs when the examples are presented simultaneously.
+Across a series of 12 studies, we systematically manipulate several
+experimental parameters that vary between the previous studies, and
+sucessfully replicate the findings of both sets of authors. Taken
+together, our data suggest that the suspicious coincidence effect in
+fact is robust to presentation timing of examples, but is sensitive to a
+confound in previous experiments, trial order.}
   \keywords{word learning, Bayesian inference, meta-analysis, concepts \\
 
-    \indent Word count: X
+    \indent Word count: 1649
   }
 
 
@@ -184,8 +197,8 @@ can be used, the speaker could also have been saying \enquote{pepper.}
 Furthermore, children rarely receive the kind of negative evidence
 (\enquote{this is \emph{not} a cabai}) that would help rule out broader
 interpretations. Yet, despite the apparent difficulty of the learning
-problem, children quickly and sucessfully learn words at multiple levels
-of abstraction (Markman, 1990).
+problem, children quickly and successfully learn words at multiple
+levels of abstraction (Markman, 1990).
 
 Xu and Tenenbaum (2007a; henceforth XT) provide an account of how
 children might make appropriate generalizations about word meaning
@@ -314,7 +327,7 @@ participation. Across all 12 experiments, 13\% of participants completed
 more than one experiment. We report data from all participants in the
 Main Text, but the pattern of reported findings holds when these
 participants are excluded (see
-SI).\footnote{Supplemental information can be found at "}
+SI).\footnote{Supplemental information can be found at \url{https://mlewis.shinyapps.io/xtmem_SI/}.}
 
 We determined our sample size on the basis of a pre-registered power
 calculation using a meta-analytic estimate of the effect size from
@@ -380,8 +393,9 @@ Exp.\\
 \multicolumn{8}{l}{\textsuperscript{1} N = sample size; Timing = presentation timing (sequential or simultaneous); Order =}\\
 \multicolumn{8}{l}{relative ordering of 1 and 3 subordinate trials; Blocking = trials blocked by category or}\\
 \multicolumn{8}{l}{pseudo-random; Label = same or different label in 1 and 3 trials; Effect size = Cohen's d}\\
-\multicolumn{8}{l}{[95\% CI]; Original Exp. = corresponding experiment from prior literature (E = Main}\\
-\multicolumn{8}{l}{Experiment; ES = Supplemental Experiment).}\\
+\multicolumn{8}{l}{[95\% CI]; Original Exp. = corresponding experiment from prior literature (XT = Xu \&}\\
+\multicolumn{8}{l}{Tenenbaum (2007a); SPSS = Spencer, et al. (2011); E = Main Experiment; ES = Supplemental}\\
+\multicolumn{8}{l}{Experiment).}\\
 \end{tabular}
 \end{table}
 
@@ -422,10 +436,9 @@ We describe each of these factors in more detail below.
 \subsubsection{Presentation Timing}\label{presentation-timing}
 
 Presentation timing was the key, theoretically motivated experimental
-design difference between experiments by XT (E1 and E2\footnote{XT E1
-  and E2 differed in the age of participants (adults vs.~children), but
-  we collapse across this difference for the present analyses.}) and
-SPSS (E2 and E3). In XT, the learning exemplars were presented
+design difference between experiments by XT (E1 and
+E2)\footnote{XT E1 and E2 differed in the age of participants (adults vs.\ children), but we collapse across this difference for the present analyses.}
+and SPSS (E2 and E3). In XT, the learning exemplars were presented
 statically and simultaneously, while in SPSS, participants saw a
 sequence of individual exemplars with each exemplar visible only for 1s
 at a time. In the sequential design, three-exemplar learning trials
@@ -492,8 +505,7 @@ package (Viechtbauer, 2010) in R to fit our meta-analytic models.
 level exemplars in the one (blue) and three (red) subordinate exemplar
 conditions for all 12 of our experiments. Each facet corresponds to a
 pairing of presentation timing (simultaneous vs.~sequential) and trial
-order (1-3 vs.~3-1). Error bars are bootstrapped 95\% confidence
-intervals.}
+order (1-3 vs.~3-1). Ranges are bootstrapped 95\% confidence intervals.}
 \end{figure}
 
 Figure 1 shows the mean proportion generalizations to the basic level in
@@ -517,8 +529,8 @@ label. Point shape indicates whether trials were blocked by category
 (circle) or pseudo-random (triangle). Points are jittered along the
 x-axis for visibility. The red line reflects the meta-analytic estimate
 of the effect size (for the XT experiments, standard deviations on
-effect sizes are estimated from the SPSS replication). All error bars
-are 95\% confidence intervals.}
+effect sizes are estimated from the SPSS replication). All ranges are
+95\% confidence intervals.}
 \end{figure}
 
 In two exact replications of the XT method, we replicate the suspicious
@@ -562,65 +574,65 @@ trial order might influence the suspicious coincidence effect.
 
 \section{General Discussion}\label{general-discussion}
 
-Xu and Tenenbaum (2007a) present evidence that learners are able to
-infer subordinate word meanings by attending to statistical properties
-of the input: It would be a \enquote{suspicious coincidence} to observe
-three subordinate exemplars with the same label if the label refered to
-the basic level, and thus, the label must have a subordinate meaning.
-Perone, Smith, and Samuelson (2011) replicate this effect, but argue
-that it only occurs when the training exemplars are presented
-simultaneously---an ecologically unlikely circumstance. Across 12
-studies, we attempt to resolve this empirical discrepancy by
-systematically manipulating parameters of the experimental design that
-differed between the two sets of studies. We replicate the data patterns
-of both sets of authors. However, our exploration of the parameter space
-leads us to a different conclusion than SPSS: We find that the
-suspicious coincidence effect is robust to the presentation timing of
-exemplars, but is sensitive to order effects. Specifically, we only
-observe the suspicious coincidence effect when the single exemplar
-trials are presented first.
+The ``suspicious coincidence'' effect (Xu \& Tenenbaum, 2007a) suggests
+a powerful mechanism by which learners might overcome the inherent
+ambiguity associated with learning subordinate word meanings; Other
+evidence (Spencer, Perone, Smith, \& Samuelson, 2011), however, suggests
+that the effect may occur only under ecologically invalid learning
+conditions---namely, when the training exemplars are presented
+simultaneously to the learner. Across 12 studies, we explore the
+experimental parameter space of the suspicious coincidence paradigm and
+successfully replicate the findings from both sets of authors. Taken
+together, though, our studies lead us to a different conclusion than
+SPSS: We find that the suspicious coincidence effect is robust to the
+presentation timing of exemplars, but is sensitive to order effects.
+Specifically, we only observe the suspicious coincidence effect when the
+single exemplar trials are presented before the three-exemplar trials.
 
 The critical difference between the 1-3 and 3-1 ordering was the rate of
 generalization to the basic level in the one exemplar trial: When the
 single exemplar trial occurred second, participants generalized to the
 basic level at a much lower rate than when the single exemplar trial
-occurred first. Why might the ordering matter? While our data are not
+occurred first. Why might this ordering matter? While our data are not
 able to directly speak to this question, we speculate that this
-difference may be due to the fact that learners are tracking exemplar
-frequency across trials. When the single exemplar trial occurs second,
-it is effectively the \emph{fourth} exemplar from the same subordinate
-category that learners have observed in a row; not a single exemplar.
-This hypothesis predicts that participants should be less likely to
+difference may be due to the possibility that the pragmatics of the task
+lead learners to track exemplar frequency across trials. In other words,
+when the single exemplar trial occurs second, learners may have
+interpretted this as the \emph{fourth} exemplar from the same
+subordinate category in a row, rather than a single exemplar. This
+hypothesis predicts that participants should be less likely to
 generalize to the basic level on \enquote{single} exemplar trials
 compared to three-subordinate trials under the 3-1 ordering, thus
 leading to a reversal of the suspicious coincidence effect. We find some
-evidence consistent with this prediction in an analysis of
-generalizations to the basic level across all experiments with the 3-1
-ordering (\emph{t}(581) = -2.23; \emph{p} = 0.03; \emph{d} = -0.18
-{[}-0.2, -0.16{]}).
+evidence to suggest such a reversal in an analysis of generalizations to
+the basic level across all experiments with the 3-1 ordering
+(\emph{t}(581) = -2.23; \emph{p} = 0.03; \emph{d} = -0.18 {[}-0.2,
+-0.16{]}).
 
 Unfortunately, the trial order effect we observe is not theoretically
 relevant to our understanding of the suspicious coincidence effect, and
-sampling effects more broadly; it is an artifact of the experimental
-setup. This finding does, however, highlight the influence of seemingly
-minor experimental design parameters on the observed pattern of data. In
-the present set of experiments, experiments with the 1-3 versus 3-1
-ordering differed by an effect size of 1.45 --- a sizeable difference
-that is likely to invite an unwarrented theoretical explanation.
+sampling effects more broadly. This finding does, however, highlight the
+influence of seemingly minor experimental design parameters on the
+observed pattern of data. In the present set of experiments, experiments
+with the 1-3 versus 3-1 ordering differed by an effect size of 1.45---a
+sizeable difference that is likely to invite an unwarrented theoretical
+explanation. Our results demonstrate the importance of verifying that an
+effect is robust to theoretically-irrelevant design decisions before
+positing theoretically-rich explanations of an observed effect.
 
-Experimental design parameters are especially important to consider in
-the context of replication. When conducting a replication of an existing
-finding, small design parameters may influence the magnitude of the
-effect (Lewis \& Frank, 2016) and even its presence (Phillips et al.,
-2015). To identify the cause of an effects, experimenters must verify
-that an effect is robust to theoretically-irrelevant design decisions,
-and replicators must reproduce the original design decisions with as
-much fidelity as possible.
+Experimental design parameters are especially important in the context
+of replication. When conducting a replication of an existing finding,
+small design parameters may influence the magnitude of the effect (Lewis
+\& Frank, 2016) and even its presence (Phillips et al., 2015). This
+sensitivity requires that replicators reproduce the original design
+decisions with as much fidelity as possible before concluding that an
+effect fails to replicate. Only then can the effect be explored, and
+possible confounds and moderators identified.
 
 Our studies demonstrate that the suspicious coincidence effect is robust
 to a range of experimental parameters, and adds to a growing body of
-work suggesting that sampling plays a critical role in learners ability
-to make efficient inferences on the basis of limited data.
+work suggesting that sampling plays a critical role in learners' ability
+to make efficient inferences on the basis of sparse data.
 
 \newpage
 

@@ -24,13 +24,10 @@ note: |
 
 
 abstract: |
-  In recent work, Kovács, Téglás, and Endress (2010) argued that human adults automatically represented other agents’
-  beliefs even when those beliefs were completely irrelevant to the task being performed. In a series of 13 experiments,
-  we replicated these previous findings but demonstrated that the effects found arose from artifacts in the experimental
-  paradigm. In particular, the critical findings demonstrating automatic belief computation were driven by
+  In previous work, Xu and Tenenbaum (2007a) provide evidence that learners are able to infer the subordinate  meaning of a word from only        positive examples of the category. They argue that learners make this inference by assuming that examples are sampled from the true     underlying category ("strong sampling"), entailing that certain data patterns are more consistent with a subordinate     meaning than others (the "suspicious coincidence" effect). More recent work (Spencer, Perone, Smith & Samuelson,         2011) questions the relevance of this finding by arguing that the effect only occurs when the examples are     presented simultaneously. Across a series of 12 studies, we systematically manipulate several experimental parameters that vary   between   the previous studies, and sucessfully replicate the findings of both sets of authors. Taken together, our data suggest that the suspicious coincidence effect in fact is robust to presentation timing of examples, but is sensitive to a confound in previous experiments, trial order. 
   
 keywords          : "word learning, Bayesian inference, meta-analysis, concepts"
-wordcount         : "X"
+wordcount         : "1649"
 
 bibliography      : ["r-references.bib"]
 header-includes:
@@ -63,8 +60,6 @@ library(stringr)
 library(forcats)
 library(knitr)
 library(kableExtra)
-
-# TO DO: write abstract
 ```
 
 ```{r global_options, include = FALSE}
@@ -75,7 +70,7 @@ knitr::opts_chunk$set(warning = FALSE,
 ```
 
 
-Suppose you are learning a new language and someone tells you that a particular kind of chili pepper is called a "cabai." Does "cabai" mean "chili pepper," "pepper," or "vegetable"? The same object can be refered to by many different labels depending on the level of abstraction -- subordinate (chili), basic level (pepper), or superordinate (vegetable) -- that the speaker wishes to convey. In principle, this ambiguity could pose a challenge for language learners: Even though "cabai" means "chili," in nearly every individual case where "chili" can be used, the speaker could also have been saying "pepper." Furthermore, children rarely receive the kind of negative evidence ("this is *not* a cabai") that would help rule out broader interpretations. Yet, despite the apparent difficulty of the learning problem, children quickly and sucessfully learn words at multiple levels of abstraction [@markman1990constraints].
+Suppose you are learning a new language and someone tells you that a particular kind of chili pepper is called a "cabai." Does "cabai" mean "chili pepper," "pepper," or "vegetable"? The same object can be refered to by many different labels depending on the level of abstraction -- subordinate (chili), basic level (pepper), or superordinate (vegetable) -- that the speaker wishes to convey. In principle, this ambiguity could pose a challenge for language learners: Even though "cabai" means "chili," in nearly every individual case where "chili" can be used, the speaker could also have been saying "pepper." Furthermore, children rarely receive the kind of negative evidence ("this is *not* a cabai") that would help rule out broader interpretations. Yet, despite the apparent difficulty of the learning problem, children quickly and successfully learn words at multiple levels of abstraction [@markman1990constraints].
 
 Xu and Tenenbaum (2007a; henceforth XT) provide an account of how children might make appropriate generalizations about word meaning without relying on negative evidence. They observe that, if "cabai" meant pepper, it would be quite odd for a learner to see a number of independent examples of a "cabai" that all happened to be chili peppers. Why not a bell pepper? This "suspicious coincidence" might provide evidence that the meaning of "cabai" instead was the narrower subordinate meaning, chili. Formally, this observation emerges from *strong sampling* [@tenenbaum2001], the idea that examples of "cabai" are sampled from within the extension of the corresponding concept. So if the word means "pepper" the likelihood of observing a chili pepper three times in a row is low, whereas if the word means "chili" the corresponding likelihood is higher. 
 
@@ -105,10 +100,10 @@ all_d <- read_csv("../data/anonymized_data/all_data_munged_A.csv")
 ### data with repeat participants excluded
 all_d_filtered <- read_csv("../data/anonymized_data/no_dups_data_munged_A.csv")
 
-## key to experiment factors
+### key to experiment factors
 exp_key <- read_csv("../data/experiment_key.csv") %>%
-              mutate(order = gsub("\"", "", order), # this is because excel is dumb, grrr 
-                     exp = as.character(exp)) %>% 
+              mutate(order = gsub("\"", "", order), # this is to deal with excel issues
+                     exp = as.character(exp)) %>%
               select(-preregistered) 
 ```
 
@@ -122,10 +117,8 @@ n_total <- all_d %>%
   summarize(n = n())
   
 percent_duplicates <- round((n_total - n_unique)/n_total, 2) * 100
-
-# https://mlewis.shinyapps.io/xtmem_SI/"
 ```
-Fifty participants were recruited on Amazon Mechanical Turk for each of our 12 experiments (N = 600), and paid 40-50 cents for their participation. Across all 12 experiments, `r percent_duplicates[[1]]`% of participants completed more than one experiment. We report data from all participants in the Main Text, but the pattern of reported findings holds when these participants are excluded (see SI).\footnote{Supplemental information can be found at "}
+Fifty participants were recruited on Amazon Mechanical Turk for each of our 12 experiments (N = 600), and paid 40-50 cents for their participation. Across all 12 experiments, `r percent_duplicates[[1]]`% of participants completed more than one experiment. We report data from all participants in the Main Text, but the pattern of reported findings holds when these participants are excluded (see SI).\footnote{Supplemental information can be found at \url{https://mlewis.shinyapps.io/xtmem_SI/}.}
 
 We determined our sample size on the basis of a pre-registered power calculation using a meta-analytic estimate of the effect size from studies conducted by XT and SPSS. The chosen sample size was approximately twice the estimated sample size necessary to obtain a power of .99. 
 
@@ -207,7 +200,7 @@ kable(exp_table, align = c('c', 'r', 'r', 'r', "r", "r", "r", "r"),
       format = "latex", booktabs = TRUE) %>%
     kable_styling(font_size = 12) %>%
     add_header_above(c(" " = 2, "Manipulations" = 4, " ")) %>%
-    add_footnote("N = sample size; Timing = presentation timing (sequential or simultaneous); Order = relative ordering of 1 and 3 subordinate trials; Blocking = trials blocked by category or pseudo-random; Label = same or different label in 1 and 3 trials; Effect size = Cohen's d [95% CI]; Original Exp.\ = corresponding experiment from prior literature (E = Main Experiment; ES = Supplemental Experiment).", notation = "number") 
+    add_footnote("N = sample size; Timing = presentation timing (sequential or simultaneous); Order = relative ordering of 1 and 3 subordinate trials; Blocking = trials blocked by category or pseudo-random; Label = same or different label in 1 and 3 trials; Effect size = Cohen's d [95% CI]; Original Exp.\ = corresponding experiment from prior literature (XT = Xu & Tenenbaum (2007a); SPSS = Spencer, et al. (2011); E = Main Experiment; ES = Supplemental Experiment).", notation = "number") 
 ```
 
 Participants were first introduced to a picture of a character ("Mr. Frog") and instructions describing the task. They were told that the character speaks a different language and their job was to help the character find the toys he wants. Participants then advanced to the main experiment, which consisted of a series of 12 trials on separate screens. On each trial,  one or three learning exemplars from one of the three stimulus categories appeared at the top of the screen, along with the following instructions: "Here [is a wug/are three wugs]. Can you give Mr. Frog all of the other wugs?." Below the learning exemplars, 24 generalization exemplars (8 from each of the 3 categories) were displayed in a 4*x*6 grid. The order of generalizaiton pictures was randomized across trials. Participants were instructed to select the target category members ("To give a wug, click on it below. When you have given all the wugs, click the Next button."). When an exemplar was selected, a red box appeared around the picture, and participants were allowed to change their selections by clicking on the picture a second time. The learning exemplars remained visible at the top of the screen during the generalization task. Once they had made their selections, participants advanced to the next trial by clicking the "Next" button.
@@ -218,7 +211,7 @@ Across 12 experiments, we manipulated four aspects of the trial design that diff
 
 ### Presentation Timing
 
-Presentation timing was the key, theoretically motivated experimental design difference between experiments by XT (E1 and E2^[XT E1 and E2 differed in the age of participants (adults vs.\ children), but we collapse across this difference for the present analyses.]) and SPSS (E2 and E3). In XT, the learning exemplars were presented statically and simultaneously, while in SPSS, participants saw a sequence of individual exemplars with each exemplar visible only for 1s at a time. In the sequential design, three-exemplar learning trials displayed pictures at three different locations (left, middle, and right) in a sequence that repeated twice, for a total of 6s.
+Presentation timing was the key, theoretically motivated experimental design difference between experiments by XT (E1 and E2)\footnote{XT E1 and E2 differed in the age of participants (adults vs.\ children), but we collapse across this difference for the present analyses.} and SPSS (E2 and E3). In XT, the learning exemplars were presented statically and simultaneously, while in SPSS, participants saw a sequence of individual exemplars with each exemplar visible only for 1s at a time. In the sequential design, three-exemplar learning trials displayed pictures at three different locations (left, middle, and right) in a sequence that repeated twice, for a total of 6s.
 
 We reproduced these design aspects in the simultaneous and sequential versions of our experiments. In the single-exemplar, sequential trials, the exemplar appeared (1s) and disappeared (1s) for three repetitions. The generalization pictures did not appear in the sequential condition until after the training pictures has appeared for 6 seconds, but remained visible as participants selected generalization exemplars.
 
@@ -241,7 +234,7 @@ The key prediction of the suspicious coincidence effect is that participants sho
 
 # Results
 
-```{r fig.height = 3, fig.cap = "Mean proportion generalizations to basic level exemplars in the one (blue) and three (red) subordinate exemplar conditions for all 12 of our experiments. Each facet corresponds to a pairing of presentation timing (simultaneous vs. sequential) and trial order (1-3 vs. 3-1). Error bars are bootstrapped 95% confidence intervals."}
+```{r fig.height = 3, fig.cap = "Mean proportion generalizations to basic level exemplars in the one (blue) and three (red) subordinate exemplar conditions for all 12 of our experiments. Each facet corresponds to a pairing of presentation timing (simultaneous vs. sequential) and trial order (1-3 vs. 3-1). Ranges are bootstrapped 95% confidence intervals."}
 
 # mean across participants with CIS (condition means)
 LF_means_long <- ms %>%
@@ -249,7 +242,7 @@ LF_means_long <- ms %>%
   multi_boot_standard(col = "value")  %>%
   left_join(exp_key)
 
-# relabel for fig
+# relabel conditions for fig
 LF_means_long_recoded <- LF_means_long %>%
    ungroup()  %>%
    mutate(exp_recoded = fct_relevel(exp_recoded, as.character(1:12)),
@@ -323,15 +316,34 @@ ma_es <- data.frame(
 ```
 
 
-```{r fig.width=5.5, fig.height=3.5, fig.cap = "Effect sizes for all 19 studies conducted on the suspicious coincidence effect by XT (Xu & Tenenbaum, 2007a), SPSS (Spencer, et al, 2011), and the current authors. The top-bottom facets indicate whether the single exemplar trial occurred first (1-3) or second (3-1). The left-right facets  indicate whether the exemplars were presented simulateously as in XT or sequentially as in SPSS. Point color indicates whether the single exemplar and three subordinate exemplars received the same (grey) or different (black) label. Point shape indicates whether trials were blocked by category (circle) or pseudo-random (triangle). Points are jittered along the x-axis for visibility. The red line reflects the meta-analytic estimate of the effect size (for the XT experiments, standard deviations on effect sizes are estimated from the SPSS replication). All error bars are 95% confidence intervals."}
+```{r fig.width=5.5, fig.height=3.5, fig.cap = "Effect sizes for all 19 studies conducted on the suspicious coincidence effect by XT (Xu & Tenenbaum, 2007a), SPSS (Spencer, et al, 2011), and the current authors. The top-bottom facets indicate whether the single exemplar trial occurred first (1-3) or second (3-1). The left-right facets  indicate whether the exemplars were presented simulateously as in XT or sequentially as in SPSS. Point color indicates whether the single exemplar and three subordinate exemplars received the same (grey) or different (black) label. Point shape indicates whether trials were blocked by category (circle) or pseudo-random (triangle). Points are jittered along the x-axis for visibility. The red line reflects the meta-analytic estimate of the effect size (for the XT experiments, standard deviations on effect sizes are estimated from the SPSS replication). All ranges are 95% confidence intervals."}
 
+# manual x-axis jittering
+offset <- .35
+all_es2 <- all_es %>%
+  #select(exp_recoded, source, timing, order) %>%
+  #arrange(timing, order) %>%
+  mutate(source = replace(source, exp_recoded == "SPSS_eS1", 3 - offset),
+         source = replace(source, exp_recoded == "SPSS_eS2", 3 + offset),
+         source =  replace(source, exp_recoded == "SPSS_e2", 3 - offset),
+         source = replace(source, exp_recoded == "SPSS_e3", 3 + offset),
+         source = replace(source, exp_recoded == "1", 5 + offset),
+         source = replace(source, exp_recoded == "2", 5 - offset), # 3
+         source = replace(source, exp_recoded == "8", 5 - offset),
+         source = replace(source, exp_recoded == "9", 5 + offset), # 7
+         source = replace(source, exp_recoded == "4", 5 - offset),
+         source = replace(source, exp_recoded == "5", 5 + offset), #6
+         source = replace(source, exp_recoded == "10", 5 - offset),
+         source = replace(source, exp_recoded == "11", 5 + offset)) # 12
+  
 # effect size fig
-ggplot(all_es) +
+ggplot(all_es2) +
   geom_rect(aes(xmin = -Inf, xmax = Inf, ymin = d_low, ymax = d_high), 
             fill = "red", alpha = 0.05, inherit.aes = FALSE, data = ma_es) +
   geom_hline(aes(yintercept = d), data = ma_es, color = "red") +
   scale_color_manual(values = c("black","grey63")) +
-  geom_pointrange(aes(x = jitter(source, 1.5),  y = d, ymax = high, 
+  # x = jitter(source, 1.5)
+  geom_pointrange(aes(x =  source,  y = d, ymax = high, 
                       ymin = low, color = one_3sub_label, shape = fct_rev(blocking)), 
                   size = .5) +
   geom_hline(yintercept = 0, linetype = 2, color = "black") +
@@ -348,6 +360,7 @@ ggplot(all_es) +
 In two exact replications of the XT method, we replicate the suspicious coincidence effect (Exp. 1: *d* = `r filter(all_es, exp_recoded == "1") %>% select(d_string) %>% unlist()`; Exp. 2: *d* = `r filter(all_es, exp_recoded == "2") %>% select(d_string) %>% unlist()`), with a magnitude comparable to the original XT experiments (XT E1: *d* = `r filter(all_es, exp_recoded == "XT_adults_e1") %>% select(d_string) %>% unlist()`; XT E2: *d* = `r filter(all_es, exp_recoded == "XT_children_e2") %>% select(d_string) %>% unlist()`). We also replicate the reversal in the suspicious coincidence effect observed by SPSS in an exact replication of their method (Exp. 10; *d* = `r filter(all_es, exp_recoded == "10") %>% select(d_string) %>% unlist()`), and with a magnitude comparable to the original experiments (SPSS E2: *d* = `r filter(all_es, exp_recoded == "SPSS_e2") %>% select(d_string) %>% unlist()`; SPSS E3: *d* =  `r filter(all_es, exp_recoded == "SPSS_e3") %>% select(d_string) %>% unlist()`).
 
 ```{r}
+# ma model
 mod <- metafor::rma(d ~ timing + order + one_3sub_label + blocking, d_var, dat = all_es)
 
 mod_df <- data.frame(fixed_effect = c("Intercept", 
@@ -407,9 +420,9 @@ label_string <- mod_df %>%
 Critically, however, the meta-analyic model across all 12 experiments reveals that only trial order is a reliable predictor of effect size ($\beta$ `r trial_order_string[[1]]`), while timing ($\beta$ `r timing_string[[1]]`), blocking ($\beta$ `r blocking_string[[1]]`), and label are not ($\beta$ `r label_string[[1]]`; Table 2). These data thus reveal that the suspicious coincidence is robust to spatio-temporal aspects of the presentation learning exemplars, in contrast to the conclusion drawn by SPSS. In the General Discussion, we consider why trial order might influence the suspicious coincidence effect.
 
 # General Discussion
-Xu and Tenenbaum (2007a) present  evidence that learners are able to infer subordinate word meanings by attending to statistical properties of the input: It would be a "suspicious coincidence" to observe three subordinate exemplars with the same label if the label refered to the basic level, and thus, the label must have a subordinate meaning. Perone, Smith, and Samuelson (2011) replicate this effect, but argue that it only occurs when the training exemplars are presented simultaneously---an ecologically unlikely circumstance. Across 12 studies, we attempt to resolve this empirical discrepancy by systematically manipulating parameters of the experimental design that differed between the two sets of studies. We replicate the data patterns of both sets of authors. However, our exploration of the parameter space leads us to a different conclusion than SPSS: We find that the suspicious coincidence effect is robust to the presentation timing of exemplars, but is sensitive to order effects. Specifically, we only observe the suspicious coincidence effect when the single exemplar trials are presented first.
+The ``suspicious coincidence'' effect (Xu & Tenenbaum, 2007a) suggests a powerful mechanism by which learners might overcome the inherent ambiguity associated with learning subordinate word meanings; Other evidence (Spencer, Perone, Smith, & Samuelson, 2011), however, suggests that the effect may occur only under ecologically invalid learning conditions---namely, when the training exemplars are presented simultaneously to the learner. Across 12 studies, we explore the experimental parameter space of the suspicious coincidence paradigm and successfully replicate the findings from both sets of authors. Taken together, though, our studies lead us to a different conclusion than SPSS: We find that the suspicious coincidence effect is robust to the presentation timing of exemplars, but is sensitive to order effects. Specifically, we only observe the suspicious coincidence effect when the single exemplar trials are presented before the three-exemplar trials.
 
-```{r SC_reversal}
+```{r SC_reversal_GD}
 three_one_exps <- all_d_clean %>%
   gather(variable, value, c(prop_sub, prop_bas, prop_sup)) %>%
   mutate(value = as.numeric(value)) %>%
@@ -421,8 +434,8 @@ three_one_exps <- all_d_clean %>%
   spread(condition, value, -2:-12)
 
 t_test <- t.test(three_one_exps$one, three_one_exps$three_subordinate, paired = FALSE)
-t_statistic = round(t_test$statistic,2)[[1]]
-p_statistic = round(t_test$p.value, 2)
+t_statistic <- round(t_test$statistic,2)[[1]]
+p_statistic <- round(t_test$p.value, 2)
 
 three_one_exps_wide <- all_d_clean %>%
   gather(variable, value, c(prop_sub, prop_bas, prop_sup)) %>%
@@ -474,16 +487,15 @@ one_three_effect_size <- one_three_exps_wide %>%
          low = d - (1.96*d_var))
 
 ES_diff = one_three_effect_size$d - three_one_effect_size$d
-
 ```
 
-The critical difference between the 1-3 and 3-1 ordering was the rate of generalization to the basic level in the one exemplar trial: When the single exemplar trial occurred second, participants generalized to the basic level at a much lower rate than when the single exemplar trial occurred first. Why might the ordering matter? While our data are not able to directly speak to this question, we speculate that this difference may be due to the fact that learners are tracking exemplar frequency across trials. When the single exemplar trial occurs second, it is effectively the *fourth* exemplar from the same subordinate category that learners have observed in a row; not  a single exemplar. This hypothesis predicts that participants should be less likely to generalize to the basic level on "single" exemplar trials compared to three-subordinate trials under the 3-1 ordering, thus leading to a reversal of the suspicious coincidence effect. We find some evidence consistent with this prediction in an analysis of generalizations to the basic level across all experiments with the 3-1 ordering (*t*(581) = `r t_statistic`; *p* = `r p_statistic`; *d* = `r three_one_effect_size$d_string`).
+The critical difference between the 1-3 and 3-1 ordering was the rate of generalization to the basic level in the one exemplar trial: When the single exemplar trial occurred second, participants generalized to the basic level at a much lower rate than when the single exemplar trial occurred first. Why might this ordering matter? While our data are not able to directly speak to this question, we speculate that this difference may be due to the possibility that the pragmatics of the task lead learners to track exemplar frequency across trials. In other words, when the single exemplar trial occurs second, learners may have interpretted this as the *fourth* exemplar from the same subordinate category in a row, rather than a single exemplar. This hypothesis predicts that participants should be less likely to generalize to the basic level on "single" exemplar trials compared to three-subordinate trials under the 3-1 ordering, thus leading to a reversal of the suspicious coincidence effect. We find some evidence to suggest such a reversal in an analysis of generalizations to the basic level across all experiments with the 3-1 ordering (*t*(581) = `r t_statistic`; *p* = `r p_statistic`; *d* = `r three_one_effect_size$d_string`).
 
-Unfortunately, the trial order effect we observe is not theoretically relevant to our understanding of the suspicious coincidence effect, and sampling effects more broadly; it is an artifact of the experimental setup. This finding does, however, highlight the influence of seemingly minor experimental design parameters on the observed pattern of data. In the present set of experiments, experiments with the 1-3 versus 3-1 ordering differed by an effect size of `r ES_diff` --- a sizeable difference that is likely to invite an unwarrented theoretical explanation.
+Unfortunately, the trial order effect we observe is not theoretically relevant to our understanding of the suspicious coincidence effect, and sampling effects more broadly. This finding does, however, highlight the influence of seemingly minor experimental design parameters on the observed pattern of data. In the present set of experiments, experiments with the 1-3 versus 3-1 ordering differed by an effect size of `r ES_diff`---a sizeable difference that is likely to invite an unwarrented theoretical explanation. Our results demonstrate  the importance of verifying that an effect is robust to theoretically-irrelevant design decisions before positing theoretically-rich explanations of an observed effect.
 
-Experimental design parameters are especially important to consider in the context of replication. When conducting a replication of an existing finding, small design parameters may influence the magnitude of the effect [@lewis2016understanding] and even its presence [@phillips2015second]. To identify the cause of an effects, experimenters must verify that an effect is robust to theoretically-irrelevant design decisions, and replicators must reproduce the original design decisions with as much fidelity as possible. 
+Experimental design parameters are especially important in the context of replication. When conducting a replication of an existing finding, small design parameters may influence the magnitude of the effect [@lewis2016understanding] and even its presence [@phillips2015second]. This sensitivity requires that replicators reproduce the original design decisions with as much fidelity as possible before concluding that an effect fails to replicate. Only then can the effect be explored, and possible confounds and moderators identified. 
 
-Our studies demonstrate that the suspicious coincidence effect is robust to a range of experimental parameters, and adds to a growing body of work suggesting that sampling plays a critical role in learners ability to make efficient inferences on the basis of limited data. 
+Our studies demonstrate that the suspicious coincidence effect is robust to a range of experimental parameters, and adds to a growing body of work suggesting that sampling plays a critical role in learners' ability to make efficient inferences on the basis of sparse data.
 
 
 \newpage
