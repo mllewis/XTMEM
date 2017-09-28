@@ -5,8 +5,12 @@
 *.Rdata
 *.rdb
 *.rdx
+*.Rhistory
 
 resources/goldberg_blowfish.pdf
+
+paper/xtmem_files/figure-latex/*
+paper/xtmem_cache/latex/__packages
 
 # LaTeX #
 *.bet
