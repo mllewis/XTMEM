@@ -8,7 +8,6 @@ output:
   html_document:
     code_folding: hide
     number_sections: yes
-    theme: paper
     toc: yes
     toc_float: no
 subtitle: Supplementary Information
@@ -35,15 +34,15 @@ opts_chunk$set(echo = T, message = F, warning = F,
 ```  
 
 
-This document was created from an R markdown file. The manuscript itself was also produced from an R markdown file, and all analyses presented in the paper can be reproduced from that document (https://github.com/mllewis/XTMEM/blob/master/paper/xtmem.Rmd). The SI can be viewed interactively online at https://mlewis.shinyapps.io/xtmem_SI/.
+This document was created from an R markdown file. The manuscript itself was also produced from an R markdown file, and all analyses presented in the paper can be reproduced from that document (https://github.com/mllewis/XTMEM/blob/master/paper/xtmem.Rmd). 
+
+### The SI can be viewed interactively online at https://mlewis.shinyapps.io/xtmem_SI/
 
 # View experiments
 To directly view an experiment, select an experiment from the dropdown menu, and click the "View Experiment" button. The experiment will open in a new window. 
 
-
 ```{r, echo = FALSE}
 shinyApp(
-  
   
   ui = fluidPage(
     
