@@ -25,7 +25,7 @@ for (j in 1:NUMEXPS){
 names(d_raw) <- str_replace(names(d_raw), "answers.", "")
 d_anonymized <- anonymize.sids(d_raw, "WorkerId")
 
-write_csv(d_anonymized, "../data/anonymized_data/all_raw_A.csv")
+# write_csv(d_anonymized, "../data/anonymized_data/all_raw_A.csv")
 
 # Munge
 d_anonymized <- read_csv("../data/anonymized_data/all_raw_A.csv")

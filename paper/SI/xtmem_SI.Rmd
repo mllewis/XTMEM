@@ -1,14 +1,14 @@
 ---
-  title: 'Still suspicious: The suspicious coincidence effect revisited'
+title: 'Still suspicious: The suspicious coincidence effect revisited'
 author: "Molly Lewis and Michael C. Frank"
 date: "`r Sys.Date()`"
 output:
   html_document:
-  code_folding: hide
-number_sections: yes
-theme: paper
-toc: yes
-toc_float: no
+    code_folding: hide
+    number_sections: yes
+    theme: paper
+    toc: yes
+    toc_float: no
 runtime: shiny
 subtitle: Supplementary Information
 ---
@@ -37,7 +37,7 @@ opts_chunk$set(echo = T, message = F, warning = F,
 ```  
 
 
-This document was created from an R markdown file. The manuscript itself was also produced from an R markdown file, and all analyses presented in the paper can be reproduced from that document (https://github.com/mllewis/XTMEM/blob/master/paper/xtmem.Rmd).
+This document was created from an R markdown file. The manuscript itself was also produced from an R markdown file, and all analyses presented in the paper can be reproduced from that document (https://github.com/mllewis/XTMEM/blob/master/paper/xtmem.Rmd). The respository for the project can be found here: https://github.com/mllewis/XTMEM/.
 
 # View experiments
 To directly view an experiment, select an experiment from the drop down menu, and click the "View Experiment" button. The experiment will open in a new window. 
@@ -94,21 +94,7 @@ shinyApp(
                             exp_original, ".html")
       
       tags$a(href = link_string, "View Experiment", target="_blank", class = "button")
-      #tags$button()
-      
-      # html_string <- HTML(paste0("<a href =", link_string, ">View Experiment <button id = 'view_experiment_button' ></button></a>"))
-      
-      #a("test", href="http://google.com", target="_blank")  
-      #return(html_string)
     })
-    
-    #observeEvent(input$go, {
-    # exp_original <- filter(exp_key, exp_recoded == input$expnum)$exp
-    # html_string <- paste0("http://langcog.stanford.edu/expts/MLL/XTMEM/exp", 
-    #                       exp_original, "/exp", exp_original, ".html")
-    # browseURL(html_string)}, 
-    # ignoreNULL = TRUE, ignoreInit = TRUE)
-    
     
   }, options = list(height = 250))
 ```
@@ -129,13 +115,13 @@ all_d <- read_csv("data/anonymized_data/all_data_munged_A.csv") %>%
                                 "3 basic" = "3bas",
                                 "3 super." = "3sup",
                                 "3 sub." = "3sub"),
-         condition = fct_relevel(condition, "1 sub.", "3 sub.", "3 basic", "3 super."))
+         condition = fct_relevel(condition, "1 sub.", "3 sub.", "3 basic", "3 super.")) # there were 28 trials across all 12 experiments (.4%) in which there was an error in data recording such that proportion selected of a category was greater than 1 (these were evenly distributed across the experiments).
 
 ## key to experiment factors
 exp_key <- read_csv("data/experiment_key.csv") %>%
   mutate(order = gsub("\"", "", order),
          exp = as.integer(exp)
-  ) %>%  # this is because excel is dumb, grrr 
+  ) %>% 
   select(-preregistered) 
 ```
 
@@ -143,7 +129,7 @@ exp_key <- read_csv("data/experiment_key.csv") %>%
 es_1_calc <- all_d %>%
   left_join(exp_key %>% select(exp, exp_recoded)) %>%
   filter(exp_recoded == 1) %>% # we only want exp 1 
-  filter(condition == "1 sub." | condition == "3 sub.") %>% # we only care about these conds. for the calculating d
+  filter(condition == "1 sub." | condition == "3 sub.") %>% # we only care about these conds. for calculating d
   gather(variable, value, c(prop_sub, prop_bas, prop_sup)) %>%
   filter(variable == "prop_bas") %>% # we only care about this DV for calculating d
   group_by(condition, subids) %>% 
@@ -182,10 +168,6 @@ gather(variable, value, c(prop_sub, prop_bas, prop_sup)) %>%
 group_by(exp, condition, variable) %>%
 mutate(value = as.numeric(value)) %>%
 multi_boot_standard(col = "value")  %>%
-#summarise(mean = mean(value), 
-#          error = qt(0.975,df=n()-1)*sd(value)/sqrt(n()),
-#          ci_lower = mean - error,# FIXME to bootstrap
-#          ci_upper = mean + error) %>%
 ungroup() %>%
 mutate(variable = as.factor(variable),
 variable = fct_recode(variable, "basic" = "prop_bas",
@@ -496,7 +478,7 @@ kable()
 ```{r}
 raw_d_munged %>%
 mutate(language = tolower(language),
-language = ifelse(substr(language,0,1) == "e", # all e lanuages are english
+language = ifelse(substr(language,0,1) == "e", # all "e-" languages are coded as english
 "English", "Other")) %>%
 group_by(language) %>%
 summarise(n = n()) %>%

@@ -91,10 +91,12 @@ We report how we determined our sample size, all manipulations, and all measures
 ## Participants
 ```{r read_in_data}
 ### all data
-all_d <- read_csv("../data/anonymized_data/all_data_munged_A.csv")
+all_d <- read_csv("../data/anonymized_data/all_data_munged_A.csv") %>%
+  filter(prop_sub <= 1 | prop_bas <= 1| prop_sup <= 1) # there were 28 trials across all 12 experiments (.4%) in which there was an error in data recording such that proportion selected of a category was greater than 1 (these were evenly distributed across the experiments).
 
 ### data with repeat participants excluded
-all_d_filtered <- read_csv("../data/anonymized_data/no_dups_data_munged_A.csv")
+all_d_filtered <- read_csv("../data/anonymized_data/no_dups_data_munged_A.csv") %>%
+  filter(prop_sub <=1 | prop_bas <= 1| prop_sup <= 1) # there were 28 trials across all 12 experiments (.4%) in which there was an error in data recording such that proportion selected of a category was greater than 1 (these were evenly distributed across the experiments).
 
 ### key to experiment factors
 exp_key <- read_csv("../data/experiment_key.csv") %>%
