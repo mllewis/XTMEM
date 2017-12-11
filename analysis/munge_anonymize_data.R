@@ -1,4 +1,4 @@
-####g et one dataframe (all experiments) 
+####get one dataframe (all experiments) 
 
 
 # load libraries and pacakges
@@ -42,13 +42,31 @@ d_anonymized_long = d_anonymized %>%
 
 d_anonymized_long_munged = d_anonymized_long %>%
   select(exp, subids, trial_num, category, condition, selected) %>%
-  mutate(selected = lapply(str_split(selected, ","), 
+  mutate(selected_cat = lapply(str_split(selected, ","), 
+                               function(x) {str_sub(x, 2, 2)}),
+         selected = lapply(str_split(selected, ","), 
                            function(x) {str_sub(x, 4, 6)})) %>%
-  mutate(prop_sub = unlist(lapply(selected, function(x){sum(x == "sub")/2})),
-         prop_bas = unlist(lapply(selected, function(x){sum(x == "bas")/2})),
-         prop_sup = unlist(lapply(selected, function(x){sum(x == "sup")/4}))) %>%
-  select(-selected)
+  rowwise() %>%
+  mutate(n_unique = length(unique(unlist(selected_cat))),
+         first_cat = unlist(selected_cat)[1],
+         cat_num = if_else(category == "animals", 3, 
+                           if_else(category == "vehicles", 2, 1)),
+         selected_filtered = list(lapply(selected_cat, function(x, y) {x == y[1]}, cat_num)),
+         selected_in_cat = list(unlist(selected)[unlist(selected_filtered)])) %>%
+  ungroup()
+
+
+# do proportions only on target category
+d_anonymized_long_munged_clean <- d_anonymized_long_munged %>%  
+  mutate(prop_sub = unlist(lapply(selected_in_cat, function(x){sum(x == "sub")/2})),
+         prop_bas = unlist(lapply(selected_in_cat, function(x){sum(x == "bas")/2})),
+         prop_sup = unlist(lapply(selected_in_cat, function(x){sum(x == "sup")/4}))) %>%
+  select(-selected, -selected_cat, -selected_in_cat, -selected_filtered) %>%
+  mutate(only_responded_with_target_category = as.factor(if_else(n_unique == 1 & first_cat == cat_num, 
+"only_target", "other")))
 
 # Write
-write_csv(d_anonymized_long_munged, paste0("../data/anonymized_data/all_data_munged_A.csv"))
+write_csv(d_anonymized_long_munged_clean, "../data/anonymized_data/all_data_munged_A.csv")
+
+
 
