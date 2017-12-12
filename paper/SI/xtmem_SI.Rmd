@@ -31,6 +31,7 @@ library(stringr)
 library(metafor)
 library(kableExtra)
 library(shiny)
+library(pwr)
 
 opts_chunk$set(echo = T, message = F, warning = F, 
                error = F, cache = F, tidy = F, fig.height = 4)
@@ -98,6 +99,63 @@ shinyApp(
     
   }, options = list(height = 250))
 ```
+
+# Power calculation
+
+To determine the sample size in our experiments, we conducted a power calculation using an effect size estimated from previous experiments that used the same design parameters as the original Xu and Tenenbaum studies (2007a; XT). In total, there were three studies that satisfied this criterion (two from XT and one from Spencer, Perone, Smith & Samuelson, 2011; SPSS).  For these three studies, we calculate the effect size for the basic level selections in the one versus three subordinate example conditions (the critical comparision).
+
+Presented below are means and standard deviations of proportion selections of basic level exemplars from all three experiments and their corresponding sample sizes. Note that we do not have SDs for the XT data and so we estimate these values to be the same as the SPSS experiment. 
+
+```{r}
+df <- data.frame(exp = c("XT E1", "XT E2", "SPSS E1"),
+                   one_means = c( 76, 40, 48.24), 
+                   three_means = c(9, 6, 10.53),
+                   one_sd = c(40.40, 40.40, 40.40),
+                   three_sd = c(24.97, 24.97, 24.97),
+                   n = c(22, 36, 19))
+kable(df , col.names = c("Exp.",	"one-exmplar means", 	"three-exemplar means",	"one-exemplar sd", 	"three-exmplar sd", "sample size"))
+```
+
+```{r}
+df$d = mes(df$one_means, df$three_means, df$one_sd,
+       df$three_sd, df$n, df$n, verbose = F)$d
+
+df$d_var = mes(df$one_means, df$three_means, df$one_sd,
+       df$three_sd, df$n, df$n, verbose = F)$var.d
+
+model = rma(d, d_var, data = df)
+```
+
+Using a random effect meta-analytic model, we use these values to obtain a meta-analytic effect size estimate. We estimate this effect size to be `r round(model$b, 2)`.
+
+```{r}
+par(cex = 1, font = 1)
+forest(model, 
+       slab = df$exp,
+       mlab = "All", 
+       xlab = "Cohen's d")
+par(font = 2)
+text(-1.5, 4.4, "Experiment")
+text(4.3, 4.4, "Cohen's d [95% CI]")
+
+addpoly(model, row = -1, cex = .75, 
+        annotate = F,  col = "red", mlab = "", efac = 2)
+```
+
+We then use this value to calculate the necessary sample size for a two-sample t-test with a power of .99 and a significance level of .05.
+
+```{r}
+desired.power <- .99
+
+p.t.two <- pwr.t.test(d = model$b, 
+                      power = desired.power, 
+                      type = "two.sample", 
+                      alternative = "two.sided")
+
+p.t.two 
+```
+
+For nearly perfect power, we would need 22 independent observations. To be conservative, we set our sample size at N = 50.
 
 # Effect size calculation
 The classical Cohen's *d* measure was originally developed for between-subject designs and, as such, researchers have adapted the measure to within-subject designs in a variety of ways (http://jakewestfall.org/blog/index.php/category/effect-size/). We calculate our effect sizes using the "classic" Cohen's *d* formula, which takes the mean difference between conditions divided by the pooled standard deviation. Note that because this method does not take into account the fact that the means are within-subject, these are conservative estimates of effect size (since within-subject designs have more power). We use the `mes` function from the `compute.es` package (AC Del Re, 2013)  to calculate our effect sizes
@@ -443,7 +501,7 @@ col.names = c("Fixed effect", "beta", "z-value", "p-value")) %>%
 kable_styling(font_size = 12) 
 ```
 
-# Cross-category generalizing trials excluded
+# Cross-category generalization trials excluded
 ```{r}
 all_d <- read_csv("data/anonymized_data/all_data_munged_A.csv")  %>%
 mutate(condition = as.factor(condition),
