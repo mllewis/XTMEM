@@ -471,7 +471,7 @@ Critically, however, the meta-analytic model across all 12 experiments reveals t
 
 The ``suspicious coincidence'' effect (Xu & Tenenbaum, 2007a) suggests a powerful mechanism by which learners might overcome the inherent ambiguity associated with learning subordinate word meanings. Other evidence (Spencer, Perone, Smith, & Samuelson, 2011), however, suggests that the effect may occur only under particular learning conditions -- namely, when the training exemplars are presented simultaneously to the learner. Across 12 studies, we explored the experimental parameter space of the suspicious coincidence paradigm and successfully replicated the findings from both sets of authors. Taken together, our studies lead us to a different conclusion than SPSS: The suspicious coincidence effect is robust to the presentation timing of exemplars, but is sensitive to order effects. In particular, we reliably observe the suspicious coincidence effect, except when the three-exemplar trials are presented before the one-exemplar trials.
 
-```{r SC_reversal_GD}
+```{r SC_reversal_GD_trial_order}
 three_one_exps <- all_d_clean %>%
   gather(variable, value, c(prop_sub, prop_bas, prop_sup)) %>%
   mutate(value = as.numeric(value)) %>%
@@ -538,11 +538,91 @@ one_three_effect_size <- one_three_exps_wide %>%
 ES_diff = one_three_effect_size$d - three_one_effect_size$d
 ```
 
-The critical difference between the 1-3 and 3-1 ordering was the rate of generalization to the basic level in the one exemplar trial: When the single exemplar trial occurred second, participants generalized to the basic level at a much lower rate than in the reverse order. Why might this ordering matter? We speculate that this difference may be due to the possibility that learners track exemplar frequency across trials, due to the pragmatics of the task. In other words, when the single exemplar trial occurs second, learners may have interpreted this as the *fourth* exemplar from the same subordinate category in a row, rather than a single exemplar. This hypothesis predicts that participants should be less likely to generalize to the basic level on "single" exemplar trials compared to three-subordinate trials under the 3-1 ordering, thus leading to an elimination or reversal of the suspicious coincidence effect. We find some evidence to suggest a reversal in an analysis across all experiments with the 3-1 ordering (*t*(581) = `r t_statistic`; *p* = `r p_statistic`; *d* = `r three_one_effect_size$d_string`). There is further evidence for this interpretation from XT E2 (an experiment with preschool children), where the suspicious coincidence effect was obtained in a between-subject design.
+The critical difference between the 1-3 and 3-1 ordering was the rate of generalization to the basic level in the one exemplar trial: When the single exemplar trial occurred second, participants generalized to the basic level at a much lower rate than in the reverse order. Why might this ordering matter? We speculate that this difference may be due to the possibility that learners track exemplar frequency across trials, due to the pragmatics of the task. In other words, when the single exemplar trial occurs second, learners may have interpreted this as the *fourth* exemplar from the same subordinate category in a row, rather than a single exemplar. This hypothesis predicts that participants should be less likely to generalize to the basic level on "single" exemplar trials compared to three-subordinate trials under the 3-1 ordering, thus leading to an elimination of the suspicious coincidence effect. We find some evidence to suggest consistent with this prediction in an analysis across all experiments with the 3-1 ordering (*t*(581) = `r t_statistic`; *p* = `r p_statistic`; *d* = `r three_one_effect_size$d_string`). There is further evidence for this interpretation from XT E2 (preschool children), where the suspicious coincidence effect was obtained in a between-subject design.
+
+
+```{r SC_reversal_GD_3_1_order}
+three_one_exps_sequential <- all_d_clean %>%
+  gather(variable, value, c(prop_sub, prop_bas, prop_sup)) %>%
+  mutate(value = as.numeric(value)) %>%
+  filter(variable == "prop_bas") %>%
+  group_by(condition, exp, subids) %>% 
+  summarize(value = mean(value)) %>%
+  left_join(exp_key) %>%
+  filter(exp_recoded %in% c("10", "11", "12")) %>%
+  spread(condition, value, -2:-12)
+
+t_test<- t.test(three_one_exps_sequential$one, three_one_exps_sequential$three_subordinate, paired = FALSE)
+t_statistic_3_1 <- round(t_test$statistic,2)[[1]]
+p_statistic_3_1 <- round(t_test$p.value, 2)
+
+three_one_exps_sequential_wide <- all_d_clean %>%
+  gather(variable, value, c(prop_sub, prop_bas, prop_sup)) %>%
+  mutate(value = as.numeric(value)) %>%
+  filter(variable == "prop_bas") %>%
+  group_by(condition, exp, subids) %>% 
+  summarize(value = mean(value)) %>%
+  left_join(exp_key) %>%
+  ungroup() %>%
+  filter(exp_recoded %in% c( "10", "11", "12"))  %>%
+  spread(condition, value) %>%
+  summarize(m_one = mean(one),
+            sd_one = sd(one),
+            m_3sub = mean(three_subordinate),
+            sd_3sub = sd(three_subordinate),
+            n = n()) 
+
+three_one_sequential_effect_size <- three_one_exps_sequential_wide %>%
+  do(data.frame(d = compute.es::mes(.$m_one, .$m_3sub, .$sd_one,
+                     .$sd_3sub, .$n, .$n, verbose = F)$d,
+               d_var = compute.es::mes(.$m_one, .$sd_3sub, .$sd_one,
+                    .$sd_3sub, .$n, .$n, verbose = F)$var.d)) %>%
+  mutate(high = d + (1.96*d_var),
+         low = d - (1.96*d_var),
+         d_string = paste0(d," [", round(low,2), ", ", round(high, 2) , "]"))
+
+```
+
+```{r reveral_plot_response_to_revieers, include = F}
+
+all_exps_by_ordering <- all_d_clean %>%
+  gather(variable, value, c(prop_sub, prop_bas, prop_sup)) %>%
+  mutate(value = as.numeric(value)) %>%
+  filter(variable == "prop_bas") %>%
+  group_by(condition, exp, subids) %>% 
+  summarize(value = mean(value)) %>%
+  left_join(exp_key) %>%
+  group_by(timing, condition, order) %>%
+  multi_boot_standard(col = "value")
+
+# prop basic means fig
+ggplot(all_exps_by_ordering, 
+       aes(x = condition, y = mean, group = timing, fill = timing)) +
+  geom_bar(position = "dodge", stat = "identity") +
+  geom_linerange(aes(ymin = ci_lower, 
+                     ymax = ci_upper), 
+                 position = position_dodge(width = .9)) +
+  facet_grid(.~ order) +
+  ylim(0, 1) +
+  ylab("Prop. basic-level choices") +
+  xlab("ordering") +
+    theme_bw() + 
+  theme(strip.text = element_text(size = 12),
+        axis.text = element_text(size = 12),
+        axis.title = element_text(size = 12),
+        strip.background = element_rect(fill = "grey"),
+        legend.text = element_text(size = 9),
+        legend.title = element_text(size = 10),
+        legend.key.size = unit(.5, "cm"),
+        legend.background =  element_rect(color = "black", size = 0.5)) +
+  ggthemes::scale_fill_solarized()
+```
+
+Our data also suggest that the the 3-1 ordering interacts with trial order: In experiments with the sequential 3-1 ordering (Exp. 10-12), we see a reliable *reversal* of the suspicious coincident effect (*t*(289) = `r t_statistic_3_1`; *p* = `r p_statistic_3_1`; *d* = `r three_one_sequential_effect_size$d_string`). This reversal is attributable to increased generalizations in three-subordinate, sequential condition to the basic level, compared to the three-subordinate, simultaneous condition. Though highly speculative, we hypothesize that this effect may be due to participants' increased uncertainty about the task on the first trial of the experiment, interacting with the added complexity of sequential presentation. This increased uncertainty may have lead participants to be more conservative in their generalizations in three-subordinate trials, leading to increased generalizations to the basic level.
 
 Our findings highlight the influence of seemingly minor experimental design parameters on the observed pattern of data. In the present studies, experiments with the 1-3 versus 3-1 ordering differed by an effect size of `r ES_diff` -- a sizable difference that is likely to invite an unwarranted theoretical explanation. Experimental design parameters are especially important in the context of replication. When conducting a replication of an existing finding, small design parameters may influence the magnitude of the effect [@lewis2016understanding] and even its presence [@phillips2015second]. This sensitivity requires that replicators reproduce the original design with as much fidelity as possible before concluding that an effect fails to replicate. Only then can the effect be explored, and possible confounds and moderators identified. 
 
-Both XT and SPSS's work address an important puzzle in psychological sciences: How do learners acquire learn concepts at multiple levels of abstraction? Our findings here support the idea that they do so via probabilistic inferences about the level of abstraction that is most likely given the observed data (the original "suspicious coincidence" effect). But they also add to the growing body of work suggesting that this effect may arise as a consequence of pragmatic reasoning in language comprehension [@shafto2012,@frank2014,@goodman2016].  Such probabilistic reasoning is likely to play a critical role in learners' ability to make efficient inferences on the basis of sparse linguistic data.
+Both XT and SPSS's work address an important puzzle in psychological sciences: How do learners acquire learn concepts at multiple levels of abstraction? Our findings here support the idea that they do so via probabilistic inferences about the level of abstraction that is most likely given the observed data (the original "suspicious coincidence" effect). But they also add to the growing body of work suggesting that this effect may arise as a consequence of pragmatic reasoning in language comprehension [@shafto2012; @frank2014; @goodman2016].  Such probabilistic reasoning is likely to play a critical role in learners' ability to make efficient inferences on the basis of sparse linguistic data.
 
 \newpage
 
@@ -556,7 +636,6 @@ nocite: |
   @tenenbaum2001
 ...
   
-
 ```{r create_r-references}
 r_refs(file = "r-references.bib")
 ```
