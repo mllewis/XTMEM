@@ -138,7 +138,7 @@ meaning of the novel noun ``dax'' is ambiguous between the subordinate
 meaning (dalmation) and the level meaning (dog). Yet both children and
 adults successfully learn noun meanings at the correct level of
 abstraction from similar evidence. Xu and Tenenbaum (2007a) provided an
-explanation to this apparenty puzzle: Learners assume that examples are
+explanation to this apparent puzzle: Learners assume that examples are
 sampled from the true underlying category (``strong sampling''), making
 certain patterns of examples more consistent with a subordinate meaning
 than others (the ``suspicious coincidence'' effect). More recent work
@@ -254,8 +254,8 @@ to better memory for the specific shared features of the target
 category, and to more narrow generalization at test. Specifically, they
 predicted that better memory for specific shared features should make it
 more likely for participants to generalize to the subordinate level when
-multiple subordinate category exemplars are simultaneously -- precisely
-the suspicious coincidence pattern observed by XT.
+multiple subordinate category exemplars are presented simultaneously--
+precisely the suspicious coincidence pattern observed by XT.
 
 SPSS tested this possibility by replicating the original XT experiments
 with slightly different design parameters. Motivated by their
@@ -266,7 +266,7 @@ more closely reflects the experience of learners in the real world who
 encounter word-object pairings at distinct points in time and space. In
 a series of experiments, SPSS replicated XT's main finding -- more basic
 level generalization with one exemplar than with three exemplars -- with
-simultaneous presentation, but failed to replicate with sequential
+simultaneous presentation, but failed to replicate itnwith sequential
 presentation. In fact, they observed a reversal under sequential
 presentation conditions, such that participants were more likely to
 generalize to the basic level when three subordinate exemplars were
@@ -303,12 +303,12 @@ high level of subordinate generalizations even for the one-exemplar
 trial. We attribute this difference to the fact that, when the
 three-exemplar trials are presented first, participants are aware of the
 exemplars from the previous trial, and therefore do not interpret the
-critical one-exemplar trial as the \emph{only} observed exemplar for the
-target category. In sum, although we replicate SPSS exactly, our full
-set of studies leads us to a different interpretation of the data. We
-conclude that the \enquote{suspicious coincidence} effect is robust to
-sequential presentation. The effect is sensitive to some features of the
-general experimental context, however, suggesting a potential
+critical one-exemplar trial as the \emph{only} observed exemplar from
+the target category. In sum, although we replicate SPSS exactly, our
+full set of studies leads us to a different interpretation of the data.
+We conclude that the \enquote{suspicious coincidence} effect is robust
+to sequential presentation. The effect is sensitive to some features of
+the general experimental context, however, suggesting a potential
 interpretation in terms of the pragmatics of the task.
 
 \section{Methods}\label{methods}
@@ -522,15 +522,16 @@ The key prediction of the suspicious coincidence effect is that
 participants should generalize to the basic level more often in
 one-subordinate trials relative to three-subordinate trials. To measure
 this effect, for each trial, we calculated the proportion
-generalizations to subordinate exemplars within the same category (out
-of 2) and basic exemplars within the same category (out of 2), and
-averaged across categories for each participant. We estimated the
+generalizations to basic exemplars within the same category (out of 2)
+and averaged across categories for each participant. We estimated the
 difference between the one-subordinate and three-subordinate conditions
 by calculating an effect size (Cohen's \emph{d}) for each experiment. We
 then estimated the influence of each our design manipulations on the
 overall effect size by fitting a random-effect meta-analytic model with
-each of our four manipulations as fixed effects. We used the metafor
-package (Viechtbauer, 2010) in R to fit our meta-analytic models.
+each of our four manipulations as fixed effects. The model included both
+the present set of experiments as well as prior experiments by XT and
+SPSS. We used the metafor package (Viechtbauer, 2010) in R to fit our
+meta-analytic models.
 
 \section{Results}\label{results}
 
@@ -601,35 +602,36 @@ The critical difference between the 1-3 and 3-1 ordering was the rate of
 generalization to the basic level in the one exemplar trial: When the
 single exemplar trial occurred second, participants generalized to the
 basic level at a much lower rate than in the reverse order. Why might
-this ordering matter? We speculate that this difference may be due to
-the possibility that learners track exemplar frequency across trials,
-due to the pragmatics of the task. In other words, when the single
-exemplar trial occurs second, learners may have interpreted this as the
+this ordering matter? A probabilistic inference account can explain this
+pattern by assuming that the pragmatics of the task leads learners to
+track exemplar frequency across trials. Under this assumption, when the
+single exemplar trial occurs second, learners may interpret this as the
 \emph{fourth} exemplar from the same subordinate category in a row,
-rather than a single exemplar. This hypothesis predicts that
+rather than as a single exemplar. This account predicts that
 participants should be less likely to generalize to the basic level on
 \enquote{single} exemplar trials compared to three-subordinate trials
 under the 3-1 ordering, thus leading to an elimination of the suspicious
-coincidence effect. We find some evidence to suggest consistent with
-this prediction in an analysis across all experiments with the 3-1
-ordering (\emph{t}(581) = -1.93; \emph{p} = 0.05; \emph{d} = -0.16
-{[}-0.18, -0.14{]}). There is further evidence for this interpretation
-from XT E2 (preschool children), where the suspicious coincidence effect
-was obtained in a between-subject design.
+coincidence effect. We find some evidence consistent with this
+prediction in an analysis across all experiments with the 3-1 ordering
+(\emph{t}(596) = -1.93; \emph{p} = 0.05; \emph{d} = -0.16 {[}-0.18,
+-0.14{]}). There is further evidence for this interpretation from XT E2
+(preschool children), where the suspicious coincidence effect was
+obtained in a between-subject design.
 
 Our data also suggest that the the 3-1 ordering interacts with trial
 order: In experiments with the sequential 3-1 ordering (Exp. 10-12), we
-see a reliable \emph{reversal} of the suspicious coincident effect
+see a reliable reversal of the suspicious coincident effect
 (\emph{t}(289) = -2.61; \emph{p} = 0.01; \emph{d} = -0.3 {[}-0.32,
--0.28{]}). This reversal is attributable to increased generalizations in
-three-subordinate, sequential condition to the basic level, compared to
-the three-subordinate, simultaneous condition. Though highly
-speculative, we hypothesize that this effect may be due to participants'
-increased uncertainty about the task on the first trial of the
-experiment, interacting with the added complexity of sequential
-presentation. This increased uncertainty may have lead participants to
-be more conservative in their generalizations in three-subordinate
-trials, leading to increased generalizations to the basic level.
+-0.28{]}). This reversal is attributable to increased generalizations to
+the basic level in the three-subordinate, sequential condition, compared
+to the three-subordinate, simultaneous condition. Though speculative, we
+hypothesize that this effect may be due to participants' increased
+uncertainty about the task on the first trial of the experiment,
+interacting with the added complexity of sequential presentation (we see
+a trend in the same direction for 1-3 experiments). This increased
+uncertainty may have lead participants to be more conservative in their
+generalizations in three-subordinate trials, leading to increased
+generalizations to the basic level.
 
 Our findings highlight the influence of seemingly minor experimental
 design parameters on the observed pattern of data. In the present
@@ -645,19 +647,20 @@ possible before concluding that an effect fails to replicate. Only then
 can the effect be explored, and possible confounds and moderators
 identified.
 
-Both XT and SPSS's work address an important puzzle in psychological
-sciences: How do learners acquire learn concepts at multiple levels of
+Both XT's and SPSS's work address an important puzzle in psychological
+sciences: How do learners learn concepts at multiple levels of
 abstraction? Our findings here support the idea that they do so via
 probabilistic inferences about the level of abstraction that is most
 likely given the observed data (the original \enquote{suspicious
-coincidence} effect) -- this interpretation is consistent not only with
-the original XT set of findings, but also with the observered trial
-order effects. Our data also add to the growing body of work suggesting
-that this effect may arise as a consequence of pragmatic reasoning in
-language comprehension (Frank \& Goodman, 2014; Goodman \& Frank, 2016;
-Shafto et al., 2012). Such probabilistic reasoning is likely to play a
-critical role in learners' ability to make efficient inferences on the
-basis of sparse linguistic data.
+coincidence} effect). Importantly, by assuming that trials are
+non-independent, our interpretation is consistent not only with the
+original XT set of findings, but also with the observed trial order
+effects. Our data add to the growing body of work suggesting that this
+effect may arise as a consequence of pragmatic reasoning in language
+comprehension (Frank \& Goodman, 2014; Goodman \& Frank, 2016; Shafto et
+al., 2012). Such probabilistic reasoning is likely to play a critical
+role in learners' ability to make efficient inferences on the basis of
+sparse linguistic data.
 
 \newpage
 

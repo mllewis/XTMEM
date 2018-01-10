@@ -1,7 +1,7 @@
-# Save effect sizes from XT2007 and SPSS2 as csv 
+### Get XT2007 and SPSS2 ES ###
+# Save effect sizes from XT2007 and SPSS2 as csv (literature_ES.csv)
 
-rm(list = ls())
-
+# load libraries
 library(tidyverse)
 library(forcats)
 
@@ -15,9 +15,9 @@ literature_effect_sizes <- data.frame(exp_recoded = c("XT_adults_e1",
                                                       "SPSS_eS2"),
                                       one_means = c(76, 40, 48.24, 30.83, 39.91, 24.56, 15.79), 
                                       three_means = c(9, 6, 10.53, 53.33, 51.75, 16.67, 11.40),
-                                      one_sd = c(40.40, 40.40, 40.40,37.18,35.20,32.09,24.51),
-                                      three_sd = c(24.97, 24.97, 24.97,36.11,42.63,25.45,24.25),
-                                      n = c(22, 36, 19, 20, 19,19,19))
+                                      one_sd = c(40.40, 40.40, 40.40, 37.18, 35.20, 32.09, 24.51),
+                                      three_sd = c(24.97, 24.97, 24.97, 36.11, 42.63, 25.45, 24.25),
+                                      n = c(22, 36, 19, 20, 19, 19, 19))
 
 # Calculate previous effect sizes from literature.
 literature_effect_sizes$d <- compute.es::mes(literature_effect_sizes$one_means/100,
@@ -36,8 +36,8 @@ literature_effect_sizes$d_var <- compute.es::mes(literature_effect_sizes$one_mea
                                      verbose = F)$var.d
 
 literature_effect_sizes <- literature_effect_sizes %>%
-  mutate(high = d + (1.96*d_var),
-         low = d - (1.96*d_var)) %>%
+  mutate(high = d + (1.96 * d_var),
+         low = d - (1.96 * d_var)) %>%
   select(-one_means, -three_means, -one_sd, -three_sd) 
 
 write_csv(literature_effect_sizes, "../data/literature_ES.csv")

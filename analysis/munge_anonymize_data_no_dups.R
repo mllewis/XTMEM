@@ -1,12 +1,24 @@
-# get one dataframe (all experiments) with duplicate participants removed
+### get one dataframe (all experiments) with duplicate participants removed (no_dups_data_munged_A.csv) ###
 
-# load libraries and pacakges
-source("useful_ML.R")
+# define number of experiments in total
+NUMEXPS <- 12
+
+# load libraries 
 library(tidyverse) 
 library(jsonlite)
 library(stringr)
 
-NUMEXPS <- 12
+# function to anonymize subject ids by giving them a value 1:num_subjects
+anonymize.sids <- function(df, subject_column_label) {
+  subj_col = which(names(df) == subject_column_label) # get workerid column index
+  temp <- data.frame(workerid = unique(df[,subj_col])) # make new df of unique workerids
+  temp$subid <- 1:length(unique(df[,subj_col])) # make list of subids
+  index <- match(df[,subj_col], temp$workerid) 
+  df$subids <- temp$subid[index]
+  df[,subj_col] <- NULL 
+  df$subids  = as.factor(df$subids)
+  return(df)
+}
 
 d = data.frame()
 for (j in 1:NUMEXPS){
@@ -75,8 +87,6 @@ d_filtered_anonymized_long_munged_clean <- d_filtered_anonymized_long_munged %>%
   mutate(only_responded_with_target_category = as.factor(if_else(n_unique == 1 & first_cat == cat_num, 
                                                                  "only_target", "other")))
 
-
-
-
-write_csv(d_filtered_anonymized_long_munged_clean, "../data/anonymized_data/no_dups_data_munged_A.csv")
+# write to csv
+# write_csv(d_filtered_anonymized_long_munged_clean, "../data/anonymized_data/no_dups_data_munged_A.csv")
 
