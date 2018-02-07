@@ -6,6 +6,8 @@
 *.rdb
 *.rdx
 *.Rhistory
+*.httr-oauth
+*xtmem.tex
 
 resources/goldberg_blowfish.pdf
 
