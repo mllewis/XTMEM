@@ -7,6 +7,6 @@ The file `paper/xtmem.Rmd` contains all of the text of the paper and the analsyi
 
 Below is a key figure from the paper showing that the rate of generalization to the basic level of abstraction under various experimental conditions.
 
-![]paper/figs/barplot.png?raw=true)
+![](paper/figs/barplot.png?raw=true)
 
 Feel free to email me with questions and comments at mollyllewis@gmail.com.
