@@ -1,11 +1,11 @@
-### Get XT2007 and SPSS2 ES ###
-# Save effect sizes from XT2007 and SPSS2 as csv (literature_ES.csv)
+### Get XT2007 and SPSS ES ###
+# Save effect sizes from XT2007 and SPSS2011 as csv (data/literature_ES.csv)
 
 # load libraries
 library(tidyverse)
 library(forcats)
 
-#  Here are the means and sd based on SPSS table 1 (includes XT)
+#  Here are the means and sd based on SPSS2011 Table 1 (includes XT)
 literature_effect_sizes <- data.frame(exp_recoded = c("XT_adults_e1",
                                                       "XT_children_e2",
                                                       "SPSS_e1",

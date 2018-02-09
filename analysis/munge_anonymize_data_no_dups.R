@@ -1,4 +1,5 @@
-### get one dataframe (all experiments) with duplicate participants removed (no_dups_data_munged_A.csv) ###
+### get one dataframe (all experiments) with duplicate participants removed
+## (data/no_dups_data_munged_A.csv)
 
 # define number of experiments in total
 NUMEXPS <- 12

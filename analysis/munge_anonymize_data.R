@@ -1,7 +1,7 @@
 ### Pre-processing script for XTMEM analysis ###
 # Merge raw data from all 12 experiments into single dataframe, 
-# anonymize, and save as csv (all_raw_A.csv).
-# Also saves munged form of data as csv (all_data_munged_A.csv).
+# anonymize, and save as csv (data/anonymized_data/all_raw_A.csv).
+# Also saves munged form of data as csv (data/anonymized_data/all_data_munged_A.csv).
 
 # define number of experiments in total
 NUMEXPS <- 12
@@ -23,7 +23,7 @@ anonymize.sids <- function(df, subject_column_label) {
   return(df)
 }
 
-############# save csv of merged, anaonymized data ################
+############# save csv of merged, anonymized data ################
 # read in and process data
 d_raw <- data.frame()
 for (j in 1:NUMEXPS){
@@ -58,13 +58,13 @@ d_anonymized_long <-  d_anonymized %>%
 d_anonymized_long_munged <-  d_anonymized_long %>%
   select(exp, subids, trial_num, category, condition, selected) %>%
   mutate(selected_cat = lapply(str_split(selected, ","), 
-                               function(x) {str_sub(x, 2, 2)}),
+                               function(x) {str_sub(x, 2, 2)}), # category number of each selected item (1-3)
          selected = lapply(str_split(selected, ","), 
-                           function(x) {str_sub(x, 4, 6)})) %>%
+                           function(x) {str_sub(x, 4, 6)})) %>%  # category level type of each selected item (basic, superordinate, or subordinate)
   rowwise() %>%
   mutate(n_unique_selected_cat = length(unique(unlist(selected_cat))), # exemplars from how many categories were selected?
          first_cat = unlist(selected_cat)[1],
-         cat_num = if_else(category == "animals", 3, 
+         cat_num = if_else(category == "animals", 3, # target category number of trial
                            if_else(category == "vehicles", 2, 1)),
          selected_filtered = list(lapply(selected_cat, function(x, y) {x == y[1]}, cat_num)), # test whether selections were in category
          selected_in_cat = list(unlist(selected)[unlist(selected_filtered)])) %>%
@@ -77,8 +77,9 @@ d_anonymized_long_munged_clean <- d_anonymized_long_munged %>%
          prop_bas = unlist(lapply(selected_in_cat, function(x){sum(x == "bas")/2})),
          prop_sup = unlist(lapply(selected_in_cat, function(x){sum(x == "sup")/4}))) %>%
   select(-selected, -selected_cat, -selected_in_cat, -selected_filtered) %>%
-  mutate(only_responded_with_target_category = # code whether participant only selected target exemplars on trial 
-           as.factor(if_else(n_unique_selected_cat == 1 & first_cat == cat_num, "only_target", "other")))
+  mutate(only_responded_with_target_category = # code whether participant only selected target category exemplars on trial 
+           if_else(n_unique_selected_cat == 1 & first_cat == cat_num, "only_target", "other"),
+         only_responded_with_target_category = as.factor(only_responded_with_target_category))
 
 # write to csv
 # write_csv(d_anonymized_long_munged_clean, "../data/anonymized_data/all_data_munged_A.csv")

@@ -99,12 +99,12 @@ all_d_filtered <- read_csv("../data/anonymized_data/no_dups_data_munged_A.csv")
 
 ### key to experiment factors
 exp_key <- read_csv("../data/experiment_key.csv") %>%
-              mutate(order = gsub("\"", "", order), # this is to deal with excel issues
+              mutate(order = gsub("\"", "", order), # this deals with excel issues
                      exp = as.character(exp)) %>%
               select(-preregistered) 
 ```
 
-```{r, get_n_unique_participants}
+```{r get_n_unique_participants}
 n_unique <- all_d_filtered %>%
   distinct(exp, subids) %>%
   summarize(n = n())
@@ -122,9 +122,9 @@ We determined our sample size on the basis of a pre-registered power calculation
 
 ## Stimuli
 
-Our picture stimuli were gathered on the internet, and closely resembled that of XT and SPSS. The linguistic stimuli were 12 one-syllable novel labels (e.g., "wug"), and the referent objects were three sets of 15 pictures from different basic level categories (vegetables, vehicles, and animals). Within each category, five were subordinate exemplars (e.g., green peppers), four were basic level exemplars (e.g., peppers), and six were superordinate exemplars (e.g., vegetables; Fig.\ 1). The exemplars were divided into a learning and generalization set. For each category, the learning set consisted of 3 subordinate, 2 basic, and 2 superordinate pictures presented in different combinations on different trials (see Procedure). The generalization set for each category consisted of the remaining 8 pictures. The learning and generalization sets were the same for all participants.
+Our picture stimuli were gathered on the internet, and closely resembled that of XT and SPSS. The linguistic stimuli were 12 one-syllable novel labels (e.g., "wug"), and the referent objects were three sets of 15 pictures from different basic level categories (vegetables, vehicles, and animals). Within each category, five were subordinate exemplars (e.g., green peppers), four were basic level exemplars (e.g., peppers), and six were superordinate exemplars (e.g., vegetables; Fig.\ 1). The exemplars were divided into learning and generalization sets. For each category, the learning set consisted of 3 subordinate, 2 basic, and 2 superordinate pictures presented in different combinations on different trials (see Procedure). The generalization set for each category consisted of the remaining 8 pictures. The learning and generalization sets were the same for all participants.
 
-```{r, out.width = "90%", fig.align = "center", fig.cap = "Sample learning and generalization sets. On a given trial, participants saw one or three exemplars of the same level from the learning set, followed by all exemplars from the generalization set (along with the generalization sets from the other categories)."}
+```{r stim_fig, out.width = "90%", fig.align = "center", fig.cap = "Sample learning and generalization sets. On a given trial, participants saw one or three exemplars of the same level from the learning set, followed by all exemplars from the generalization set (along with the generalization sets from the other categories)."}
  
 include_graphics("figs/stim.pdf")
 ```
@@ -187,7 +187,7 @@ Presentation timing was the key, theoretically motivated experimental design dif
 We reproduced these design aspects in the simultaneous and sequential versions of our experiments. In the single-exemplar, sequential trials, the exemplar appeared (1s) and disappeared (1s) for three repetitions.\footnote{Our implementation of the sequential design differed slightly from the SPSS design, which did not not include a 1s interval between exemplar presentations.} The generalization pictures did not appear in the sequential condition until after the training pictures had appeared for 6 seconds, but remained visible as participants selected generalization exemplars.
 
 
-```{r}
+```{r exp_table}
 exp_table <- exp_key %>%
   slice(1:12) %>%
   left_join(LF_effect_sizes) %>%
@@ -219,7 +219,7 @@ In XT E1, the three one-subordinate trials occurred first followed by all other 
 
 ### Labels
 
-```{r violin_plot, include = FALSE}
+```{r violin_plot_response_to_reviewers, include = FALSE}
 ms_recoded <- ms %>%
   left_join(exp_key) %>%
   ungroup()  %>%
@@ -253,7 +253,7 @@ ggplot(ms_recoded,  aes(x = exp_recoded, y = value, fill = condition)) +
 ```
 
 
-```{r fig.height = 3, fig.cap = "Mean proportion generalizations to basic level exemplars in the one (blue) and three (red) subordinate exemplar conditions for all 12 of our experiments. Each facet corresponds to a pairing of presentation timing (simultaneous vs. sequential) and trial order (1-3 vs. 3-1). Ranges are bootstrapped 95% confidence intervals."}
+```{r bar_plot, fig.height = 3, fig.cap = "Mean proportion generalizations to basic level exemplars in the one (blue) and three (red) subordinate exemplar conditions for all 12 of our experiments. Each facet corresponds to a pairing of presentation timing (simultaneous vs. sequential) and trial order (1-3 vs. 3-1). Ranges are bootstrapped 95% confidence intervals."}
 
 # mean across participants with CIS (condition means)
 LF_means_long <- ms %>%
@@ -300,7 +300,6 @@ ggplot(LF_means_long_recoded,
   ggthemes::scale_fill_solarized()
 ```
 
-
 XT used the same label for each category for the three-subordinate and one-subordinate trials (e.g., both the single pepper and the three-pepper trials would be called "wug"; "same"). In contrast, SPSS used a different novel label on each of the 12 trials, such that the three-subordinate and one-subordinate trials were referred to with distinct labels ("different"). We reproduced these two design choices, and also randomized the mapping of labels to categories across trials.
 
 ### Blocking
@@ -320,10 +319,11 @@ all_es <- literature_effect_sizes %>%
                    source = fct_relevel(source, "XT2007a","SPSS2011","LF"),
                    source = as.numeric(source),
                    source = ifelse(source == 2, 3, 
-                                   ifelse(source == 3, 5, source)), # playing with scale in plot below
+                                   ifelse(source == 3, 5, source)), # plot scale
                    timing = fct_relevel(timing,"simultaneous", "sequential"),
                    blocking = fct_recode(blocking, "pseudo-random" = "random"),
-                   d_string = paste0(d," [", round(low,2), ", ", round(high, 2) , "]"))
+                   d_string = paste0(d," [", round(low,2), ", ", 
+                                     round(high, 2) , "]"))
 ```
 
 ```{r get_MA_es}
@@ -342,7 +342,7 @@ ma_es <- data.frame(
 ```
 
 
-```{r fig.width=5.5, fig.height=3.5, fig.cap = "Effect sizes for all 19 studies conducted on the suspicious coincidence effect by XT (Xu & Tenenbaum, 2007a), SPSS (Spencer, et al, 2011), and the current authors. Each point corresponds to a study, with study authors on the x-axis and effect size on the y-axis. Facets correspond to different design parameters: Top facets show experiments with single exemplar trial  first (1-3); Bottom facets show experiments with single exemplar trial second (3-1); Left facets show experiments with simultaneous presentation of exemplars, as in XT; Right facets show experiments with sequential presentation of exemplars, as in SPSS. Point color indicates whether the single exemplar and three subordinate exemplars received the same (grey) or different (black) label. Point shape indicates whether trials were blocked by category (circle) or pseudo-random (triangle).  The red line reflects the meta-analytic estimate of the effect size (for the XT experiments, standard deviations on effect sizes are estimated from the SPSS replication). All ranges are 95% confidence intervals. Points are jittered along the x-axis for visibility."}
+```{r es_plot, fig.width=5.5, fig.height=3.5, fig.cap = "Effect sizes for all 19 studies conducted on the suspicious coincidence effect by XT (Xu & Tenenbaum, 2007a), SPSS (Spencer, et al, 2011), and the current authors. Each point corresponds to a study, with study authors on the x-axis and effect size on the y-axis. Facets correspond to different design parameters: Top facets show experiments with single exemplar trial  first (1-3); Bottom facets show experiments with single exemplar trial second (3-1); Left facets show experiments with simultaneous presentation of exemplars, as in XT; Right facets show experiments with sequential presentation of exemplars, as in SPSS. Point color indicates whether the single exemplar and three subordinate exemplars received the same (grey) or different (black) label. Point shape indicates whether trials were blocked by category (circle) or pseudo-random (triangle).  The red line reflects the meta-analytic estimate of the effect size (for the XT experiments, standard deviations on effect sizes are estimated from the SPSS replication). All ranges are 95% confidence intervals. Points are jittered along the x-axis for visibility."}
 
 # manual x-axis jittering
 OFFSET <- .35
@@ -356,7 +356,7 @@ all_es2 <- all_es %>%
          source = replace(source, exp_recoded == "8", 5 - OFFSET),
          source = replace(source, exp_recoded == "9", 5 + OFFSET), # 7
          source = replace(source, exp_recoded == "4", 5 - OFFSET),
-         source = replace(source, exp_recoded == "5", 5 + OFFSET), #6
+         source = replace(source, exp_recoded == "5", 5 + OFFSET), # 6
          source = replace(source, exp_recoded == "10", 5 - OFFSET),
          source = replace(source, exp_recoded == "11", 5 + OFFSET)) # 12
   
@@ -364,7 +364,8 @@ all_es2 <- all_es %>%
 all_es2 %>%
     mutate(timing = fct_recode(timing, `sequential timing` = "sequential", 
                               `simultaneous timing` =  "simultaneous"),
-            order = fct_recode(order, `1-3 trial order` = "1-3", `3-1 trial order` = "3-1")) %>%
+            order = fct_recode(order, `1-3 trial order` = "1-3",
+                               `3-1 trial order` = "3-1")) %>%
   ggplot() +
   geom_rect(aes(xmin = -Inf, xmax = Inf, ymin = d_low, ymax = d_high), 
             fill = "red", alpha = 0.05, inherit.aes = FALSE, data = ma_es) +
@@ -380,8 +381,10 @@ all_es2 %>%
                      labels = c("XT","SPSS","LF")) +
   ylab(expression(paste("Cohen's ", italic("d")))) +
   xlab("Paper") + 
-  guides(color = guide_legend( "Label", title.theme = element_text(size = 9, angle = 0)),
-         shape = guide_legend( "Blocking", title.theme = element_text(size = 9, angle = 0)))  +
+  guides(color = guide_legend( "Label", 
+                               title.theme = element_text(size = 9, angle = 0)),
+         shape = guide_legend( "Blocking", 
+                               title.theme = element_text(size = 9, angle = 0)))  +
   ggthemes::theme_few()  +
   theme(axis.text = element_text(colour = "black"),
         axis.ticks = element_line(colour = "black"),
@@ -398,7 +401,7 @@ The key prediction of the suspicious coincidence effect is that participants sho
 Figure 1 shows the mean proportion generalizations to the basic level in the one- and three-subordinate trials for all 12 experiments,\footnote{See SI for means across all measures and conditions.} and Figure 2 shows the corresponding effect sizes (with XT and SPSS experiments included for reference). 
 
 
-```{r}
+```{r ma_models}
 # ma model
 mod <- metafor::rma(d ~ timing + order + one_3sub_label + blocking, d_var, dat = all_es)
 # mod_interact <- metafor::rma(d ~ timing*order, d_var, dat = all_es)
@@ -620,7 +623,7 @@ ggplot(all_exps_by_ordering,
   ggthemes::scale_fill_solarized()
 ```
 
-Our data also suggest that the 3-1 ordering interacts with presentation timing: In experiments with the 3-1 ordering and sequential presentation (Exp.\ 10-12), we see a reliable reversal of the suspicious coincident effect (*t*(`r ceiling(t_test_three_one_sequential$parameter)`) = `r t_statistic_3_1_seq`; *p* = `r p_statistic_3_1_seq`; *d* = `r three_one_sequential_effect_size$d_string`). This reversal is attributable to increased generalizations to the basic level when the three subordinate trials are presented sequentially (Exp.\ 10-12) compared to simultaneously (Exp.\ 4-6). Though speculative, we hypothesize that this difference may be due to the fact that sequential presentation conditions may have appeared relatively more complex to participants compared to simultaneous presentation conditions, resulting in higher overall uncertainty in generalization jugdements. We speculate that this increased uncertainty may have lead participants to be more likely to generalize conservatively---at the basic level---on the first trial when exemplars were presented sequentially as opposed to simultaneously. 
+Our data also suggest that the 3-1 ordering interacts with presentation timing: In experiments with the 3-1 ordering and sequential presentation (Exp.\ 10-12), we see a reliable reversal of the suspicious coincident effect (*t*(`r ceiling(t_test_three_one_sequential$parameter)`) = `r t_statistic_3_1_seq`; *p* = `r p_statistic_3_1_seq`; *d* = `r three_one_sequential_effect_size$d_string`). This reversal is attributable to increased generalizations to the basic level when the three subordinate trials are presented sequentially (Exp.\ 10-12) compared to simultaneously (Exp.\ 4-6). Though speculative, we hypothesize that this difference may be due to the fact that sequential presentation conditions may have appeared relatively more complex to participants compared to simultaneous presentation conditions, resulting in higher overall uncertainty in generalization judgements. This increased uncertainty may have lead participants to be more likely to generalize conservatively---at the basic level---on the first trial when exemplars were presented sequentially as opposed to simultaneously. 
 
 Our findings highlight the influence of seemingly minor experimental design parameters on the observed pattern of data. In the present studies, experiments with the 1-3 versus 3-1 ordering differed by an effect size of `r ES_diff` -- a sizable difference that is likely to invite an unwarranted theoretical explanation. Experimental design parameters are especially important in the context of replication. When conducting a replication of an existing finding, small design parameters may influence the magnitude of the effect [@lewis2016understanding] and even its presence [@phillips2015second]. This sensitivity requires that replicators reproduce the original design with as much fidelity as possible before concluding that an effect fails to replicate. Only then can the effect be explored, and possible confounds and moderators identified. 
 
