@@ -71,7 +71,7 @@ d_filtered_anonymized_long_munged = d_filtered_anonymized_long %>%
          selected = lapply(str_split(selected, ","), 
                            function(x) {str_sub(x, 4, 6)})) %>%
   rowwise() %>%
-  mutate(n_unique = length(unique(unlist(selected_cat))),
+  mutate(n_unique_selected_cat = length(unique(unlist(selected_cat))),
          first_cat = unlist(selected_cat)[1],
          cat_num = if_else(category == "animals", 3, 
                            if_else(category == "vehicles", 2, 1)),
