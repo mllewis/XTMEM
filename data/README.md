@@ -1,6 +1,6 @@
 ### Codebook for XTMEM data
 
-`experiment_key.csv` - The experiments are presented in the paper in a different order than we conducted them. This file maps the original experiment numbers to the paper numbers, and described the experimental parameters of each experiment. It also includes experimental parameters for the set of previous studies by SPSS and XT. 
+[1] `experiment_key.csv` - The experiments are presented in the paper in a different order than we conducted them. This file maps the original experiment numbers to the paper numbers, and described the experimental parameters of each experiment. It also includes experimental parameters for the set of previous studies by SPSS and XT. 
 
 	* exp - original experiment number.
 	* exp_recoded - experiment number in paper
@@ -11,7 +11,7 @@
 	* direct_replication_of - corresponding replication study
 	* preregistered - was the study preregistered?
 
-`literature_ES.csv` - output of get_literature_ES.R. Calculated effect sizes for the 7 prior experiments in the literature.
+[2] `literature_ES.csv` - output of `get_literature_ES.R`. Calculated effect sizes for the 7 prior experiments in the literature.
 
 	* exp_recoded - experiment number in paper
 	* n - number of participants
@@ -19,7 +19,7 @@
 	* d_var - variance on d
 	* high/low - 95% CI
 
-`anonymized/all_raw_A.csv` - output of munge_anonymize_data.R. It is the data from all 12 experiments in the rawest form. The only processing that has been done on this data is binding files from all the experiments together, adding an experiment id column, and anonymizing the subject ids. Each row corresponds to one participant.
+[3] `anonymized/all_raw_A.csv` - output of `analysis/munge_anonymize_data.R`. It is the data from all 12 experiments in the rawest form. The only processing that has been done on this data is binding files from all the experiments together, adding an experiment id column, and anonymizing the subject ids. Each row corresponds to one participant.
 
 	* ApprovalTime/AutoApprovalTime/AssignmentId/HITId/Assignment/AssignmentStatus - misc turk variables
 	* AcceptTime/SubmitTime - actual time of acceptance and completetion of the task
@@ -34,7 +34,7 @@
 	* enjoyment/asses/comments - post-task questions (Did you enjoy the task?/Were you confused?)
 	* gender/age/language/education/ - post-task demographic questions
 
-`anonymized/all_data_munged_A.csv` - output of munge_anonymize_data.R. This file contains all the data processed into long form so that each row corresponds to one trial. This is the file that is used in data analysis.
+[4] `anonymized/all_data_munged_A.csv` - output of `analysis/munge_anonymize_data.R`. This file contains all the data processed into long form so that each row corresponds to one trial. This is the file that is used in data analysis.
 
 	* exp - original experiment number
 	* subid - anonymized subject id
@@ -49,5 +49,5 @@
 	* prop_sup - proportion superordinate pictures selected out of 4
 	* only_responded_with_target_category - Were the selections only from the target category?
 
-`anonymized/no_dups_data_munged_A.csv` - output of munge_anonymize_data_no_dups.R. This is the same as all_data_munged_A.csv, except that duplicate participants have been removed.
+[5] `anonymized/no_dups_data_munged_A.csv` - output of `analysis/munge_anonymize_data_no_dups.R`. This is the same as all_data_munged_A.csv, except that duplicate participants have been removed.
 
