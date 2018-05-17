@@ -195,7 +195,7 @@ es_1_calc <- all_d %>%
          condition = fct_recode(condition, "1 subordinate" = "1 sub.",
                                           "3 subordinate" = "3 sub."))
 
-kable(es_1_calc, digits = 2, col.names = c("Condition", "Mean", "Variance", "Sample Size")) 
+kable(es_1_calc, digits = 2, col.names = c("condition", "mnean", "variance", "sample Size")) 
 ```
 
 We then calculate Cohen's *d* as follows: 
@@ -386,8 +386,16 @@ shinyApp(
         ggtitle("Effect size (Cohen's d) by category") +
         ylim(-.5, 1.7)+
         ylab("Cohen's d") +
-        ggthemes::theme_few()  +
-        theme(text = element_text(size = 17),
+          theme_bw()  +
+  theme(axis.text = element_text(colour = "black"),
+        axis.ticks = element_line(colour = "black"),
+        strip.text = element_text(size = 9, face = "bold"),
+        strip.background = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        panel.border = element_rect(colour = "black", size=.7),
+        text = element_text(size = 17),
               legend.position = "none") +
         ggtitle(paste0("Experiment #", input$expnum))
     })
@@ -495,7 +503,15 @@ ggplot(all_es) +
   xlab("Paper") + 
   guides(color = guide_legend("Label"),
          shape = guide_legend("Blocking"))  +
-  ggthemes::theme_few()
+  theme_bw()  +
+  theme(axis.text = element_text(colour = "black"),
+        axis.ticks = element_line(colour = "black"),
+        strip.text = element_text(size = 9, face = "bold"),
+        strip.background = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        panel.border = element_rect(colour = "black", size=.7))
 
 ```
 
@@ -616,7 +632,15 @@ ggplot(all_es) +
   xlab("Paper") + 
   guides(color = guide_legend("Label"),
          shape = guide_legend("Blocking"))  +
-  ggthemes::theme_few()
+  theme_bw()  +
+  theme(axis.text = element_text(colour = "black"),
+        axis.ticks = element_line(colour = "black"),
+        strip.text = element_text(size = 9, face = "bold"),
+        strip.background = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        panel.border = element_rect(colour = "black", size=.7))
 
 ```
 
@@ -762,7 +786,15 @@ ggplot(raw_d_mungedT,
   xlab("Experiment") +
   ggtitle("Task time")+
   geom_boxplot() +
-  ggthemes::theme_few()  
+  theme_bw()  +
+  theme(axis.text = element_text(colour = "black"),
+        axis.ticks = element_line(colour = "black"),
+        strip.text = element_text(size = 9, face = "bold"),
+        strip.background = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        panel.border = element_rect(colour = "black", size=.7))
 ```
 
 **References**

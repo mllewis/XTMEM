@@ -57,6 +57,18 @@ library(stringr)
 library(forcats)
 library(knitr)
 library(kableExtra)
+
+# XTMEM to do
+# Things to fix manually in tex:
+# - reverse a and b of tenabuam 2007 files in bibliography
+# - fix figure names "#fig_xxx"
+# - check script again
+# - do somethign with this sentence: - "recent generalizions of strong sampling models to describe pragmatic inferences." - what does this mean?
+# read through
+# - FIX ES calculations in SI and redeploty
+# - read through
+
+
 ```
 
 ```{r global_options, include = FALSE}
@@ -387,7 +399,6 @@ es_fig +
         panel.background = element_blank(),
         panel.border = element_rect(colour = "black", size=.7))
 ```
-
 
 ## Data analysis
 
