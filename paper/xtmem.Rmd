@@ -66,6 +66,32 @@ knitr::opts_chunk$set(warning = FALSE,
                       fig.pos = "t!")
 ```
 
+```{r printing_helpers}
+get_ma_df <- function(model, term_names){
+ data.frame(fixed_effect = term_names,
+                      beta_string = paste0(round(model$beta, 2), 
+                                        " [", round(model$ci.lb, 2), ", "
+                                  , round(model$ci.ub,2) , "]"),
+                      zval = model$zval,
+                      pval_string = round(model$pval, 2)) %>%
+          mutate(pval_string = ifelse(pval_string == 0, "<.0001", 
+                                      paste0(" = ", pval_string)))
+}
+
+get_ma_term_string <- function(model_df, term){
+  model_df %>%
+     filter(fixed_effect == term) %>%
+       mutate(beta = str_split(beta_string, " ")[[1]][[1]],
+              zval = round(zval, 2),
+              full_string = paste0(" = ", beta, "; *Z* = ", zval,
+                                                  "; *p* ", pval_string)) %>%
+              select(full_string) %>%
+    unlist(use.names = F)
+}
+
+
+```
+
 
 Suppose you are learning a new language and someone tells you that a particular kind of chili pepper is called a "cabai." Does "cabai" mean "chili pepper," "pepper," or "vegetable"? The same object can be referred to by many different labels depending on the level of abstraction -- subordinate (chili), basic level (pepper), or superordinate (vegetable) -- that the speaker wishes to convey. In principle, this ambiguity could pose a challenge for language learners: Even though "cabai" means "chili," in nearly every individual case where "chili" can be used, the speaker could also have been saying "pepper." Yet, despite the apparent difficulty of the learning problem, children are able to quickly and successfully learn the meanings of words at multiple levels of abstraction [@markman1990constraints; @waxman1992beyond; @waxman1991establishing]. 
 
@@ -73,7 +99,7 @@ Like adults, young children have a bias to both interpret and use words at the b
 
 Xu and Tenenbaum (2007a; henceforth XT) provide an account of how learners might make appropriate generalizations in word learning, particularly at the subordinate level. They observe that, if "cabai" meant pepper, it would be quite odd for a learner to see several independent examples of a "cabai" that all happened to be chili peppers. Why not a bell pepper? This "suspicious coincidence" might provide evidence that the meaning of "cabai" instead was the narrower subordinate meaning, chili. Formally, this observation emerges from *strong sampling* (Tenenbaum & Griffiths, 2001), the idea that examples of "cabai" are sampled from within the extension of the corresponding concept. So if the word means "pepper," the likelihood of observing a chili pepper three times in a row is low, whereas if the word means "chili" the corresponding likelihood is higher. 
 
-One prediction of this model of generalization is that observing more word-object pairs should make a learner more likely to generalize to the subordinate level, as opposed to the basic level. Using a paradigm similiar to @waxman1990, XT directly tested this prediction by providing adults and children with novel words paired with exemplars at the subordinate level, and found that both groups' generalizations narrowed when they observed three exemplars compared with when they observed only one. This finding was supported by another concurrent set of experiments that suggested that such narrowing was only observed when examples were chosen by an informative teacher [@xu2007b;@lewis2016understanding]. 
+One prediction of this model of generalization is that observing more word-object pairs should make a learner more likely to generalize to the subordinate level, as opposed to the basic level. Using a paradigm similar to @waxman1990, XT directly tested this prediction by providing adults and children with novel words paired with exemplars at the subordinate level, and found that both groups' generalizations narrowed when they observed three exemplars compared with when they observed only one. This finding was supported by another concurrent set of experiments that suggested that such narrowing was only observed when examples were chosen by an informative teacher (Xu & Tenenbaum 2007b; Lewis & Frank, 2016). 
 
 These findings have been an important part of a re-evaluation of children's ability to make complex inferences from sparse data, provided the data are produced by an informative sampling process [e.g., strong sampling; @shafto2012]. Children make inferences about ambiguous reference based on the idea that referential descriptions are produced via strong sampling [@frank2014;@horowitz2016]. Subsequent work has found that toddlers' non-linguistic generalization is also consistent with sensitivity to sampling [@xu2009;@gweon2010]. And strong sampling has been used to justify the narrowed generalizations made by preschoolers in pedagogical contexts [@bonawitz2011]. 
 
@@ -181,7 +207,7 @@ Participants were first introduced to a picture of a character ("Mr. Frog") and 
 
 There were four trial types distinguished by the number and semantic level of the learning exemplars: one subordinate exemplar, three subordinate exemplars, three basic exemplars, and three superordinate exemplars. Each participant completed each trial type for each of the three stimulus categories (vegetables, vehicles, and animals). 
 
-Across 12 experiments, we manipulated four aspects of the trial design that differed between XT and SPSS (summarized in Table 1): Presentation timing (simultaneous vs. sequential), trial order (1-3 vs. 3-1), label (same vs. different), and blocking (blocked vs. pseudo-random).\footnote{All experiments can be viewed directly in the SI.}. Our set of experiments does not include all possible combinations of these design factors, but all levels are tested in at least one experiment. We describe each of these factors in more detail below.
+Across 12 experiments, we manipulated four aspects of the trial design that differed between XT and SPSS (summarized in Table 1): Presentation timing (simultaneous vs. sequential), trial order (1-3 vs. 3-1), label (same vs. different), and blocking (blocked vs. pseudo-random).\footnote{All experiments can be viewed directly in the SI.} Our set of experiments does not include all possible combinations of these design factors, but all levels are tested in at least one experiment. We describe each of these factors in more detail below.
 
 ### Presentation Timing
 
@@ -221,40 +247,6 @@ kable(exp_table, align = c('c', 'r', 'r', 'r', "r", "r", "r", "r"),
 In XT E1, the three one-subordinate trials occurred first followed by all other trial types ("1-3").\footnote{XT E2 used a between-subject design.} In contrast, in the main experiments in SPSS (E2 and E3), the three-subordinate trials occurred first ("3-1"). SPSS's replication of XT's simultaneous design (SPSS E1) showed a single block of either one-subordinate or three-subordinate first (randomized). In supplemental experiments (ES1 and ES2), SPSS directly explored whether trial order influenced the effect size by replicating SPSS E1 with three subordinate trials followed by the single subordinate trials.
 
 ### Labels
-
-```{r violin_plot_response_to_reviewers, include = FALSE}
-ms_recoded <- ms %>%
-  left_join(exp_key) %>%
-  ungroup()  %>%
-  mutate(exp_recoded = fct_relevel(exp_recoded, as.character(1:12)),
-            condition2 = paste(timing, order),
-            condition2 = fct_recode(condition2, "sequential \n1-3 order" = "sequential 1-3", 
-                                                   "simultaneous \n1-3 order" = "simultaneous 1-3",
-                                                   "sequential \n3-1 order" = "sequential 3-1",
-                                                   "simultaneous \n3-1 order" = "simultaneous 3-1"),
-            condition2 = fct_relevel(condition2, c("simultaneous \n1-3 order", 
-                                                   "simultaneous \n3-1 order",
-                                                   "sequential \n1-3 order", 
-                                                    "sequential \n3-1 order")),
-            condition = fct_recode(condition,  "three" = "three_subordinate"),
-            condition = fct_relevel(condition, c("one", "three")))
-  
-ggplot(ms_recoded,  aes(x = exp_recoded, y = value, fill = condition)) +
-  geom_jitter(size = .2) +
-  geom_violin(alpha = .6) +
-  facet_grid(. ~ condition2, scales = "free", drop = TRUE,  space = "free_x") +
-  ylab("Prop. basic-level choices") +
-  xlab("Experiment") +
-  theme_bw() + 
-  theme(strip.text = element_text(size = 10),
-        strip.background = element_rect(fill = "grey"),
-        legend.text = element_text(size = 9),
-        legend.title = element_text(size = 10),
-        legend.key.size = unit(.5, "cm"),
-        legend.background =  element_rect(color = "black", size = 0.5)) +
-  ggthemes::scale_fill_solarized()
-```
-
 
 ```{r bar_plot, fig.height = 3, fig.cap = "Mean proportion generalizations to basic level exemplars in the one (blue) and three (red) subordinate exemplar conditions for all 12 of our experiments. Each facet corresponds to a pairing of presentation timing (simultaneous vs. sequential) and trial order (1-3 vs. 3-1). Ranges are bootstrapped 95% confidence intervals."}
 
@@ -364,12 +356,13 @@ all_es2 <- all_es %>%
          source = replace(source, exp_recoded == "11", 5 + OFFSET)) # 12
   
 # effect size fig
-all_es2 %>%
+es_fig_data <- all_es2 %>%
     mutate(timing = fct_recode(timing, `sequential timing` = "sequential", 
                               `simultaneous timing` =  "simultaneous"),
             order = fct_recode(order, `1-3 trial order` = "1-3",
-                               `3-1 trial order` = "3-1")) %>%
-  ggplot() +
+                               `3-1 trial order` = "3-1"))
+
+ggplot(es_fig_data) +
   geom_rect(aes(xmin = -Inf, xmax = Inf, ymin = d_low, ymax = d_high), 
             fill = "red", alpha = 0.05, inherit.aes = FALSE, data = ma_es) +
   geom_hline(aes(yintercept = d), data = ma_es, color = "red") +
@@ -388,7 +381,7 @@ all_es2 %>%
                                title.theme = element_text(size = 9, angle = 0)),
          shape = guide_legend( "Blocking", 
                                title.theme = element_text(size = 9, angle = 0)))  +
-  ggthemes::theme_few()  +
+  ggthemes::theme_base()  +
   theme(axis.text = element_text(colour = "black"),
         axis.ticks = element_line(colour = "black"),
         strip.text = element_text(size = 9, face = "bold"))
@@ -405,152 +398,53 @@ Figure 1 shows the mean proportion generalizations to the basic level in the one
 
 
 ```{r}
-# ma_models
-# ma model
+# ma_model
 mod <- metafor::rma(d ~ timing + order + one_3sub_label + blocking, d_var, dat = all_es)
-# mod_interact <- metafor::rma(d ~ timing*order, d_var, dat = all_es)
 
-mod_df <- data.frame(fixed_effect = c("Intercept", 
-                                      "Simultaneous vs. sequential timing", 
-                                      "1-3 vs. 3-1 trial order",
-                                      "Different vs. same label", 
-                                      "Blocked vs. pseudo-random trial structure"),
-                      beta_string = paste0(round(mod$beta, 2), 
-                                        " [", round(mod$ci.lb, 2), ", "
-                                  , round(mod$ci.ub,2) , "]"),
-                      zval = mod$zval,
-                      pval_string = round(mod$pval, 2)) %>%
-          mutate(pval_string = ifelse(pval_string == 0, "<.0001", pval_string))
+# get tidy model results
+terms <-  c("Intercept", 
+            "Simultaneous vs. sequential timing",
+            "1-3 vs. 3-1 trial order",
+            "Different vs. same label",
+            "Blocked vs. pseudo-random trial structure")
+mod_df <- get_ma_df(mod, terms)
 
-# MA model table
-kable(mod_df, caption = "Meta-analytic model with manipulations as fixed effects.",
-      align = c('l', 'r', 'r', 'r'), digits = 2,
-      col.names = c("Fixed effect", "beta", "z-value", "p-value"),
-      format = "latex", booktabs = TRUE)  %>%
-      kable_styling(font_size = 12) 
+# MA table for printing
+mod_df %>%
+  rowwise() %>%
+  mutate(pval_string = gsub("\ =", "", pval_string)) %>% # get rid of equal signs
+  kable(caption = "Meta-analytic model with manipulations as fixed effects.",
+        align = c('l', 'r', 'r', 'r'), digits = 2,
+        col.names = c("Fixed effect", "beta", "z-value", "p-value"),
+        format = "latex", booktabs = TRUE)  %>%
+  kable_styling(font_size = 12) 
 
-
-# stats for text below
-trial_order_string <- mod_df %>%
-                      filter(fixed_effect == "1-3 vs. 3-1 trial order") %>%
-                      mutate(beta = str_split(beta_string, " ")[[1]][[1]],
-                             zval = round(zval, 2),
-                             full_string = paste0(" = ", beta, "; *Z* = ", zval,
-                                                  "; *p* ", pval_string)) %>%
-                      select(full_string)
-                      
-timing_string <- mod_df %>%
-                      filter(fixed_effect == "Simultaneous vs. sequential timing") %>%
-                      mutate(beta = str_split(beta_string, " ")[[1]][[1]],
-                             zval = round(zval, 2),
-                             full_string = paste0(" = ", beta, "; *Z* = ", zval,
-                                                  "; *p* = ", pval_string)) %>%
-                      select(full_string)
-
-blocking_string <- mod_df %>%
-                      filter(fixed_effect == "Blocked vs. pseudo-random trial structure") %>%
-                      mutate(beta = str_split(beta_string, " ")[[1]][[1]],
-                             zval = round(zval, 2),
-                             full_string = paste0(" = ", beta, "; *Z* = ", zval,
-                                                  "; *p* = ", pval_string)) %>%
-                      select(full_string)
-
-label_string <- mod_df %>%
-                      filter(fixed_effect ==  "Different vs. same label") %>%
-                      mutate(beta = str_split(beta_string, " ")[[1]][[1]],
-                             zval = round(zval, 2),
-                             full_string = paste0(" = ", beta, "; *Z* = ", zval,
-                                                  "; *p* = ", pval_string)) %>%
-                      select(full_string)
+# get strings for text:
+trial_order_string <- get_ma_term_string(mod_df, "1-3 vs. 3-1 trial order")
+timing_string <-  get_ma_term_string(mod_df, "Simultaneous vs. sequential timing")
+blocking_string <- get_ma_term_string(mod_df, "Blocked vs. pseudo-random trial structure")
+label_string <- get_ma_term_string(mod_df, "Different vs. same label")
 ```
 
 In two exact replications of the XT method, we replicate the suspicious coincidence effect (Exp. 1: *d* = `r filter(all_es, exp_recoded == "1") %>% select(d_string) %>% unlist()`; Exp. 2: *d* = `r filter(all_es, exp_recoded == "2") %>% select(d_string) %>% unlist()`), with a magnitude comparable to the original XT experiments (XT E1: *d* = `r filter(all_es, exp_recoded == "XT_adults_e1") %>% select(d_string) %>% unlist()`; XT E2: *d* = `r filter(all_es, exp_recoded == "XT_children_e2") %>% select(d_string) %>% unlist()`). We also replicate the reversal in the suspicious coincidence effect observed by SPSS in an exact replication of their method (Exp. 10; *d* = `r filter(all_es, exp_recoded == "10") %>% select(d_string) %>% unlist()`), and with a magnitude comparable to the original experiments (SPSS E2: *d* = `r filter(all_es, exp_recoded == "SPSS_e2") %>% select(d_string) %>% unlist()`; SPSS E3: *d* =  `r filter(all_es, exp_recoded == "SPSS_e3") %>% select(d_string) %>% unlist()`).
 
-Critically, however, the meta-analytic model across all 12 experiments reveals that only trial order is a reliable predictor of effect size ($\beta$ `r trial_order_string[[1]]`), while timing ($\beta$ `r timing_string[[1]]`), blocking ($\beta$ `r blocking_string[[1]]`), and label are not ($\beta$ `r label_string[[1]]`; Table 2). These data thus reveal that the suspicious coincidence is robust to spatio-temporal aspects of the presentation learning exemplars, in contrast to the conclusion drawn by SPSS. 
-```{r SC_reversal_GD_3_1_order}
-# t-test for all 3-1 experiments, sequential
-three_one_exps_sequential <- all_d_clean %>%
-  gather(variable, value, c(prop_sub, prop_bas, prop_sup)) %>%
-  mutate(value = as.numeric(value)) %>%
-  filter(variable == "prop_bas") %>%
-  group_by(condition, exp, subids) %>% 
-  summarize(value = mean(value)) %>%
-  left_join(exp_key) %>%
-  filter(exp_recoded %in% c("10", "11", "12")) %>%
-  spread(condition, value, -2:-12)
+Critically, however, the meta-analytic model across all 12 experiments reveals that only trial order is a reliable predictor of effect size ($\beta$ `r trial_order_string`), while timing ($\beta$ `r timing_string`), blocking ($\beta$ `r blocking_string`), and label are not ($\beta$ `r label_string`; Table 2). These data thus reveal that the suspicious coincidence is robust to spatio-temporal aspects of the presentation learning exemplars, in contrast to the conclusion drawn by SPSS. 
 
-t_test_three_one_sequential <- t.test(three_one_exps_sequential$one, 
-                                      three_one_exps_sequential$three_subordinate, 
-                                      paired = FALSE)
-t_statistic_3_1_seq <- round(t_test_three_one_sequential$statistic,2)[[1]]
-p_statistic_3_1_seq <- round(t_test_three_one_sequential$p.value, 2)
+```{r interaction_model}
+mod_interact <- metafor::rma(d ~ timing*order, d_var, dat = all_es)
+mod_interact_df <- get_ma_df(mod_interact, c("intercept", "timing",  "order", "interaction"))
 
-# get effect size for all 3-1 experiments, sequential
-three_one_exps_sequential_wide <- all_d_clean %>%
-  gather(variable, value, c(prop_sub, prop_bas, prop_sup)) %>%
-  mutate(value = as.numeric(value)) %>%
-  filter(variable == "prop_bas") %>%
-  group_by(condition, exp, subids) %>% 
-  summarize(value = mean(value)) %>%
-  left_join(exp_key) %>%
-  ungroup() %>%
-  filter(exp_recoded %in% c( "10", "11", "12"))  %>%
-  spread(condition, value) %>%
-  summarize(m_one = mean(one),
-            sd_one = sd(one),
-            m_3sub = mean(three_subordinate),
-            sd_3sub = sd(three_subordinate),
-            n = n()) 
-
-three_one_sequential_effect_size <- three_one_exps_sequential_wide %>%
-  do(data.frame(d = compute.es::mes(.$m_one, .$m_3sub, .$sd_one,
-                     .$sd_3sub, .$n, .$n, verbose = F)$d,
-               d_var = compute.es::mes(.$m_one, .$sd_3sub, .$sd_one,
-                    .$sd_3sub, .$n, .$n, verbose = F)$var.d)) %>%
-  mutate(high = d + (1.96*d_var),
-         low = d - (1.96*d_var),
-         d_string = paste0(d," [", round(low,2), ", ", round(high, 2) , "]"))
+## stats for text below:
+int_order_string <- get_ma_term_string(mod_interact_df, "order")
+int_timing_string <- get_ma_term_string(mod_interact_df, "timing")
+int_interaction_string <- get_ma_term_string(mod_interact_df, "interaction")
 ```
 
-```{r reversal_plot_response_to_reviewers, include = F}
-all_exps_by_ordering <- all_d_clean %>%
-  gather(variable, value, c(prop_sub, prop_bas, prop_sup)) %>%
-  mutate(value = as.numeric(value)) %>%
-  filter(variable == "prop_bas") %>%
-  group_by(condition, exp, subids) %>% 
-  summarize(value = mean(value)) %>%
-  left_join(exp_key) %>%
-  group_by(timing, condition, order) %>%
-  multi_boot_standard(col = "value")
-
-# prop basic means fig
-ggplot(all_exps_by_ordering, 
-       aes(x = condition, y = mean, group = timing, fill = timing)) +
-  geom_bar(position = "dodge", stat = "identity") +
-  geom_linerange(aes(ymin = ci_lower, 
-                     ymax = ci_upper), 
-                 position = position_dodge(width = .9)) +
-  facet_grid(.~ order) +
-  ylim(0, 1) +
-  ylab("Prop. basic-level choices") +
-  xlab("ordering") +
-    theme_bw() + 
-  theme(strip.text = element_text(size = 12),
-        axis.text = element_text(size = 12),
-        axis.title = element_text(size = 12),
-        strip.background = element_rect(fill = "grey"),
-        legend.text = element_text(size = 9),
-        legend.title = element_text(size = 10),
-        legend.key.size = unit(.5, "cm"),
-        legend.background =  element_rect(color = "black", size = 0.5)) +
-  ggthemes::scale_fill_solarized()
-```
-
-Our data also suggest that the 3-1 ordering interacts with presentation timing: In experiments with the 3-1 ordering and sequential presentation (Exp.\ 10-12), we see a reliable reversal of the suspicious coincident effect (*t*(`r ceiling(t_test_three_one_sequential$parameter)`) = `r t_statistic_3_1_seq`; *p* = `r p_statistic_3_1_seq`; *d* = `r three_one_sequential_effect_size$d_string`), as observed by SPSS. This reversal is attributable to increased generalizations to the basic level when the three subordinate trials are presented sequentially (Exp.\ 10-12) compared to simultaneously (Exp.\ 4-6).  In the General Discussion, we consider why trial order might influence the suspicious coincidence effect, and possible reasons for the interaction with presentating timing. 
+Our data also suggest that the 3-1 ordering interacts with presentation timing: In experiments with the 3-1 ordering and sequential presentation (Exp.\ 10-12), we see a reversal of the suspicious coincident effect, as observed by SPSS. To examine this pattern, we fit a second meta-analytic model that included presentation timing and trial order as additive effects and a third term for their interaction. As in the initial model, there was a main effect of trial order ($\beta$ `r int_order_string`), but not presentation timing ($\beta$ `r int_timing_string`). However, there was also a significant interaction between the effects of two design parameters ($\beta$ `r int_interaction_string`). This interaction effect is due to increased generalizations to the basic level when the three subordinate trials are presented sequentially (Exp.\ 10-12) compared to simultaneously (Exp.\ 4-6).  In the General Discussion, we consider why trial order might influence the suspicious coincidence effect, and possible reasons for the interaction with presentation timing. 
 
 # General Discussion
 
-The ``suspicious coincidence'' effect (Xu & Tenenbaum, 2007a) suggests a powerful mechanism by which learners might overcome the inherent ambiguity associated with learning subordinate word meanings. Other evidence (Spencer, Perone, Smith, & Samuelson, 2011), however, suggests that the effect may occur only under particular learning conditions -- namely, when the training exemplars are presented simultaneously to the learner. Across 12 studies, we explored the experimental parameter space of the suspicious coincidence paradigm and successfully replicated the findings from both sets of authors. Taken together, our studies lead us to a different conclusion than SPSS: The suspicious coincidence effect is robust to the presentation timing of exemplars, but is sensitive to order effects. In particular, we reliably observe the suspicious coincidence effect, except when the three-exemplar trials are presented before the one-exemplar trials.
+The ``suspicious coincidence'' effect (Xu & Tenenbaum, 2007a) suggests a powerful mechanism by which learners might overcome the inherent ambiguity associated with learning subordinate word meanings. Other evidence (Spencer, Perone, Smith, & Samuelson, 2011), however, suggests that the effect may occur only under particular learning conditions -- namely, when the training exemplars are presented simultaneously to the learner. Across 12 studies, we explored the experimental parameter space of the suspicious coincidence paradigm and successfully replicated the findings from both sets of authors. Taken together, our studies lead us to a different conclusion than SPSS: The suspicious coincidence effect is robust to the presentation timing of exemplars, but is sensitive to order effects. These order effects (where three exemplar trials are presented before the one exemplar trials) were not predicted by XT. Below we offer an account of these results based on recent generalizations of strong sampling models to describe pragmatic inferences.
 
 ```{r SC_reversal_GD_trial_order}
 # t-test on all 3-1 experiments
@@ -625,11 +519,13 @@ one_three_effect_size <- one_three_exps_wide %>%
 ES_diff <- one_three_effect_size$d - three_one_effect_size$d
 ```
 
-The critical difference between the 1-3 and 3-1 ordering was the rate of generalization to the basic level in the one exemplar trial: When the single exemplar trial occurred second, participants were less likely to generalize to the basic level compared to when the single exemplar trial was presented first. Why might this ordering matter? Consider a scenario in which first the learner  observes a trial with three subordinate peppers followed by a second trial with only a single pepper. Although the two trials were intended to be interpreted as independent from each other, their co-occurrence in the task may have suggested to participants that they are pragmatically related, leading participants to track their frequency across trials. If true, when the learner observes the single pepper on the second trial, it is effectively the *fourth* subordinate exemplar from the same category (identical to one of the exemplars on the three subordinate trials). This account predicts that learners should be less likely to generalize to the basic level when the "single" exemplar is presented second, consistent with our findings. It also makes a second prediction: If a single pepper presented on the second trial is interpreted as the fourth exemplar, learners should be even less likely to generalize to the basic level under these conditions compared to a case when *three* peppers are presented on the first trial (since seeing four exemplars is a bigger "suspicious coincidence" than three).  We find some evidence consistent with this prediction in an analysis across all experiments with the 3-1 ordering (*t*(`r ceiling(t_test_three_one$parameter)`) = `r t_statistic_3_1`; *p* = `r p_statistic_3_1`; *d* = `r three_one_effect_size$d_string`). The suspicious coincidence has also been obtained in a  between-subject design (XT E2, preschool children) where the trials are necessarily independent from each other. Importantly, while XT's model does not directly predict participants behavior in the 3-1 ordering, there is a  broader class of Bayesian models, of which XT's model is an instance, that does. These models account for pragmatic reasoning by assuming that speakers reason about the intention of others when making linguistic inferences [e.g., @frank2009a].
+The critical difference between the 1-3 and 3-1 ordering was the rate of generalization to the basic level in the one exemplar trial: When the single exemplar trial occurred second, participants were less likely to generalize to the basic level compared to when the single exemplar trial was presented first. Why might this ordering matter? Consider a scenario in which first the learner  observes a trial with three subordinate peppers followed by a second trial with only a single pepper. Although the two trials were intended to be interpreted as independent from each other, their co-occurrence in the task may have suggested to participants that they are pragmatically related, leading participants to track their frequency across trials. If true, when the learner observes the single pepper on the second trial, it is effectively the *fourth* subordinate exemplar from the same category (identical to one of the exemplars on the three subordinate trials). This account predicts that learners should be less likely to generalize to the basic level when the "single" exemplar is presented second, consistent with our findings. It also makes a second prediction: In the case of the 3-1 ordering, learners should be more likely to generalize to the basic level on the first trial (three exemplars) compared to the second trial (single exemplar, fourth observed exemplar), since seeing four exemplars is a bigger "suspicious coincidence" than three.  We find some evidence consistent with this prediction from the meta-analytic model indicating a reversal of the effect under sequential timing, 3-1 ordering conditions.
 
-If indeed participants interpret the one-exemplar trial in 3-1 orders as a fourth exemplar, then it is surprising that the identity of the label between the two trials does not matter: We see the same pattern when the labels are different (Exp. 10)  as when they are the same (Exp. 11 and 12). Given evidence that children and adults tend to assume that different words have different meanings [@clark1987principle], we might expect that a different label on the one-exemplar trial would lead participants to treat the new exemplar as referring to a new category. However, there are a number a reasons why participants may not have carefully attended to labels across trials. First, participants are never tested on the meaning of labels, and the labels are not directly relevant to completing the generalization task. Second, the three and one exemplar trials for the same category rarely occurred adjacent to each other (since the one exmemplar trials were always blocked), and this delay might have made it more difficult for participants to remember the labels across the critical trials. Consistent with this pattern, we find  that label identity does not mediate the suspicious coincidence effect across experiments.
+Notably, while XT's model does not directly predict participants' behavior in the 3-1 ordering, there is a  broader class of Bayesian models, of which XT's model is an instance, that does. These models account for pragmatic reasoning by assuming that speakers reason about the intention of others when making linguistic inferences [e.g., @frank2009a]. In this case, reasoning about the speaker's intention may lead participants to assume discourse continuity across trials. Indeed, there is experimental evidence that children reason about the intention of the speaker to assume discourse continuity when inferring the meaning of a novel word [@horowitz2016]. In future work, the pragmatic influence of discourse continuity in this task can be eliminated by using a between-subject design, as in XT's experiment with children (Xu & Tenenbaum, 2007a; E2).
 
-We also find that trial order interacts with presentation timing: Replicating SPSS,  sequential presentation in the 3-1 ordering leads to a reverasal of suspicious coincidence effect. SPSS's theory predicts the reversal under sequential presentation conditions, but it does not predict the observed interaction. There is also not a straight-forward explanation from XT's model. We offer one highly speculative account: Sequential presentation conditions may have appeared relatively more complex to participants compared to simultaneous presentation conditions, resulting in higher overall uncertainty in generalization judgements. This increased uncertainty may have lead participants to be more likely to generalize conservatively---at the basic level---on the first trial when exemplars were presented sequentially as opposed to simultaneously.  
+If indeed participants interpret the one-exemplar trial in 3-1 orders as a fourth exemplar, then it is somewhat surprising that the identity of the label between the two trials does not matter: We see the same pattern when the labels are different (Exp. 10)  as when they are the same (Exp. 11 and 12). Given evidence that children and adults tend to assume that different words have different meanings [@clark1987principle], we might expect that a different label on the one-exemplar trial would lead participants to treat the new exemplar as referring to a new category. However, there are a number a reasons why participants may not have carefully attended to labels across trials. First, participants are never tested on the meaning of labels, and the labels are not directly relevant to completing the generalization task. Second, the three and one exemplar trials for the same category rarely occurred adjacent to each other (since the one exemplar trials were always blocked), and this delay might have made it more difficult for participants to remember the labels across the critical trials. Consistent with this pattern, we find  that label identity does not mediate the suspicious coincidence effect across experiments.
+
+We also find that trial order interacts with presentation timing: Replicating SPSS,  sequential presentation in the 3-1 ordering leads to a reversal of suspicious coincidence effect. SPSS's theory predicts the reversal under sequential presentation conditions, but it does not predict the observed interaction. There is also not a straight-forward explanation from XT's model. We offer one highly speculative account: Sequential presentation conditions may have appeared relatively more complex to participants compared to simultaneous presentation conditions, resulting in higher overall uncertainty in generalization judgement. This increased uncertainty may have lead participants to be more likely to generalize conservatively---at the basic level---on the first trial when exemplars were presented sequentially as opposed to simultaneously. Future research could test this cognitive load explanation more directly.
 
 Broadly, our findings highlight the influence of seemingly minor experimental design parameters on the observed pattern of data. In the present studies, experiments with the 1-3 versus 3-1 ordering differed by an effect size of `r ES_diff` -- a sizable difference that is likely to invite an unwarranted theoretical explanation. Experimental design parameters are especially important in the context of replication. When conducting a replication of an existing finding, small design parameters may influence the magnitude of the effect [@lewis2016understanding] and even its presence [@phillips2015second]. This sensitivity requires that replicators reproduce the original design with as much fidelity as possible before concluding that an effect fails to replicate. Only then can the effect be explored, and possible confounds and moderators identified. 
 
@@ -644,6 +540,8 @@ nocite: |
   @spencer2011learning
   @xu2007word
   @tenenbaum2001
+  @xu2007b
+  @lewis2016understanding. 
 ...
   
 ```{r create_r-references}

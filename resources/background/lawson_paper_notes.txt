@@ -43,3 +43,13 @@ Simultaneous presentation supports alignment of shared features (Gentner & Namy,
 - Experiment 1 revealed that simultaneous presenta- tion yielded a higher rate and a broader scope of projections than did sequential presentation. - Experiment 2 confirmed that these effects were not due to how items were labeled. 
 - Experiments 3 and 4 explored the interplay between evidence presentation and specific task features that impact how participants compare evidence and target exemplars. In Experiment 3, there were no differences between the 2 presentation formats when evidence exemplars were removed prior to the projection phase, thereby eliminating the opportunity to compare evidence exemplars and targets. 
 - Experiment 4 showed that sequential presentation yielded a high rate of projec- tions when participants were not afforded the opportunity to com- pare exemplars within the evidence sample. These results have implications for understanding the mechanisms that guide children’s inductive decisions.
+
+
+SPSS:
+simultaneous:
+ three -> more memory/increase discrimination -> subordinate
+ one -> les memory/fuzzy -> basic
+Lawson: 
+simulatneous - similarities
+sequential - differences
+
