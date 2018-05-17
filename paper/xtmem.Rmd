@@ -88,10 +88,7 @@ get_ma_term_string <- function(model_df, term){
               select(full_string) %>%
     unlist(use.names = F)
 }
-
-
 ```
-
 
 Suppose you are learning a new language and someone tells you that a particular kind of chili pepper is called a "cabai." Does "cabai" mean "chili pepper," "pepper," or "vegetable"? The same object can be referred to by many different labels depending on the level of abstraction -- subordinate (chili), basic level (pepper), or superordinate (vegetable) -- that the speaker wishes to convey. In principle, this ambiguity could pose a challenge for language learners: Even though "cabai" means "chili," in nearly every individual case where "chili" can be used, the speaker could also have been saying "pepper." Yet, despite the apparent difficulty of the learning problem, children are able to quickly and successfully learn the meanings of words at multiple levels of abstraction [@markman1990constraints; @waxman1992beyond; @waxman1991establishing]. 
 
@@ -191,14 +188,13 @@ LF_means_wide <- ms %>%
   left_join(exp_key)
 
 LF_effect_sizes <- LF_means_wide %>%
-  do(data.frame(d = compute.es::mes(.$m_one, .$m_3sub, .$sd_one,
-                     .$sd_3sub, .$n, .$n, verbose = F)$d,
-               d_var = compute.es::mes(.$m_one, .$sd_3sub, .$sd_one,
-                    .$sd_3sub, .$n, .$n, verbose = F)$var.d)) %>%
-  mutate(high = d + (1.96 * d_var),
-         low = d - (1.96 * d_var),
-         es_type = "nonpaired",
-         exp_recoded = LF_means_wide$exp_recoded) %>%
+  do(data.frame(compute.es::mes(.$m_one, .$m_3sub, .$sd_one,
+                     .$sd_3sub, .$n, .$n, verbose = F))) %>%
+  select(d, l.d, u.d, var.d) %>%
+  rename(high = u.d,
+         low = l.d,
+         d_var = var.d) %>%
+  mutate(exp_recoded = LF_means_wide$exp_recoded) %>%
   left_join(LF_means_wide %>% select(exp_recoded, n)) %>%
   select(exp_recoded, n, everything())
 ```
@@ -337,7 +333,7 @@ ma_es <- data.frame(
 ```
 
 
-```{r es_plot, fig.width=5.5, fig.height=3.5, fig.cap = "Effect sizes for all 19 studies conducted on the suspicious coincidence effect by XT (Xu & Tenenbaum, 2007a), SPSS (Spencer, et al, 2011), and the current authors. Each point corresponds to a study, with study authors on the x-axis and effect size on the y-axis. Facets correspond to different design parameters: Top facets show experiments with single exemplar trial  first (1-3); Bottom facets show experiments with single exemplar trial second (3-1); Left facets show experiments with simultaneous presentation of exemplars, as in XT; Right facets show experiments with sequential presentation of exemplars, as in SPSS. Point color indicates whether the single exemplar and three subordinate exemplars received the same (grey) or different (black) label. Point shape indicates whether trials were blocked by category (circle) or pseudo-random (triangle).  The red line reflects the meta-analytic estimate of the effect size (for the XT experiments, standard deviations on effect sizes are estimated from the SPSS replication). All ranges are 95% confidence intervals. Points are jittered along the x-axis for visibility."}
+```{r es_plot, fig.width=5.5, fig.height=3.5, fig.cap = "Effect sizes for all 19 studies conducted on the suspicious coincidence effect by XT (Xu & Tenenbaum, 2007a), SPSS (Spencer, et al, 2011), and the current authors. Each point corresponds to a study, with study authors on the x-axis and effect size on the y-axis. Facets correspond to different design parameters: Top facets show experiments with single exemplar trial  first (1-3); Bottom facets show experiments with single exemplar trial second (3-1); Left facets show experiments with simultaneous presentation of exemplars, as in XT; Right facets show experiments with sequential presentation of exemplars, as in SPSS. Point color indicates whether the single exemplar and three subordinate exemplars received the same (grey) or different (black) label. Point shape indicates whether trials were blocked by category (circle) or pseudo-random (triangle).  The red line reflects the meta-analytic estimate of the effect size (for the XT experiments, standard deviations on effect sizes are estimated from the SPSS replication). Ranges are 95% confidence intervals. Points are jittered along the x-axis for visibility."}
 
 # manual x-axis jittering
 OFFSET <- .35
@@ -362,13 +358,12 @@ es_fig_data <- all_es2 %>%
             order = fct_recode(order, `1-3 trial order` = "1-3",
                                `3-1 trial order` = "3-1"))
 
-ggplot(es_fig_data) +
+es_fig <- ggplot(es_fig_data) +
   geom_rect(aes(xmin = -Inf, xmax = Inf, ymin = d_low, ymax = d_high), 
             fill = "red", alpha = 0.05, inherit.aes = FALSE, data = ma_es) +
   geom_hline(aes(yintercept = d), data = ma_es, color = "red") +
   geom_hline(yintercept = 0, linetype = 2, color = "black") +
   scale_color_manual(values = c("black","grey63")) +
-  # x = jitter(source, 1.5)
   geom_pointrange(aes(x =  source,  y = d, ymax = high, 
                       ymin = low, color = one_3sub_label, shape = fct_rev(blocking)), 
                   size = .4) +
@@ -380,17 +375,23 @@ ggplot(es_fig_data) +
   guides(color = guide_legend( "Label", 
                                title.theme = element_text(size = 9, angle = 0)),
          shape = guide_legend( "Blocking", 
-                               title.theme = element_text(size = 9, angle = 0)))  +
-  ggthemes::theme_base()  +
+                               title.theme = element_text(size = 9, angle = 0)))  
+es_fig +
+  theme_bw()  +
   theme(axis.text = element_text(colour = "black"),
         axis.ticks = element_line(colour = "black"),
-        strip.text = element_text(size = 9, face = "bold"))
+        strip.text = element_text(size = 9, face = "bold"),
+        strip.background = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        panel.border = element_rect(colour = "black", size=.7))
 ```
 
 
 ## Data analysis
 
-The key prediction of the suspicious coincidence effect is that participants should generalize to the basic level more often in one-subordinate trials relative to three-subordinate trials. To measure this effect, for each trial, we calculated the proportion generalizations to basic exemplars within the same category (out of 2) and averaged across categories for each participant. We estimated the difference between the one-subordinate and three-subordinate conditions by calculating an effect size (Cohen's *d*) for each experiment. We then estimated the influence of each our design manipulations on the overall effect size by fitting a random-effect meta-analytic model with each of our four manipulations as fixed effects. The model included both the present set of experiments as well as prior experiments by XT and SPSS. We used the metafor package [@R-metafor] in R to fit our meta-analytic models.
+The key prediction of the suspicious coincidence effect is that participants should generalize to the basic level more often in one-subordinate trials relative to three-subordinate trials. To measure this effect, for each trial, we calculated the proportion generalizations to basic exemplars within the same category (out of 2) and averaged across categories for each participant. We estimated the difference between the one-subordinate and three-subordinate conditions by calculating an effect size for each experiment (Cohen's *d*; see SI for details). We then estimated the influence of each our design manipulations on the overall effect size by fitting a random-effect meta-analytic model with each of our four manipulations as fixed effects. The model included both the present set of experiments as well as prior experiments by XT and SPSS. We used the metafor package [@R-metafor] in R to fit our meta-analytic models.
 
 # Results
 
@@ -447,23 +448,6 @@ Our data also suggest that the 3-1 ordering interacts with presentation timing: 
 The ``suspicious coincidence'' effect (Xu & Tenenbaum, 2007a) suggests a powerful mechanism by which learners might overcome the inherent ambiguity associated with learning subordinate word meanings. Other evidence (Spencer, Perone, Smith, & Samuelson, 2011), however, suggests that the effect may occur only under particular learning conditions -- namely, when the training exemplars are presented simultaneously to the learner. Across 12 studies, we explored the experimental parameter space of the suspicious coincidence paradigm and successfully replicated the findings from both sets of authors. Taken together, our studies lead us to a different conclusion than SPSS: The suspicious coincidence effect is robust to the presentation timing of exemplars, but is sensitive to order effects. These order effects (where three exemplar trials are presented before the one exemplar trials) were not predicted by XT. Below we offer an account of these results based on recent generalizations of strong sampling models to describe pragmatic inferences.
 
 ```{r SC_reversal_GD_trial_order}
-# t-test on all 3-1 experiments
-three_one_exps <- all_d_clean %>%
-  gather(variable, value, c(prop_sub, prop_bas, prop_sup)) %>%
-  mutate(value = as.numeric(value)) %>%
-  filter(variable == "prop_bas") %>%
-  group_by(condition, exp, subids) %>% 
-  summarize(value = mean(value)) %>%
-  left_join(exp_key) %>%
-  filter(exp_recoded %in% c("4", "5", "6", "10", "11", "12")) %>%
-  spread(condition, value, -2:-12)
-
-t_test_three_one <- t.test(three_one_exps$one, 
-                           three_one_exps$three_subordinate,
-                           paired = FALSE)
-t_statistic_3_1 <- round(t_test_three_one$statistic,2)[[1]]
-p_statistic_3_1 <- round(t_test_three_one$p.value, 2)
-
 # calculate effect size for all 3-1 experiments
 three_one_exps_wide <- all_d_clean %>%
   gather(variable, value, c(prop_sub, prop_bas, prop_sup)) %>%
@@ -483,12 +467,7 @@ three_one_exps_wide <- all_d_clean %>%
 
 three_one_effect_size <- three_one_exps_wide %>%
   do(data.frame(d = compute.es::mes(.$m_one, .$m_3sub, .$sd_one,
-                     .$sd_3sub, .$n, .$n, verbose = F)$d,
-               d_var = compute.es::mes(.$m_one, .$sd_3sub, .$sd_one,
-                    .$sd_3sub, .$n, .$n, verbose = F)$var.d)) %>%
-  mutate(high = d + (1.96*d_var),
-         low = d - (1.96*d_var),
-         d_string = paste0(d," [", round(low,2), ", ", round(high, 2) , "]"))
+                     .$sd_3sub, .$n, .$n, verbose = F)$d))
 
 # calculate effect size for all 1-3 experiments
 one_three_exps_wide <- all_d_clean %>%
@@ -509,11 +488,7 @@ one_three_exps_wide <- all_d_clean %>%
 
 one_three_effect_size <- one_three_exps_wide %>%
   do(data.frame(d = compute.es::mes(.$m_one, .$m_3sub, .$sd_one,
-                     .$sd_3sub, .$n, .$n, verbose = F)$d,
-               d_var = compute.es::mes(.$m_one, .$sd_3sub, .$sd_one,
-                    .$sd_3sub, .$n, .$n, verbose = F)$var.d)) %>%
-  mutate(high = d + (1.96*d_var),
-         low = d - (1.96*d_var))
+                     .$sd_3sub, .$n, .$n, verbose = F)$d))
 
 # get difference between all 3-1 vs. 1-3 experiments
 ES_diff <- one_three_effect_size$d - three_one_effect_size$d

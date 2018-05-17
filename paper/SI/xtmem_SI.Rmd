@@ -155,9 +155,9 @@ p.t.two
 For nearly perfect power, we would need 22 independent observations. To be conservative, we set our sample size at N = 50.
 
 # Effect size calculation
-The classical Cohen's *d* measure was originally developed for between-subject designs and, as such, researchers have adapted the measure to within-subject designs in a variety of ways (http://jakewestfall.org/blog/index.php/category/effect-size/). We calculate our effect sizes using the "classic" Cohen's *d* formula, which takes the mean difference between conditions divided by the pooled standard deviation. Note that because this method does not take into account the fact that the means are within-subject, these are conservative estimates of effect size (since within-subject designs have more power). We use the `mes` function from the `compute.es` package (AC Del Re, 2013)  to calculate our effect sizes
+The classical Cohen's *d* measure  was originally developed for between-subject designs and, as such, researchers have adapted the measure to within-subject designs in a variety of ways (http://jakewestfall.org/blog/index.php/category/effect-size/). We calculate our effect sizes using the "classic" Cohen's *d* formula, which takes the mean difference between conditions divided by the pooled standard deviation (Cohen, 1988). Note that because this method does not take into account the fact that the means are within-subject, these are conservative estimates of effect size (since within-subject designs have more power). We use the `mes` function from the `compute.es` package (AC Del Re, 2013)  to calculate our effect sizes and the corresponding confidence intervals.
 
-Here is an example calculation of the effect size for Exp. 1. We first get the means and variances across participants of the proportion basic selections for the 1 subordinate and 3 subordinate conditions.
+Here is an example calculation of the effect size for Exp. 1. We first get the means and variances across participants of the proportion basic selections for the 1 subordinate and 3 subordinate conditions. We also need the sample size, n. 
 
 ```{r read_in_anon_data}
 # this data has been pre-processed with analysis/munge_anonymize_data.R script
@@ -175,8 +175,7 @@ all_d <- read_csv("data/anonymized_data/all_data_munged_A.csv") %>%
 ## key to experiment factors
 exp_key <- read_csv("data/experiment_key.csv") %>%
   mutate(order = gsub("\"", "", order),
-         exp = as.integer(exp)
-  ) %>% 
+         exp = as.integer(exp)) %>% 
   select(-preregistered) 
 ```
 
@@ -191,10 +190,12 @@ es_1_calc <- all_d %>%
   summarize(value = mean(value)) %>% # get the mean for each subjects across trials
   group_by(condition) %>%
   summarize(mean_prop_bas = mean(value), 
-            var_prop_bas = var(value)) # get the mean for each condition acros subjects
+            var_prop_bas = var(value)) %>% # get the mean for each condition acros subjects
+  mutate(n = 50,
+         condition = fct_recode(condition, "1 subordinate" = "1 sub.",
+                                          "3 subordinate" = "3 sub."))
 
-
-kable(es_1_calc, digits = 2, col.names = c("Condition", "Mean", "Var")) 
+kable(es_1_calc, digits = 2, col.names = c("Condition", "Mean", "Variance", "Sample Size")) 
 ```
 
 We then calculate Cohen's *d* as follows: 
@@ -204,13 +205,39 @@ d &= \frac{M_1 - M_2}
 {\sigma_{pooled}} \tag{Cohen's d}\\
 &= \frac{M_{1sub} - M_{3sub}}
 {\sqrt{(\frac{var_{1sub} + var_{3sub}}{2})}}\\
-&= \frac{.64 - .18}
-{\sqrt{(\frac{.15 + .09}{2})}}\\
-&\ \approx 1.32
+&= \frac{.62 - .17}
+{\sqrt{(\frac{.16 + .09}{2})}}\\
+&\ \approx 1.27
 \end{align}
 $$
 
-For Exp. 1, we calculate Cohen's *d* = 1.32. 
+
+And the 95% confidence interval on this estimate as follows:
+
+$$
+\begin{align}
+var(d) &= \frac{n_1 + n_2} {n_1 * n_2} + \frac{d ^ 2} {2 * (n_1 + n_2)})\\
+&= \frac{50 + 50} {50 * 50} + \frac{(1.27) ^ 2} {2 * (50 + 50)})\\
+&\approx .05
+\end{align}
+$$
+
+$$
+\begin{align}
+CI_{low} &= d - (1.96 * \sqrt{var(d)}) \\
+&= 1.27 - (1.96 * \sqrt{.05})\\
+& \approx .84
+\end{align}
+$$
+
+$$
+\begin{align}
+CI_{high} &= d + (1.96 * \sqrt{var(d)})\\
+&= 1.27 + (1.96 * \sqrt{.05})\\
+& \approx 1.71
+\end{align}
+$$
+For Exp. 1, we thus calculate Cohen's *d* = 1.27 [.84, 1.71].
 
 # Results for all conditions and measures
 In the Main Text, we report the proportion basic level selections for two training conditions, one-subordinate and three-subordinate. Here we report the data for all four conditions and all three dependent measures (proportion basic level, subordinate level, and superordinate level selections).
@@ -741,3 +768,7 @@ ggplot(raw_d_mungedT,
 **References**
 
 AC Del Re (2013). compute.es: Compute Effect Sizes. R package version 0.2-2. URL http://cran.r-project.org/web/packages/compute.es.
+
+Cohen, J. (1988). Statistical Power Analysis for the Behavioral Sciences (2nd ed.).
+Hillsdale, NJ: Lawrence Earlbaum Associates.
+

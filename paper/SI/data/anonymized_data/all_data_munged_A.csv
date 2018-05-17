@@ -1,4 +1,4 @@
-exp,subids,trial_num,category,condition,n_unique,first_cat,cat_num,prop_sub,prop_bas,prop_sup,only_responded_with_target_category
+exp,subids,trial_num,category,condition,n_unique_selected_cat,first_cat,cat_num,prop_sub,prop_bas,prop_sup,only_responded_with_target_category
 1,1,9,vehicles,three_subordinate,1,2,2,1,0,0,only_target
 1,2,9,animals,three_basic,1,3,3,1,1,0,only_target
 1,3,9,animals,three_superordinate,1,3,3,0.5,1,1,only_target

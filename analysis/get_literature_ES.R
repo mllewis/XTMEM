@@ -1,12 +1,12 @@
 ### Get XT2007 and SPSS ES ###
-# Save effect sizes from XT2007 and SPSS2011 as csv (data/literature_ES.csv)
+# Save effect sizes from XT2007 and SPSS2011 as csv 
 
-# load libraries
 library(tidyverse)
-library(forcats)
+
+OUTFILE <-  "../data/literature_ES.csv"
 
 #  Here are the means and sd based on SPSS2011 Table 1 (includes XT)
-literature_effect_sizes <- data.frame(exp_recoded = c("XT_adults_e1",
+literature_df <- data.frame(exp_recoded = c("XT_adults_e1",
                                                       "XT_children_e2",
                                                       "SPSS_e1",
                                                       "SPSS_e2",
@@ -20,24 +20,20 @@ literature_effect_sizes <- data.frame(exp_recoded = c("XT_adults_e1",
                                       n = c(22, 36, 19, 20, 19, 19, 19))
 
 # Calculate previous effect sizes from literature.
-literature_effect_sizes$d <- compute.es::mes(literature_effect_sizes$one_means/100,
-                                 literature_effect_sizes$three_means/100, 
-                                 literature_effect_sizes$one_sd/100,
-                                 literature_effect_sizes$three_sd/100,
-                                 literature_effect_sizes$n,
-                                 literature_effect_sizes$n, verbose = F)$d
+effect_sizes <- compute.es::mes(literature_df$one_means/100,
+                                           literature_df$three_means/100, 
+                                           literature_df$one_sd/100,
+                                           literature_df$three_sd/100,
+                                           literature_df$n,
+                                           literature_df$n, verbose = F) %>%
+  select(d, l.d,u.d, var.d) %>%
+  rename(high = u.d,
+         low = l.d,
+         d_var = var.d)
 
-literature_effect_sizes$d_var <- compute.es::mes(literature_effect_sizes$one_means/100,
-                                     literature_effect_sizes$three_means/100,
-                                     literature_effect_sizes$one_sd/100,
-                                     literature_effect_sizes$three_sd/100,
-                                     literature_effect_sizes$n, 
-                                     literature_effect_sizes$n,
-                                     verbose = F)$var.d
+# bind together
+literature_effect_sizes <- literature_df %>%
+  select(exp_recoded, n) %>%
+  bind_cols(effect_sizes)
 
-literature_effect_sizes <- literature_effect_sizes %>%
-  mutate(high = d + (1.96 * d_var),
-         low = d - (1.96 * d_var)) %>%
-  select(-one_means, -three_means, -one_sd, -three_sd) 
-
-write_csv(literature_effect_sizes, "../data/literature_ES.csv")
+write_csv(literature_effect_sizes, OUTFILE)
