@@ -15,16 +15,14 @@ subtitle: Supplementary Information
 
 ```{r setup, include = F}
 # load packages
+library(kableExtra)
 library(knitr)
 library(rmarkdown)
 library(broom)
 library(tidyverse) 
 library(langcog)
-library(forcats)
 library(compute.es)
-library(stringr)
 library(metafor)
-library(kableExtra)
 library(shiny)
 library(pwr)
 
@@ -39,7 +37,7 @@ This document was created from an R markdown file. The manuscript itself was als
 ### The SI can be viewed interactively online at https://mlewis.shinyapps.io/xtmem_SI/
 
 # View experiments
-To directly view an experiment, select an experiment from the dropdown menu, and click the "View Experiment" button. The experiment will open in a new window. [see online version for this content]
+To directly view an experiment, select an experiment from the drop down menu, and click the "View Experiment" button. The experiment will open in a new window. [see online version for this content]
 
 # Power calculation
 
@@ -54,21 +52,23 @@ df <- data.frame(exp = c("XT E1", "XT E2", "SPSS E1"),
                  one_sd = c(40.40, 40.40, 40.40),
                  three_sd = c(24.97, 24.97, 24.97),
                  n = c(22, 36, 19))
-kable(df , col.names = c("Exp.",	"one-exmplar means", 	"three-exemplar means",
-                         "one-exemplar sd", 	"three-exmplar sd", "sample size"))
+kable(df , col.names = c("Exp.",	"one-exmplar means",
+                         "three-exemplar means",	"one-exemplar sd",
+                         "three-exmplar sd", "sample size")) %>%
+  kable_styling(font_size = 12) 
 ```
 
 ```{r}
-df$d = mes(df$one_means, df$three_means, df$one_sd,
+df$d <- mes(df$one_means, df$three_means, df$one_sd,
            df$three_sd, df$n, df$n, verbose = F)$d
 
-df$d_var = mes(df$one_means, df$three_means, df$one_sd,
+df$d_var <- mes(df$one_means, df$three_means, df$one_sd,
                df$three_sd, df$n, df$n, verbose = F)$var.d
 
-model = rma(d, d_var, data = df)
+model <- rma(d, d_var, data = df)
 ```
 
-Using a random effect meta-analytic model, we use these values to obtain a meta-analytic effect size estimate. We estimate this effect size to be `r round(model$b, 2)`.
+Using a random effect meta-analytic model and these value, we obtain a meta-analytic effect size estimate. We estimate this effect size to be `r round(model$b, 2)`.
 
 ```{r}
 par(cex = 1, font = 1)
@@ -100,9 +100,9 @@ p.t.two
 For nearly perfect power, we would need 22 independent observations. To be conservative, we set our sample size at N = 50.
 
 # Effect size calculation
-The classical Cohen's *d* measure was originally developed for between-subject designs and, as such, researchers have adapted the measure to within-subject designs in a variety of ways (http://jakewestfall.org/blog/index.php/category/effect-size/). We calculate our effect sizes using the "classic" Cohen's *d* formula, which takes the mean difference between conditions divided by the pooled standard deviation. Note that because this method does not take into account the fact that the means are within-subject, these are conservative estimates of effect size (since within-subject designs have more power). We use the `mes` function from the `compute.es` package (AC Del Re, 2013)  to calculate our effect sizes
+The classical Cohen's *d* measure  was originally developed for between-subject designs and, as such, researchers have adapted the measure to within-subject designs in a variety of ways (http://jakewestfall.org/blog/index.php/category/effect-size/). We calculate our effect sizes using the "classic" Cohen's *d* formula, which takes the mean difference between conditions divided by the pooled standard deviation (Cohen, 1988). Note that because this method does not take into account the fact that the means are within-subject, these are conservative estimates of effect size (since within-subject designs have more power). We use the `mes` function from the `compute.es` package (AC Del Re, 2013)  to calculate our effect sizes and the corresponding confidence intervals.
 
-Here is an example calculation of the effect size for Exp. 1. We first get the means and variances across participants of the proportion basic selections for the 1 subordinate and 3 subordinate conditions.
+Here is an example calculation of the effect size for Exp. 1. We first get the means and variances across participants of the proportion basic selections for the 1 subordinate and 3 subordinate conditions. We also need the sample size, n. 
 
 ```{r read_in_anon_data}
 # this data has been pre-processed with analysis/munge_anonymize_data.R script
@@ -116,13 +116,11 @@ all_d <- read_csv("data/anonymized_data/all_data_munged_A.csv") %>%
                                 "3 super." = "3sup",
                                 "3 sub." = "3sub"),
          condition = fct_relevel(condition, "1 sub.", "3 sub.", "3 basic", "3 super.")) 
-# there were 28 trials across all 12 experiments (.4%) in which there was an error in data recording such that proportion selected of a category was greater than 1 (these were evenly distributed across the experiments).
 
 ## key to experiment factors
 exp_key <- read_csv("data/experiment_key.csv") %>%
   mutate(order = gsub("\"", "", order),
-         exp = as.integer(exp)
-  ) %>% 
+         exp = as.integer(exp)) %>% 
   select(-preregistered) 
 ```
 
@@ -130,50 +128,89 @@ exp_key <- read_csv("data/experiment_key.csv") %>%
 es_1_calc <- all_d %>%
   left_join(exp_key %>% select(exp, exp_recoded)) %>%
   filter(exp_recoded == 1) %>% # we only want exp 1 
-  filter(condition == "1 sub." | condition == "3 sub.") %>% 
-  # we only care about these conds. for calculating d
+  filter(condition == "1 sub." | condition == "3 sub.") %>% # we only care about these conds. for calculating d
   gather(variable, value, c(prop_sub, prop_bas, prop_sup)) %>%
-  filter(variable == "prop_bas") %>% 
-  # we only care about this DV for calculating d
+  filter(variable == "prop_bas") %>% # we only care about this DV for calculating d
   group_by(condition, subids) %>% 
-  summarize(value = mean(value)) %>% 
-  # get the mean for each subjects across trials
+  summarize(value = mean(value)) %>% # get the mean for each subjects across trials
   group_by(condition) %>%
   summarize(mean_prop_bas = mean(value), 
-            var_prop_bas = var(value)) 
-# get the mean for each condition acros subjects
+            var_prop_bas = var(value)) %>% # get the mean for each condition acros subjects
+  mutate(n = 50,
+         condition = fct_recode(condition, "1 subordinate" = "1 sub.",
+                                          "3 subordinate" = "3 sub."))
 
+kable(es_1_calc, digits = 2, 
+      col.names = c("condition", "mean", "variance", "sample size"))  %>%
+  kable_styling(font_size = 12) 
 
-kable(es_1_calc, digits = 2, col.names = c("Condition", "Mean", "Var")) 
 ```
 
 We then calculate Cohen's *d* as follows: 
-$$
-\begin{aligned}
+
+\begin{align}
 d &= \frac{M_1 - M_2}
-{\sigma_{pooled}}\\
+{\sigma_{pooled}} \tag{Cohen's d}\\
 &= \frac{M_{1sub} - M_{3sub}}
 {\sqrt{(\frac{var_{1sub} + var_{3sub}}{2})}}\\
-&= \frac{.64 - .18}
-{\sqrt{(\frac{.15 + .09}{2})}}\\
-&\ \approx 1.32
-\end{aligned}
-$$
+&= \frac{.62 - .17}
+{\sqrt{(\frac{.16 + .09}{2})}}\\
+&\ \approx 1.27
+\end{align}
 
-For Exp. 1, we calculate Cohen's *d* = 1.32. 
+And the 95% confidence interval on this estimate as follows:
+
+
+\begin{align}
+var(d) &= \frac{n_1 + n_2} {n_1 * n_2} + \frac{d ^ 2} {2 * (n_1 + n_2)})\\
+&= \frac{50 + 50} {50 * 50} + \frac{(1.27) ^ 2} {2 * (50 + 50)})\\
+&\approx .05
+\end{align}
+
+
+\begin{align}
+CI_{low} &= d - (1.96 * \sqrt{var(d)}) \\
+&= 1.27 - (1.96 * \sqrt{.05})\\
+& \approx .84
+\end{align}
+
+\begin{align}
+CI_{high} &= d + (1.96 * \sqrt{var(d)})\\
+&= 1.27 + (1.96 * \sqrt{.05})\\
+& \approx 1.71
+\end{align}
+
+For Exp. 1, we thus calculate Cohen's *d* = 1.27 [.84, 1.71].
 
 # Results for all conditions and measures
 In the Main Text, we report the proportion basic level selections for two training conditions, one-subordinate and three-subordinate. Here we report the data for all four conditions and all three dependent measures (proportion basic level, subordinate level, and superordinate level selections). [see online version for this content]
 
+```{r}
+all_plot_data <- all_d %>%
+  gather(variable, value, c(prop_sub, prop_bas, prop_sup)) %>%
+  group_by(exp, condition, variable) %>%
+  mutate(value = as.numeric(value)) %>%
+  multi_boot_standard(col = "value")  %>%
+  ungroup() %>%
+  mutate(variable = as.factor(variable),
+         variable = fct_recode(variable, "basic" = "prop_bas",
+                               "subordinate"= "prop_sub",
+                               "superordinate" = "prop_sup")) %>%
+  left_join(exp_key %>% select(exp, exp_recoded))
+```
+
+
+<font size="2"> Timing = presentation timing (sequential or simultaneous); Order = relative ordering of 1 and 3 subordinate trials; Blocking = trials blocked by category or pseudo-random; Label = same or different label in 1 and 3 trials; Ranges are 95% confidence intervals. </font>
+
 #  By category analyses
-In the Main Text, we report our analyses collapsed across all three stimulus categories (animals, vehicles and vegetables). Here we present the effect sizes for each experiment separately for the different stimulus categories. While there is some variability in effect size by category (the effect is generally larger for animals), this variability is small relative to the effect of condition order. 
+In the Main Text, we report our analyses collapsed across all three stimulus categories (animals, vehicles and vegetables). Here we present the effect sizes for each experiment separately for the different stimulus categories. While there is some variability in effect size by category (the effect is generally larger for animals), this variability is small relative to the effect of condition order. [see online version for this content]
 
 ```{r get_means}
 # remap condition values and select relevant conditions
 all_d_clean <- all_d %>%
   mutate(condition = as.factor(condition)) %>%
   filter(condition == "1 sub." | condition == "3 sub.") %>%
-  select(exp, everything())
+  select(exp, everything()) 
 
 all_ms_subj_cat <- all_d_clean %>%
   left_join(exp_key %>% select(exp, exp_recoded)) %>%
@@ -193,20 +230,23 @@ LF_means_cat <- all_ms_subj_cat %>%
             sd_one = sd(`1 sub.`),
             m_3sub = mean(`3 sub.`),
             sd_3sub = sd(`3 sub.`),
-            n = n())
+            n = n()) 
 
 LF_effect_sizes_cat <- LF_means_cat %>%
-  ungroup() %>%
-  do(data.frame(d = mes(.$m_one, .$m_3sub, .$sd_one,
-                        .$sd_3sub, .$n, .$n, verbose = F)$d,
-                d_var = mes(.$m_one, .$sd_3sub, .$sd_one,
-                            .$sd_3sub, .$n, .$n, verbose = F)$var.d)) %>%
-  mutate(high = d + (1.96*d_var),
-         low = d - (1.96*d_var),
-         es_type = "nonpaired",
-         exp_recoded = LF_means_cat$exp_recoded,
-         category = LF_means_cat$category) 
+    ungroup()%>%
+    do(data.frame(compute.es::mes(.$m_one, .$m_3sub, .$sd_one,
+                     .$sd_3sub, .$n, .$n, verbose = F))) %>%
+    select(d, l.d, u.d, var.d) %>%
+    rename(high = u.d,
+         low = l.d,
+         d_var = var.d)  %>%
+   mutate(exp_recoded = LF_means_cat$exp_recoded,
+         category = LF_means_cat$category)
 ```
+
+
+<font size="2">Timing = presentation timing (sequential or simultaneous); Order = relative ordering of 1 and 3 subordinate trials; Blocking = trials blocked by category or pseudo-random; Label = same or different label in 1 and 3 trials; Ranges are 95% confidence intervals. </font>
+
 
 # Repeat participants excluded
 ```{r}
@@ -254,19 +294,17 @@ LF_means_wide <- all_ms_subj %>%
             n = n()) 
 
 LF_effect_sizes <- LF_means_wide %>%
-  do(data.frame(d = compute.es::mes(.$m_one, .$m_3sub, .$sd_one,
-                                    .$sd_3sub, .$n, .$n, verbose = F)$d,
-                d_var = compute.es::mes(.$m_one, .$sd_3sub, .$sd_one,
-                                        .$sd_3sub, .$n, .$n, verbose = F)$var.d)) %>%
-  mutate(high = d + (1.96*d_var),
-         low = d - (1.96*d_var),
-         es_type = "nonpaired",
-         exp_recoded = LF_means_wide$exp_recoded) %>%
+  do(data.frame(compute.es::mes(.$m_one, .$m_3sub, .$sd_one,
+                     .$sd_3sub, .$n, .$n, verbose = F))) %>%
+  select(d, l.d, u.d, var.d) %>%
+  rename(high = u.d,
+         low = l.d,
+         d_var = var.d) %>%
+  mutate(exp_recoded = LF_means_wide$exp_recoded) %>%
   left_join(LF_means_wide %>% select(exp_recoded, n)) %>%
   select(exp_recoded, n, everything())
 
-literature_effect_sizes <- read_csv("data/literature_ES.csv") 
-# see ../../analysis/get_literature_ES.R
+literature_effect_sizes <- read_csv("data/literature_ES.csv") # see ../../analysis/get_literature_ES.R
 
 all_es <- literature_effect_sizes %>%
   bind_rows(LF_effect_sizes) %>%
@@ -284,12 +322,9 @@ sim31 <- rma(d, d_var, dat = filter(all_es, timing == "simultaneous", order == "
 
 ma_es <- data.frame(order = c("1-3", "3-1", "1-3", "3-1"),
                     timing = c("sequential", "sequential", "simultaneous", "simultaneous"),
-                    d = c(seq13$b[[1]], seq31$b[[1]], 
-                          sim13$b[[1]], sim31$b[[1]]),
-                    d_low = c(seq13$ci.lb[[1]], seq31$ci.lb[[1]], 
-                              sim13$ci.lb[[1]], sim31$ci.lb[[1]]),
-                    d_high = c(seq13$ci.ub[[1]], seq31$ci.ub[[1]], 
-                               sim13$ci.ub[[1]], sim31$ci.ub[[1]]))
+                    d = c(seq13$b[[1]], seq31$b[[1]], sim13$b[[1]], sim31$b[[1]]),
+                    d_low = c(seq13$ci.lb[[1]], seq31$ci.lb[[1]], sim13$ci.lb[[1]], sim31$ci.lb[[1]]),
+                    d_high = c(seq13$ci.ub[[1]], seq31$ci.ub[[1]], sim13$ci.ub[[1]], sim31$ci.ub[[1]]))
 
 ggplot(all_es) +
   geom_rect(aes(xmin = -Inf, xmax = Inf, ymin = d_low, ymax = d_high), 
@@ -307,7 +342,15 @@ ggplot(all_es) +
   xlab("Paper") + 
   guides(color = guide_legend("Label"),
          shape = guide_legend("Blocking"))  +
-  ggthemes::theme_few()
+  theme_bw()  +
+  theme(axis.text = element_text(colour = "black"),
+        axis.ticks = element_line(colour = "black"),
+        strip.text = element_text(size = 9, face = "bold"),
+        strip.background = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        panel.border = element_rect(colour = "black", size=.7))
 
 ```
 
@@ -328,7 +371,6 @@ mod_df <- data.frame(fixed_effect = c("Intercept",
   mutate(pval_string = ifelse(pval_string == 0, "<.0001", pval_string))
 
 # MA model table
-
 kable(mod_df, caption = "Meta-analytic model with manipulations as fixed effects.",
       align = c('l', 'r', 'r', 'r'), digits = 2,
       col.names = c("Fixed effect", "beta", "z-value", "p-value")) %>%
@@ -368,8 +410,7 @@ all_ms_subj <- all_d %>%
   filter(condition == "one" | condition == "three_subordinate", 
          variable == 'prop_bas') %>%
   spread(condition, value) %>%
-  filter(!is.na(one) & !is.na(three_subordinate)) 
-# exclude participants where one of the two condition is missing
+  filter(!is.na(one) & !is.na(three_subordinate)) # exclude participants where one of the two condition is missing
 
 # means across participants (condition means)
 LF_means_wide <- all_ms_subj %>%
@@ -381,19 +422,15 @@ LF_means_wide <- all_ms_subj %>%
             n = n()) 
 
 LF_effect_sizes <- LF_means_wide %>%
-  do(data.frame(d = compute.es::mes(.$m_one, .$m_3sub, .$sd_one,
-                                    .$sd_3sub, .$n, .$n, verbose = F)$d,
-                d_var = compute.es::mes(.$m_one, .$sd_3sub, .$sd_one,
-                                        .$sd_3sub, .$n, .$n, verbose = F)$var.d)) %>%
-  mutate(high = d + (1.96*d_var),
-         low = d - (1.96*d_var),
-         es_type = "nonpaired",
-         exp_recoded = LF_means_wide$exp_recoded) %>%
+  do(data.frame(compute.es::mes(.$m_one, .$m_3sub, .$sd_one,
+                     .$sd_3sub, .$n, .$n, verbose = F))) %>%
+  select(d, l.d, u.d, var.d) %>%
+  rename(high = u.d,
+         low = l.d,
+         d_var = var.d) %>%
+  mutate(exp_recoded = LF_means_wide$exp_recoded) %>%
   left_join(LF_means_wide %>% select(exp_recoded, n)) %>%
   select(exp_recoded, n, everything())
-
-literature_effect_sizes <- read_csv("data/literature_ES.csv") 
-# see ../../analysis/get_literature_ES.R
 
 all_es <- literature_effect_sizes %>%
   bind_rows(LF_effect_sizes) %>%
@@ -411,12 +448,9 @@ sim31 <- rma(d, d_var, dat = filter(all_es, timing == "simultaneous", order == "
 
 ma_es <- data.frame(order = c("1-3", "3-1", "1-3", "3-1"),
                     timing = c("sequential", "sequential", "simultaneous", "simultaneous"),
-                    d = c(seq13$b[[1]], seq31$b[[1]], 
-                          sim13$b[[1]], sim31$b[[1]]),
-                    d_low = c(seq13$ci.lb[[1]], seq31$ci.lb[[1]], 
-                              sim13$ci.lb[[1]], sim31$ci.lb[[1]]),
-                    d_high = c(seq13$ci.ub[[1]], seq31$ci.ub[[1]],
-                               sim13$ci.ub[[1]], sim31$ci.ub[[1]]))
+                    d = c(seq13$b[[1]], seq31$b[[1]], sim13$b[[1]], sim31$b[[1]]),
+                    d_low = c(seq13$ci.lb[[1]], seq31$ci.lb[[1]], sim13$ci.lb[[1]], sim31$ci.lb[[1]]),
+                    d_high = c(seq13$ci.ub[[1]], seq31$ci.ub[[1]], sim13$ci.ub[[1]], sim31$ci.ub[[1]]))
 
 ggplot(all_es) +
   geom_rect(aes(xmin = -Inf, xmax = Inf, ymin = d_low, ymax = d_high), 
@@ -434,7 +468,15 @@ ggplot(all_es) +
   xlab("Paper") + 
   guides(color = guide_legend("Label"),
          shape = guide_legend("Blocking"))  +
-  ggthemes::theme_few()
+  theme_bw()  +
+  theme(axis.text = element_text(colour = "black"),
+        axis.ticks = element_line(colour = "black"),
+        strip.text = element_text(size = 9, face = "bold"),
+        strip.background = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        panel.border = element_rect(colour = "black", size=.7))
 
 ```
 
@@ -490,19 +532,21 @@ raw_d_munged %>%
   group_by(education) %>%
   summarise(n = n()) %>%
   mutate(prop = round(n / sum(n),2)) %>%
-  kable()
+  kable() %>%
+  kable_styling(font_size = 12) 
 ```
 
 ## First language
 ```{r}
 raw_d_munged %>%
   mutate(language = tolower(language),
-         language = ifelse(substr(language,0,1) == "e", 
+         language = ifelse(substr(language,0,1) == "e", # all "e-" languages are coded as english
                            "English", "Other")) %>%
   group_by(language) %>%
   summarise(n = n()) %>%
   mutate(prop = round(n / sum(n),2)) %>%
-  kable()
+  kable() %>%
+  kable_styling(font_size = 12) 
 ```
 
 ## Gender
@@ -510,8 +554,9 @@ raw_d_munged %>%
 raw_d_munged %>%
   group_by(gender) %>%
   summarise(n = n()) %>%
-  mutate(prop = round(n / sum(n), 2)) %>%
-  kable()
+  mutate(prop = round(n / sum(n),2)) %>%
+  kable() %>%
+  kable_styling(font_size = 12) 
 ```
 
 ## Age
@@ -548,7 +593,8 @@ raw_d_munged %>%
   group_by(`Did you enjoy the hit?`) %>%
   summarise(n = n()) %>%
   mutate(prop = round(n / sum(n),2)) %>%
-  kable()
+  kable() %>%
+  kable_styling(font_size = 12) 
 ```
 
 ## Understanding
@@ -559,7 +605,8 @@ raw_d_munged %>%
   group_by(`Did you read instructions?`) %>%
   summarise(n = n()) %>%
   mutate(prop = round(n / sum(n),2)) %>%
-  kable()
+  kable() %>%
+  kable_styling(font_size = 12) 
 ```
 
 # Task time
@@ -572,8 +619,7 @@ raw_d_mungedT$SubmitTime = gsub("T|Z","",raw_d_mungedT$SubmitTime)
 raw_d_mungedT$AcceptTime = gsub("T|Z","",raw_d_mungedT$AcceptTime)
 raw_d_mungedT$SubmitTime = strptime(raw_d_munged$SubmitTime, "%F%T")
 raw_d_mungedT$AcceptTime = strptime(raw_d_mungedT$AcceptTime, "%F%T")
-raw_d_mungedT$total_time = as.numeric(raw_d_mungedT$SubmitTime) -
-  as.numeric(raw_d_mungedT$AcceptTime)
+raw_d_mungedT$total_time = as.numeric(raw_d_mungedT$SubmitTime) - as.numeric(raw_d_mungedT$AcceptTime)
 
 ggplot(raw_d_mungedT, 
        aes(x = exp_recoded, y = total_time/60, fill = timing)) +
@@ -581,9 +627,21 @@ ggplot(raw_d_mungedT,
   xlab("Experiment") +
   ggtitle("Task time")+
   geom_boxplot() +
-  ggthemes::theme_few()  
+  theme_bw()  +
+  theme(axis.text = element_text(colour = "black"),
+        axis.ticks = element_line(colour = "black"),
+        strip.text = element_text(size = 9, face = "bold"),
+        strip.background = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        panel.border = element_rect(colour = "black", size=.7))
 ```
 
 **References**
 
 AC Del Re (2013). compute.es: Compute Effect Sizes. R package version 0.2-2. URL http://cran.r-project.org/web/packages/compute.es.
+
+Cohen, J. (1988). Statistical Power Analysis for the Behavioral Sciences (2nd ed.).
+Hillsdale, NJ: Lawrence Earlbaum Associates.
+

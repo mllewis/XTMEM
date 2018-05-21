@@ -18,6 +18,8 @@ subtitle: Supplementary Information
 
 ```{r setup, include = F}
 # load packages
+library(kableExtra)
+
 library(knitr)
 library(rmarkdown)
 library(broom)
@@ -27,7 +29,6 @@ library(forcats)
 library(compute.es)
 library(stringr)
 library(metafor)
-library(kableExtra)
 library(shiny)
 library(pwr)
 
@@ -43,7 +44,6 @@ To directly view an experiment, select an experiment from the drop down menu, an
 
 ```{r, echo = FALSE}
 shinyApp(
-  
   
   ui = fluidPage(
     
@@ -110,20 +110,23 @@ df <- data.frame(exp = c("XT E1", "XT E2", "SPSS E1"),
                  one_sd = c(40.40, 40.40, 40.40),
                  three_sd = c(24.97, 24.97, 24.97),
                  n = c(22, 36, 19))
-kable(df , col.names = c("Exp.",	"one-exmplar means", 	"three-exemplar means",	"one-exemplar sd", 	"three-exmplar sd", "sample size"))
+kable(df , col.names = c("Exp.",	"one-exmplar means",
+                         "three-exemplar means",	"one-exemplar sd",
+                         "three-exmplar sd", "sample size")) %>%
+  kable_styling(font_size = 12) 
 ```
 
 ```{r}
-df$d = mes(df$one_means, df$three_means, df$one_sd,
+df$d <- mes(df$one_means, df$three_means, df$one_sd,
            df$three_sd, df$n, df$n, verbose = F)$d
 
-df$d_var = mes(df$one_means, df$three_means, df$one_sd,
+df$d_var <- mes(df$one_means, df$three_means, df$one_sd,
                df$three_sd, df$n, df$n, verbose = F)$var.d
 
-model = rma(d, d_var, data = df)
+model <- rma(d, d_var, data = df)
 ```
 
-Using a random effect meta-analytic model, we use these values to obtain a meta-analytic effect size estimate. We estimate this effect size to be `r round(model$b, 2)`.
+Using a random effect meta-analytic model and these value, we obtain a meta-analytic effect size estimate. We estimate this effect size to be `r round(model$b, 2)`.
 
 ```{r}
 par(cex = 1, font = 1)
@@ -170,7 +173,7 @@ all_d <- read_csv("data/anonymized_data/all_data_munged_A.csv") %>%
                                 "3 basic" = "3bas",
                                 "3 super." = "3sup",
                                 "3 sub." = "3sub"),
-         condition = fct_relevel(condition, "1 sub.", "3 sub.", "3 basic", "3 super.")) # there were 28 trials across all 12 experiments (.4%) in which there was an error in data recording such that proportion selected of a category was greater than 1 (these were evenly distributed across the experiments).
+         condition = fct_relevel(condition, "1 sub.", "3 sub.", "3 basic", "3 super.")) 
 
 ## key to experiment factors
 exp_key <- read_csv("data/experiment_key.csv") %>%
@@ -195,7 +198,10 @@ es_1_calc <- all_d %>%
          condition = fct_recode(condition, "1 subordinate" = "1 sub.",
                                           "3 subordinate" = "3 sub."))
 
-kable(es_1_calc, digits = 2, col.names = c("condition", "mnean", "variance", "sample Size")) 
+kable(es_1_calc, digits = 2, 
+      col.names = c("condition", "mean", "variance", "sample size"))  %>%
+  kable_styling(font_size = 12) 
+
 ```
 
 We then calculate Cohen's *d* as follows: 
@@ -314,7 +320,7 @@ In the Main Text, we report our analyses collapsed across all three stimulus cat
 all_d_clean <- all_d %>%
   mutate(condition = as.factor(condition)) %>%
   filter(condition == "1 sub." | condition == "3 sub.") %>%
-  select(exp, everything())
+  select(exp, everything()) 
 
 all_ms_subj_cat <- all_d_clean %>%
   left_join(exp_key %>% select(exp, exp_recoded)) %>%
@@ -334,20 +340,18 @@ LF_means_cat <- all_ms_subj_cat %>%
             sd_one = sd(`1 sub.`),
             m_3sub = mean(`3 sub.`),
             sd_3sub = sd(`3 sub.`),
-            n = n())
+            n = n()) 
 
 LF_effect_sizes_cat <- LF_means_cat %>%
-  ungroup() %>%
-  do(data.frame(d = mes(.$m_one, .$m_3sub, .$sd_one,
-                        .$sd_3sub, .$n, .$n, verbose = F)$d,
-                d_var = mes(.$m_one, .$sd_3sub, .$sd_one,
-                            .$sd_3sub, .$n, .$n, verbose = F)$var.d)) %>%
-  mutate(high = d + (1.96*d_var),
-         low = d - (1.96*d_var),
-         es_type = "nonpaired",
-         exp_recoded = LF_means_cat$exp_recoded,
-         category = LF_means_cat$category) 
-
+    ungroup()%>%
+    do(data.frame(compute.es::mes(.$m_one, .$m_3sub, .$sd_one,
+                     .$sd_3sub, .$n, .$n, verbose = F))) %>%
+    select(d, l.d, u.d, var.d) %>%
+    rename(high = u.d,
+         low = l.d,
+         d_var = var.d)  %>%
+   mutate(exp_recoded = LF_means_cat$exp_recoded,
+         category = LF_means_cat$category)
 ```
 
 ```{r, echo = FALSE}
@@ -384,7 +388,7 @@ shinyApp(
         geom_hline(yintercept = 0, linetype = 2, color = "black",size = 1.1) +
         geom_pointrange(size = 1, aes(ymax = high, ymin = low, color = category)) +
         ggtitle("Effect size (Cohen's d) by category") +
-        ylim(-.5, 1.7)+
+        ylim(-1, 2)+
         ylab("Cohen's d") +
           theme_bw()  +
   theme(axis.text = element_text(colour = "black"),
@@ -405,7 +409,7 @@ shinyApp(
 )
 ```
 
-<font size="2">Timing = presentation timing (sequential or simultaneous); Order = relative ordering of 1 and 3 subordinate trials; Blocking = trials blocked by category or pseudo-random; Label = same or different label in 1 and 3 trials; Ranges are bootstrapped 95% confidence intervals. </font>
+<font size="2">Timing = presentation timing (sequential or simultaneous); Order = relative ordering of 1 and 3 subordinate trials; Blocking = trials blocked by category or pseudo-random; Label = same or different label in 1 and 3 trials; Ranges are 95% confidence intervals. </font>
 
 
 # Repeat participants excluded
@@ -454,14 +458,13 @@ LF_means_wide <- all_ms_subj %>%
             n = n()) 
 
 LF_effect_sizes <- LF_means_wide %>%
-  do(data.frame(d = compute.es::mes(.$m_one, .$m_3sub, .$sd_one,
-                                    .$sd_3sub, .$n, .$n, verbose = F)$d,
-                d_var = compute.es::mes(.$m_one, .$sd_3sub, .$sd_one,
-                                        .$sd_3sub, .$n, .$n, verbose = F)$var.d)) %>%
-  mutate(high = d + (1.96*d_var),
-         low = d - (1.96*d_var),
-         es_type = "nonpaired",
-         exp_recoded = LF_means_wide$exp_recoded) %>%
+  do(data.frame(compute.es::mes(.$m_one, .$m_3sub, .$sd_one,
+                     .$sd_3sub, .$n, .$n, verbose = F))) %>%
+  select(d, l.d, u.d, var.d) %>%
+  rename(high = u.d,
+         low = l.d,
+         d_var = var.d) %>%
+  mutate(exp_recoded = LF_means_wide$exp_recoded) %>%
   left_join(LF_means_wide %>% select(exp_recoded, n)) %>%
   select(exp_recoded, n, everything())
 
@@ -583,18 +586,15 @@ LF_means_wide <- all_ms_subj %>%
             n = n()) 
 
 LF_effect_sizes <- LF_means_wide %>%
-  do(data.frame(d = compute.es::mes(.$m_one, .$m_3sub, .$sd_one,
-                                    .$sd_3sub, .$n, .$n, verbose = F)$d,
-                d_var = compute.es::mes(.$m_one, .$sd_3sub, .$sd_one,
-                                        .$sd_3sub, .$n, .$n, verbose = F)$var.d)) %>%
-  mutate(high = d + (1.96*d_var),
-         low = d - (1.96*d_var),
-         es_type = "nonpaired",
-         exp_recoded = LF_means_wide$exp_recoded) %>%
+  do(data.frame(compute.es::mes(.$m_one, .$m_3sub, .$sd_one,
+                     .$sd_3sub, .$n, .$n, verbose = F))) %>%
+  select(d, l.d, u.d, var.d) %>%
+  rename(high = u.d,
+         low = l.d,
+         d_var = var.d) %>%
+  mutate(exp_recoded = LF_means_wide$exp_recoded) %>%
   left_join(LF_means_wide %>% select(exp_recoded, n)) %>%
   select(exp_recoded, n, everything())
-
-literature_effect_sizes <- read_csv("data/literature_ES.csv") # see ../../analysis/get_literature_ES.R
 
 all_es <- literature_effect_sizes %>%
   bind_rows(LF_effect_sizes) %>%
@@ -696,7 +696,8 @@ raw_d_munged %>%
   group_by(education) %>%
   summarise(n = n()) %>%
   mutate(prop = round(n / sum(n),2)) %>%
-  kable()
+  kable() %>%
+  kable_styling(font_size = 12) 
 ```
 
 ## First language
@@ -708,7 +709,8 @@ raw_d_munged %>%
   group_by(language) %>%
   summarise(n = n()) %>%
   mutate(prop = round(n / sum(n),2)) %>%
-  kable()
+  kable() %>%
+  kable_styling(font_size = 12) 
 ```
 
 ## Gender
@@ -717,7 +719,8 @@ raw_d_munged %>%
   group_by(gender) %>%
   summarise(n = n()) %>%
   mutate(prop = round(n / sum(n),2)) %>%
-  kable()
+  kable() %>%
+  kable_styling(font_size = 12) 
 ```
 
 ## Age
@@ -754,7 +757,8 @@ raw_d_munged %>%
   group_by(`Did you enjoy the hit?`) %>%
   summarise(n = n()) %>%
   mutate(prop = round(n / sum(n),2)) %>%
-  kable()
+  kable() %>%
+  kable_styling(font_size = 12) 
 ```
 
 ## Understanding
@@ -765,7 +769,8 @@ raw_d_munged %>%
   group_by(`Did you read instructions?`) %>%
   summarise(n = n()) %>%
   mutate(prop = round(n / sum(n),2)) %>%
-  kable()
+  kable() %>%
+  kable_styling(font_size = 12) 
 ```
 
 # Task time

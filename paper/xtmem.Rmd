@@ -6,8 +6,8 @@ author:
   - name          : "Molly L. Lewis"
     affiliation   : "1,2"
     corresponding : yes    # Define only one corresponding author
-    address       :   "xxx"
-    email         : "mollylewis@uchicago.edu"
+    address       : ""
+    email         : "mollyllewis@gmail.com"
   - name          : "Michael C. Frank"
     affiliation   : "3"
     email         : "mcfrank@stanford.edu"
@@ -53,11 +53,8 @@ library(rmarkdown)
 library(tidyverse) 
 library(broom)
 library(langcog)  # remotes::install_github("langcog/langcog")
-library(stringr)
-library(forcats)
 library(knitr)
 library(kableExtra)
-
 library(compute.es)
 library(ggthemes)
 library(metafor)
@@ -65,11 +62,7 @@ library(metafor)
 # XTMEM to do
 # Things to fix manually in tex:
 # - reverse a and b of tenabuam 2007 files in bibliography
-# - fix figure names "#fig_xxx"
 # - check script again
-# - do somethign with this sentence: - "recent generalizions of strong sampling models to describe pragmatic inferences." - what does this mean?
-# - FIX ES calculations in SI and redeploty
-# reveals
 ```
 
 ```{r global_options, include = FALSE}
@@ -257,7 +250,7 @@ In XT E1, the three one-subordinate trials occurred first followed by all other 
 
 ### Labels
 
-```{r bar_plot, fig.height = 3, fig.cap = "Mean proportion generalizations to basic level exemplars in the one (blue) and three (red) subordinate exemplar conditions for all 12 of our experiments. Each facet corresponds to a pairing of presentation timing (simultaneous vs. sequential) and trial order (1-3 vs. 3-1). Ranges are bootstrapped 95% confidence intervals."}
+```{r fig.height = 3, fig.cap = "Mean proportion generalizations to basic level exemplars in the one (blue) and three (red) subordinate exemplar conditions for all 12 of our experiments. Each facet corresponds to a pairing of presentation timing (simultaneous vs. sequential) and trial order (1-3 vs. 3-1). Ranges are bootstrapped 95% confidence intervals."}
 
 # mean across participants with CIS (condition means)
 LF_means_long <- ms %>%
@@ -346,12 +339,13 @@ ma_es <- data.frame(
 ```
 
 
-```{r es_plot, fig.width=5.5, fig.height=3.5, fig.cap = "Effect sizes for all 19 studies conducted on the suspicious coincidence effect by XT (Xu & Tenenbaum, 2007a), SPSS (Spencer, et al, 2011), and the current authors. Each point corresponds to a study, with study authors on the x-axis and effect size on the y-axis. Facets correspond to different design parameters: Top facets show experiments with single exemplar trial  first (1-3); Bottom facets show experiments with single exemplar trial second (3-1); Left facets show experiments with simultaneous presentation of exemplars, as in XT; Right facets show experiments with sequential presentation of exemplars, as in SPSS. Point color indicates whether the single exemplar and three subordinate exemplars received the same (grey) or different (black) label. Point shape indicates whether trials were blocked by category (circle) or pseudo-random (triangle).  The red line reflects the meta-analytic estimate of the effect size (for the XT experiments, standard deviations on effect sizes are estimated from the SPSS replication). Ranges are 95% confidence intervals. Points are jittered along the x-axis for visibility."}
+```{r fig.width=5.5, fig.height=3.5, fig.cap = "Effect sizes for all 19 studies conducted on the suspicious coincidence effect by XT (Xu & Tenenbaum, 2007a), SPSS (Spencer, et al., 2011), and the current authors. Each point corresponds to a study, with study authors on the x-axis and effect size on the y-axis. Facets correspond to different design parameters: Top facets show experiments with single exemplar trial  first (1-3); Bottom facets show experiments with single exemplar trial second (3-1); Left facets show experiments with simultaneous presentation of exemplars, as in XT; Right facets show experiments with sequential presentation of exemplars, as in SPSS. Point color indicates whether the single exemplar and three subordinate exemplars received the same (grey) or different (black) label. Point shape indicates whether trials were blocked by category (circle) or pseudo-random (triangle).  The red line reflects the meta-analytic estimate of the effect size (for the XT experiments, standard deviations on effect sizes are estimated from the SPSS replication). Ranges are 95% confidence intervals. Points are jittered along the x-axis for visibility."}
 
 # manual x-axis jittering
 OFFSET <- .35
 all_es2 <- all_es %>%
-  mutate(source = replace(source, exp_recoded == "SPSS_eS1", 3 - OFFSET),
+  mutate(source = replace(source, exp_recoded == "XT_children_e2", 1 + OFFSET),
+         source = replace(source, exp_recoded == "SPSS_eS1", 3 - OFFSET),
          source = replace(source, exp_recoded == "SPSS_eS2", 3 + OFFSET),
          source = replace(source, exp_recoded == "SPSS_e2", 3 - OFFSET),
          source = replace(source, exp_recoded == "SPSS_e3", 3 + OFFSET),
@@ -441,7 +435,7 @@ label_string <- get_ma_term_string(mod_df, "Different vs. same label")
 
 In two exact replications of the XT method, we replicate the suspicious coincidence effect (Exp. 1: *d* = `r filter(all_es, exp_recoded == "1") %>% select(d_string) %>% unlist()`; Exp. 2: *d* = `r filter(all_es, exp_recoded == "2") %>% select(d_string) %>% unlist()`), with a magnitude comparable to the original XT experiments (XT E1: *d* = `r filter(all_es, exp_recoded == "XT_adults_e1") %>% select(d_string) %>% unlist()`; XT E2: *d* = `r filter(all_es, exp_recoded == "XT_children_e2") %>% select(d_string) %>% unlist()`). We also replicate the reversal in the suspicious coincidence effect observed by SPSS in an exact replication of their method (Exp. 10; *d* = `r filter(all_es, exp_recoded == "10") %>% select(d_string) %>% unlist()`), and with a magnitude comparable to the original experiments (SPSS E2: *d* = `r filter(all_es, exp_recoded == "SPSS_e2") %>% select(d_string) %>% unlist()`; SPSS E3: *d* =  `r filter(all_es, exp_recoded == "SPSS_e3") %>% select(d_string) %>% unlist()`).
 
-Critically, however, the meta-analytic model across all 12 experiments reveals that only trial order is a reliable predictor of effect size ($\beta$ `r trial_order_string`), while timing ($\beta$ `r timing_string`), blocking ($\beta$ `r blocking_string`), and label are not ($\beta$ `r label_string`; Table 2). These data thus reveal that the suspicious coincidence is robust to spatio-temporal aspects of the presentation learning exemplars, in contrast to the conclusion drawn by SPSS. 
+Critically, however, the meta-analytic model across all 12 experiments reveals that only trial order is a reliable predictor of effect size ($\beta$ `r trial_order_string`), while timing ($\beta$ `r timing_string`), blocking ($\beta$ `r blocking_string`), and label are not ($\beta$ `r label_string`; Table 2). These data thus suggest that the suspicious coincidence is robust to spatio-temporal aspects of the presentation learning exemplars, in contrast to the conclusion drawn by SPSS. 
 
 ```{r interaction_model}
 mod_interact <- metafor::rma(d ~ timing*order, d_var, dat = all_es)
