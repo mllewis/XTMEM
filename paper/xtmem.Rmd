@@ -52,11 +52,15 @@ library(papaja)
 library(rmarkdown)
 library(tidyverse) 
 library(broom)
-library(langcog)
+library(langcog)  # remotes::install_github("langcog/langcog")
 library(stringr)
 library(forcats)
 library(knitr)
 library(kableExtra)
+
+library(compute.es)
+library(ggthemes)
+library(metafor)
 
 # XTMEM to do
 # Things to fix manually in tex:
