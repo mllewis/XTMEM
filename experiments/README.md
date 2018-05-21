@@ -18,7 +18,7 @@
 
 8: 3-1 order, same labels, simultaneous 
 
-9: 3-1 order, same labels, sequential (same as E2?)
+9: 3-1 order, same labels, sequential
 
 10: 1-3 order, diff labels, sequential
 
