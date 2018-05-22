@@ -3,13 +3,12 @@
 # anonymize, and save as csv (data/anonymized_data/all_raw_A.csv).
 # Also saves munged form of data as csv (data/anonymized_data/all_data_munged_A.csv).
 
-# define number of experiments in total
-NUMEXPS <- 12
-
 # load libraries 
 library(tidyverse) 
 library(jsonlite)
-library(stringr)
+
+# define number of experiments in total
+NUMEXPS <- 12
 
 # function to anonymize subject ids by giving them a value 1:num_subjects
 anonymize.sids <- function(df, subject_column_label) {

@@ -126,7 +126,7 @@ We report how we determined our sample size, all manipulations, and all measures
 ### all data
 all_d <- read_csv("../data/anonymized_data/all_data_munged_A.csv")
 
-### data with repeat participants excluded
+### data with repeat participants excluded (to report %)
 all_d_filtered <- read_csv("../data/anonymized_data/no_dups_data_munged_A.csv")
 
 ### key to experiment factors
@@ -177,7 +177,6 @@ all_d_clean <- all_d %>%
 # mean across categories (subject means)
 ms <- all_d_clean %>%
   gather(variable, value, c(prop_sub, prop_bas, prop_sup)) %>%
-  mutate(value = as.numeric(value)) %>%
   filter(variable == "prop_bas") %>%
   group_by(condition, exp, subids) %>% 
   summarize(value = mean(value))
