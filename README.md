@@ -1,7 +1,7 @@
 Still suspicious: The suspicious coincidence effect revisited.
 ===
 
-Lewis, M. & Frank, M. C. (under review). Still suspicious: The suspicious coincidence effect revisited. [[pdf]](paper/xtmem.pdf) [[source]](paper/xtmem.Rmd) [[supplemental information]](https://mlewis.shinyapps.io/xtmem_SI).
+Lewis, M. & Frank, M. C. (in press). Still suspicious: The suspicious coincidence effect revisited. *Psychological Science*. [[pdf]](paper/xtmem.pdf) [[source]](paper/xtmem.Rmd) [[supplemental information]](https://mlewis.shinyapps.io/xtmem_SI).
 
 This project replicates Xu and Tenenbaum (2007a) and Spencer, Perone, Smith and Samuelson (2011) exploring the suspicious coincidence effect in concept generalization. We find that the effect is robust, but sensitive to task pragmatics. 
 
