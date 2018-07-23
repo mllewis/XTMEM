@@ -9,6 +9,7 @@
 *.httr-oauth
 *xtmem.tex
 *.Rhistory
+*resources/*
 
 resources/goldberg_blowfish.pdf
 
