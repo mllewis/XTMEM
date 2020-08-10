@@ -58,11 +58,6 @@ library(kableExtra)
 library(compute.es)
 library(ggthemes)
 library(metafor)
-
-# XTMEM to do
-# Things to fix manually in tex:
-# - reverse a and b of tenabuam 2007 files in bibliography
-# - check script again
 ```
 
 ```{r global_options, include = FALSE}
